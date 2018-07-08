@@ -1,0 +1,34 @@
+{
+  "name": "BookmarkSearch",
+  "version": "0.0.1",
+  "description": "Fast Bookmark Search",
+  "dependencies": {
+    "escape-html": "^1.0.3",
+    "izitoast": "^1.3.0",
+    "moment": "^2.22.2",
+    "query-string": "^6.1.0",
+    "ramda": "^0.25.0",
+    "uuid": "^3.2.1"
+  },
+  "devDependencies": {
+    "css-loader": "^0.28.11",
+    "elm-webpack-loader": "^4.5.0",
+    "eslint": "^4.19.1",
+    "eslint-cli": "^1.1.1",
+    "file-loader": "^1.1.11",
+    "husky": "^0.14.3",
+    "lint-staged": "^7.1.2",
+    "prettier": "^1.12.1",
+    "style-loader": "^0.21.0",
+    "uglifyjs-webpack-plugin": "^1.2.5",
+    "url-loader": "^1.0.1",
+    "webpack": "^3.10.0",
+    "webpack-bundle-tracker": "^0.3.0"
+  },
+  "scripts": {
+    "watch": "./node_modules/.bin/webpack --progress --config webpack.config.js --watch",
+    "production": "./node_modules/.bin/webpack --progress --config webpack.config.js --env.target=production",
+    "lint-staged": "lint-staged",
+    "fix": "prettier --fix src/js"
+  }
+}
