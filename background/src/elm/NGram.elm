@@ -16,11 +16,11 @@ tokeinze line =
             []
         else
             (case toList text of
-                x :: xx :: _ ->
-                    if (charHeadFilter [ x ]) || (fromList [ x, xx ] |> regexFilter) then
+                x :: xx :: xxx :: _ ->
+                    if (charHeadFilter [ x ]) || (fromList [ x, xx, xxx ] |> regexFilter) then
                         []
                     else
-                        [ fromList [ x, xx ] ]
+                        [ fromList [ x, xx, xxx ] ]
 
                 _ ->
                     []

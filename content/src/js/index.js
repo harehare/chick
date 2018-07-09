@@ -91,12 +91,17 @@ document.body.appendChild(style);
       }, {});
       const index = await getLocalStorage(ids);
       app.ports.scoreResult.subscribe(score => {
-        const scoreMap = score.map(v => ({
-          [`${v.url}#${v.word}`]: v.score
-        }));
+        const scoreMap = score.reduce((arr, v) => {
+          if (arr[v.url]) {
+            arr[v.url] += v.score;
+          } else {
+            arr[v.url] = v.score;
+          }
+          return arr;
+        }, {});
         app.ports.searchResult.send([query, Object.keys(index).sort((a, b) => {
-          const aa = scoreMap[`${index[a].url}#${index[a].word}`];
-          const bb = scoreMap[`${index[a].url}#${index[b].word}`];
+          const aa = scoreMap[index[a].url];
+          const bb = scoreMap[index[b].url];
           const aScore = aa ? aa : 0
           const bScore = bb ? bb : 0
           return aScore > bScore ? -1 : aScore === bScore ? 0 : 1;
@@ -111,7 +116,7 @@ document.body.appendChild(style);
       });
 
     } else {
-      const searchResult = calcScore(itemIds, documentCount());
+      const searchResult = calcScore(itemIds);
       const index = await getLocalStorage(Object.keys(searchResult));
 
       app.ports.searchResult.send([query, Object.keys(index).sort((a, b) => {
@@ -151,23 +156,18 @@ const deleteIndex = async (tokens, indexes) => {
   return map(x => filter(xx => x in ids), tokens);
 }
 
-const calcScore = (searchResult, documentCount) => {
-  const values = map(v => ({
-    score: Math.log(documentCount / v.length),
-    ids: v
-  }), searchResult);
-  return Object.values(values).reduce((arr, v) => {
-    v.ids.forEach(id => {
-      arr[id] = (id in arr ? arr[id] + 1 : 1) * v.score;
+const calcScore = searchResult => {
+  return Object.values(searchResult).reduce((arr, v) => {
+    v.forEach(id => {
+      arr[id] = id in arr ? arr[id] + 1 : 1;
     });
     return arr;
   }, {});
 };
 
 const calcTitleScore = (tokens, document) => {
-  const totalCount = tokens.length;
-  const text = document.title + document.snippet;
-  const lastVisitTime = prop('lastVisitTime', document)
-  const score = parseFloat(sum(map(v => text.indexOf(v) >= 0 ? 2 : lastVisitTime ? 1.2 : 0, tokens))) / parseFloat(totalCount);
+  const text = (document.title + document.snippet).toLowerCase();
+  const lastVisitTime = prop('lastVisitTime', document);
+  const score = parseFloat(sum(map(v => text.indexOf(v) >= 0 ? 5.5 : !lastVisitTime ? 1.5 : 0.5, tokens)));
   return score * score;
 }
