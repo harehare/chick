@@ -19,7 +19,7 @@ const getOption = data => {
       blockKeyword: "",
       indexTarget: {
         bookmark: true,
-        history: false
+        history: true
       },
       changed: false,
       isIndexing: false,
