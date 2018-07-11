@@ -1,11 +1,12 @@
 module Update exposing (..)
 
 import Http
+import Json.Encode as Encode
 import Json.Decode as Decode
 import Model exposing (..)
-import String exposing (join)
 import NGram exposing (tokeinze)
 import List
+import Set
 import Subscriptions exposing (..)
 
 
@@ -73,4 +74,13 @@ decodeScoringApiResponse =
 
 requestScoringApi : ScoringApiRequest -> (Result Http.Error (List Score) -> a) -> Cmd a
 requestScoringApi req msg =
-    Http.send msg (Http.get (req.apiUrl ++ "?urls=" ++ (Http.encodeUri (join "," req.urls)) ++ "&tokens=" ++ (Http.encodeUri (join "," req.tokens))) (Decode.list decodeScoringApiResponse))
+    Http.send msg
+        (Http.post req.apiUrl
+            ([ ( "tokens", (Encode.list <| List.map Encode.string <| req.tokens) )
+             , ( "urls", (Encode.list <| List.map Encode.string <| req.urls) )
+             ]
+                |> Encode.object
+                |> Http.jsonBody
+            )
+            (Decode.list decodeScoringApiResponse)
+        )
