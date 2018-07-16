@@ -188,8 +188,9 @@ chrome.history.onVisited.addListener(async (item) => {
   itemIndexing(item);
 });
 
-chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message) => {
   if (message.type === EventReIndexing) {
+    console.log('start reindexing...');
     chrome.storage.local.clear();
     startFullIndexing();
   }
@@ -209,6 +210,15 @@ app.ports.indexItem.subscribe(async ({
     snippet,
     lastVisitTime
   }]);
+  if (isEmpty(url)) {
+    return;
+  }
+  document.dispatchEvent(new CustomEvent("addIndex", {
+    detail: {
+      url,
+      words
+    }
+  }));
 });
 
 app.ports.indexItems.subscribe(async items => {

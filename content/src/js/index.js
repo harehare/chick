@@ -1,12 +1,12 @@
 import Elm from '../elm/Main.elm';
 import {
-  concat,
   filter,
   findIndex,
   map,
   sum,
   prop,
-  assoc
+  assoc,
+  take
 } from 'ramda';
 import {
   getLocalStorage,
@@ -14,11 +14,13 @@ import {
 } from 'Common/chrome';
 import {
   getOption,
-  documentCount
 } from 'Common/option';
 import queryString from 'query-string';
 import moment from 'moment';
 import escapeHtml from 'escape-html';
+import {
+  EventGetScore
+} from 'Common/constants';
 
 const div = document.createElement('div');
 document.body.appendChild(div);
@@ -67,14 +69,11 @@ document.body.appendChild(style);
     query: ''
   });
 
-  const parsed = queryString.parse(location.search)
-  const parsedQuery = escapeHtml(parsed.q);
+  const parsedQuery = escapeHtml(queryString.parse(location.search).q);
 
   if (!parsedQuery) {
     return;
   }
-
-  const query = escapeHtml(parsedQuery);
 
   const search = async (tokens) => {
     const itemIds = await getLocalStorage(tokens);
@@ -92,14 +91,10 @@ document.body.appendChild(style);
       const index = await getLocalStorage(ids);
       app.ports.scoreResult.subscribe(score => {
         const scoreMap = score.reduce((arr, v) => {
-          if (arr[v.url]) {
-            arr[v.url] += v.score;
-          } else {
-            arr[v.url] = v.score;
-          }
+          arr[v.url] = (arr[v.url] || 1.0) + v.score;
           return arr;
         }, {});
-        app.ports.searchResult.send([query, Object.keys(index).sort((a, b) => {
+        app.ports.searchResult.send([parsedQuery, Object.keys(index).sort((a, b) => {
           const aa = scoreMap[index[a].url];
           const bb = scoreMap[index[b].url];
           const aScore = aa ? aa : 0
@@ -116,15 +111,27 @@ document.body.appendChild(style);
       });
 
     } else {
-      const searchResult = calcScore(itemIds);
+      const searchResult = filterResult(tokens, itemIds);
       const index = await getLocalStorage(Object.keys(searchResult));
 
-      app.ports.searchResult.send([query, Object.keys(index).sort((a, b) => {
-        const aScore = calcTitleScore(tokens, index[a]) * searchResult[a];
-        const bScore = calcTitleScore(tokens, index[b]) * searchResult[b];
-        return aScore > bScore ? -1 : searchResult[a] < searchResult[b] ? 1 : 0;
-      }).map(v =>
-        assoc('history', !!index[v].lastVisitTime, index[v]))]);
+      chrome.runtime.sendMessage({
+        urls: Object.values(index).map(x => x.url),
+        // TODO
+        words: take(1, tokens),
+        type: EventGetScore
+      }, (res) => {
+        const url2score = Object.values(res).reduce((arr, v) => {
+          arr[v.url] = (arr[v.url] || 1.0) + v.score;
+          return arr;
+        }, {});
+        app.ports.searchResult.send([parsedQuery, Object.keys(index).sort((a, b) => {
+          const tokenLen = tokens.length;
+          const aScore = (searchResult[a] / tokenLen) * (url2score[index[a].url] || 1.0) * calcScore(tokens, index[a]);
+          const bScore = (searchResult[b] / tokenLen) * (url2score[index[b].url] || 1.0) * calcScore(tokens, index[b]);
+          return aScore > bScore ? -1 : searchResult[a] < searchResult[b] ? 1 : 0;
+        }).map(v =>
+          assoc('history', !!index[v].lastVisitTime, index[v]))]);
+      });
       deleteIndex(tokens, getOldindex(index));
     }
   };
@@ -137,9 +144,9 @@ document.body.appendChild(style);
       queryParseApi
     } = advancedOption;
     if (queryParseApi.verify) {
-      app.ports.queryParse.send([queryParseApi.url, escapeHtml(parsedQuery)]);
+      app.ports.queryParse.send([queryParseApi.url, parsedQuery]);
     } else {
-      app.ports.tokenizeNGram.send(escapeHtml(parsedQuery));
+      app.ports.tokenizeNGram.send(parsedQuery);
     }
   }
 
@@ -156,18 +163,17 @@ const deleteIndex = async (tokens, indexes) => {
   return map(x => filter(xx => x in ids), tokens);
 }
 
-const calcScore = searchResult => {
-  return Object.values(searchResult).reduce((arr, v) => {
+const filterResult = (tokens, searchResult) => {
+  return filter(x => x >= tokens.length, Object.values(searchResult).reduce((arr, v) => {
     v.forEach(id => {
       arr[id] = id in arr ? arr[id] + 1 : 1;
     });
     return arr;
-  }, {});
+  }, {}));
 };
 
-const calcTitleScore = (tokens, document) => {
+const calcScore = (tokens, document) => {
   const text = (document.title + document.snippet).toLowerCase();
   const lastVisitTime = prop('lastVisitTime', document);
-  const score = parseFloat(sum(map(v => text.indexOf(v) >= 0 ? 5.5 : !lastVisitTime ? 1.5 : 0.5, tokens)));
-  return score * score;
+  return parseFloat(sum(map(v => text.indexOf(v) >= 0 ? 10.0 : !lastVisitTime ? 5.0 : 2.5, tokens)));
 }

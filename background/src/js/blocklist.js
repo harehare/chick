@@ -5,8 +5,6 @@ export const BlockList = [
   'https://www.yahoo.co.jp',
   'https://www.yahoo.com',
   'https://www.baidu.com',
-  'https://inbox.google.com',
-  'https://drive.google.com',
   'https://onedrive.live.com',
   'https://office.live.com',
   'https://www.dropbox.com',
@@ -18,10 +16,12 @@ export const BlockList = [
   'https://127.0.0.1',
   'http://192.168',
   'https://data.heroku.com',
+  'google',
   'access_token',
   'auth',
   'dashboard',
   'signin',
   'console',
-  'chrome-extension'
+  'chrome-extension',
+  'chrome-native'
 ]

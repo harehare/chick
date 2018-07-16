@@ -40,14 +40,15 @@ module.exports = env => {
   const config = {
     resolve: {
       alias: {
-        Common: path.resolve(__dirname, 'common/src/js/')
+        Common: path.resolve(__dirname, 'common/src/js/'),
+        Chick: path.resolve(__dirname, 'clojure/compiled/'),
       }
     },
     entry: {
       background: ["./background/src/js/index.js"],
       content: ["./content/src/js/index.js"],
       popup: ["./popup/src/js/index.js"],
-      option: ["./option/src/js/index.js"]
+      option: ["./option/src/js/index.js"],
     },
     plugins,
     output: {

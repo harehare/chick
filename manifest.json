@@ -12,7 +12,7 @@
         "https://*/"
     ],
     "background": {
-        "scripts": ["dist/background.js"],
+        "scripts": ["clojure/compiled/main.js", "dist/background.js"],
         "persistent": true
     },
     "icons": {
