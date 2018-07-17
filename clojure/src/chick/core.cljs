@@ -2,6 +2,7 @@
   (:require [konserve.core :as k]
             [konserve.indexeddb :refer [new-indexeddb-store]]
             [clojure.math.combinatorics :as combo]
+            [chick.cache :as cache]
             [cljs.core.async :refer [chan poll! put! <! timeout]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
@@ -42,18 +43,24 @@
           (doseq [word @insert]
             (<! (k/assoc-in idf-db [word] {:cnt 1})))))))
 
+(defn tf-idf
+  [word-num word-all doc-all doc-num]
+  (* (/ word-num word-all) (Math/log (/ doc-all doc-num))))
+
 (defn get-score
   [urls words cb]
-  (go (time (let [total-doc (<! (k/get-in idf-db ["total" :cnt]))
+  (go (time (let [doc-all (if (cache/has? "idf-total") (cache/get "idf-total") (<! (k/get-in idf-db ["total" :cnt])))
                   result (atom [])]
               (doseq [x (combo/cartesian-product urls words)]
                 (let [url (first x)
                       word (second x)]
-                  (when-let [doc-word (<! (k/get-in tf-db [url (keyword word)]))]
-                    (let [word-doc (<! (k/get-in idf-db [word :cnt]))
-                          doc-all (<! (k/get-in tf-db [url :total]))]
-              ; TODO: cache
-                      (swap! result conj {:url url :score (* (/ doc-word doc-all) (Math/log (/ total-doc word-doc)))})))))
+                  (when-let [word-num (if (cache/has? url) (cache/get url) (<! (k/get-in tf-db [url (keyword word)])))]
+                    (let [doc-num (if (cache/has? word) (cache/get word) (<! (k/get-in idf-db [word :cnt])))
+                          word-all (if (cache/has? (str url "-total")) (cache/get (str url "-total")) (<! (k/get-in tf-db [url :total])))]
+                      (cache/add url word-num)
+                      (cache/add word doc-num)
+                      (cache/add (str url "-total") word-all)
+                      (swap! result conj {:url url :score (tf-idf word-num word-all doc-all doc-num)})))))
               (cb (clj->js @result))))))
 
 (go-loop []
