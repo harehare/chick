@@ -25,23 +25,6 @@ import {
 const div = document.createElement('div');
 document.body.appendChild(div);
 
-['https://fonts.googleapis.com/css?family=Raleway',
-  'https://fonts.googleapis.com/css?family=Anton'
-].forEach(url => {
-  const link = document.createElement('link');
-  link.href = url
-  document.body.appendChild(link)
-});
-
-const style = document.createElement('style');
-style.innerHTML = ["#chick-list::-webkit-scrollbar{width:2px;}",
-  "#chick-list::-webkit-scrollbar-track{background: #FFF;}",
-  "#chick-list::-webkit-scrollbar-thumb{background:#CCC}"
-].join("")
-style.type = "text/css";
-document.body.appendChild(style);
-
-
 (async () => {
   const option = await getSyncStorage('option');
   const {
@@ -116,16 +99,16 @@ document.body.appendChild(style);
 
       chrome.runtime.sendMessage({
         urls: Object.values(index).map(x => x.url),
-        // TODO
-        words: take(1, tokens),
+        words: take(3, tokens),
         type: EventGetScore
       }, (res) => {
-        const url2score = Object.values(res).reduce((arr, v) => {
+        if (!res) console.log('error scoring.');
+        const url2score = Object.values(res || []).reduce((arr, v) => {
           arr[v.url] = (arr[v.url] || 1.0) + v.score;
           return arr;
         }, {});
+        const tokenLen = tokens.length;
         app.ports.searchResult.send([parsedQuery, Object.keys(index).sort((a, b) => {
-          const tokenLen = tokens.length;
           const aScore = (searchResult[a] / tokenLen) * (url2score[index[a].url] || 1.0) * calcScore(tokens, index[a]);
           const bScore = (searchResult[b] / tokenLen) * (url2score[index[b].url] || 1.0) * calcScore(tokens, index[b]);
           return aScore > bScore ? -1 : searchResult[a] < searchResult[b] ? 1 : 0;
@@ -152,6 +135,22 @@ document.body.appendChild(style);
 
 })();
 
+['https://fonts.googleapis.com/css?family=Raleway',
+  'https://fonts.googleapis.com/css?family=Anton'
+].forEach(url => {
+  const link = document.createElement('link');
+  link.href = url
+  document.body.appendChild(link)
+});
+
+const style = document.createElement('style');
+style.innerHTML = ["#chick-list::-webkit-scrollbar{width:2px;}",
+  "#chick-list::-webkit-scrollbar-track{background: #FFF;}",
+  "#chick-list::-webkit-scrollbar-thumb{background:#CCC}"
+].join("")
+style.type = "text/css";
+document.body.appendChild(style);
+
 const getOldindex = (index) => {
   const day = moment().add(-2, 'weeks');
   return filter(x => prop('lastVisitTime', x) && x.lastVisitTime < day, index);
@@ -164,7 +163,7 @@ const deleteIndex = async (tokens, indexes) => {
 }
 
 const filterResult = (tokens, searchResult) => {
-  return filter(x => x >= tokens.length, Object.values(searchResult).reduce((arr, v) => {
+  return filter(x => x >= tokens.length - 1, Object.values(searchResult).reduce((arr, v) => {
     v.forEach(id => {
       arr[id] = id in arr ? arr[id] + 1 : 1;
     });

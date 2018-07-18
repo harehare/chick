@@ -3,12 +3,14 @@
             [konserve.indexeddb :refer [new-indexeddb-store]]
             [clojure.math.combinatorics :as combo]
             [chick.cache :as cache]
-            [cljs.core.async :refer [chan poll! put! <! timeout]])
+            [cljs.core.async :refer [chan <! close! pipeline]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (enable-console-print!)
 
 (def word-queue (chan 1000))
+
+(def empty-chan (chan 10))
 
 (go (def idf-db (<! (new-indexeddb-store "idf")))
     (println (str "create idf db"))
@@ -36,12 +38,11 @@
             (if exists?
               (swap! update conj word)
               (swap! insert conj word))))
-        (go (doseq [word @update]
-              (<! (k/update-in idf-db [word :cnt] inc))))
-        (go
-          (println (str "add words " (count @insert)))
-          (doseq [word @insert]
-            (<! (k/assoc-in idf-db [word] {:cnt 1})))))))
+        (doseq [word @update]
+          (<! (k/update-in idf-db [word :cnt] inc)))
+        (println (str "add words " (count @insert)))
+        (doseq [word @insert]
+          (<! (k/assoc-in idf-db [word] {:cnt 1}))))))
 
 (defn tf-idf
   [word-num word-all doc-all doc-num]
@@ -50,23 +51,41 @@
 (defn get-score
   [urls words cb]
   (go (time (let [doc-all (if (cache/has? "idf-total") (cache/get "idf-total") (<! (k/get-in idf-db ["total" :cnt])))
+                  items (combo/cartesian-product urls words)
+                  in (chan 1024)
+                  out (chan 1024)
                   result (atom [])]
-              (doseq [x (combo/cartesian-product urls words)]
+              (doseq [x items]
                 (let [url (first x)
                       word (second x)]
-                  (when-let [word-num (if (cache/has? url) (cache/get url) (<! (k/get-in tf-db [url (keyword word)])))]
-                    (let [doc-num (if (cache/has? word) (cache/get word) (<! (k/get-in idf-db [word :cnt])))
-                          word-all (if (cache/has? (str url "-total")) (cache/get (str url "-total")) (<! (k/get-in tf-db [url :total])))]
-                      (cache/add url word-num)
-                      (cache/add word doc-num)
-                      (cache/add (str url "-total") word-all)
-                      (swap! result conj {:url url :score (tf-idf word-num word-all doc-all doc-num)})))))
+                  (>! in {:url url :word word})))
+              (pipeline
+               4
+               out
+               (map (fn [m] (go (let [{:keys [url word]} m
+                                      total-key (str url "-total")]
+                                  (if-let [word-num (if (cache/has? url) (cache/get url) (<! (k/get-in tf-db [url (keyword word)])))]
+                                    (let [doc-num (if (cache/has? word) (cache/get word) (<! (k/get-in idf-db [word :cnt])))
+                                          word-all (if (cache/has? total-key) (cache/get (str url "-total")) (<! (k/get-in tf-db [url :total])))]
+                                      (cache/add url word-num)
+                                      (cache/add word doc-num)
+                                      (cache/add total-key word-all)
+                                      (>! out {:url url :score (tf-idf word-num word-all doc-all doc-num)}))
+                                    (>! out {:url "" :score 0.0}))))))
+               in
+               true)
+              (doseq [_ items]
+                (let [item (<! out)]
+                  (when-not (empty? (get item url))
+                    (swap! result conj item))))
               (cb (clj->js @result))))))
 
-(go-loop []
-  (let [words (<! word-queue)]
-    (add-word-idf words))
-  (recur))
+(pipeline
+ 4
+ (doto (chan) (close!))
+ (map (fn [words] (add-word-idf words) true))
+ word-queue
+ false)
 
 (.. js/chrome -runtime -onMessage (addListener
                                    (fn [request sender sendResponse]
