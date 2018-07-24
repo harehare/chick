@@ -21,6 +21,9 @@ import escapeHtml from 'escape-html';
 import {
   EventGetScore
 } from 'Common/constants';
+import {
+  clearInterval
+} from 'timers';
 
 const div = document.createElement('div');
 document.body.appendChild(div);
@@ -45,7 +48,12 @@ document.body.appendChild(div);
   }
 
   const app = Elm.Main.embed(div, {
-    items: [],
+    items: [{
+      url: '',
+      title: 'Loading...',
+      snippet: '',
+      history: false
+    }],
     visible: true,
     top: position.top,
     right: position.right,
@@ -98,13 +106,13 @@ document.body.appendChild(div);
       const index = await getLocalStorage(Object.keys(searchResult));
 
       chrome.runtime.sendMessage({
-        urls: Object.values(index).map(x => x.url),
-        words: take(3, tokens),
+        urls: take(20, Object.values(index).map(x => x.url)),
+        words: take(2, tokens),
         type: EventGetScore
       }, (res) => {
         if (!res) console.log('error scoring.');
         const url2score = Object.values(res || []).reduce((arr, v) => {
-          arr[v.url] = (arr[v.url] || 1.0) + v.score;
+          arr[v.url] = (arr[v.url] || 0.0) + v.score;
           return arr;
         }, {});
         const tokenLen = tokens.length;

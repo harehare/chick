@@ -113,7 +113,9 @@ view model =
                                                 ( "color", "#F5C50F" )
                                             ]
                                         ]
-                                        [ if x.history then
+                                        [ if x.url == "" then
+                                            span [] []
+                                          else if x.history then
                                             SolidIcon.history
                                           else
                                             RegularIcon.bookmark
