@@ -4,13 +4,17 @@ import Regex
 import String exposing (toList, fromList, join, toLower, length)
 import List exposing (head, member, drop, foldl)
 import List.Extra exposing (unique)
+import Regex exposing (replace, HowMany, regex)
 
 
 tokeinze : String -> List String
 tokeinze line =
     let
         text =
-            toLower line
+            line
+                |> toLower
+                |> replace Regex.All (Regex.regex "\x3000+") (\_ -> " ")
+                |> replace Regex.All (Regex.regex " +") (\_ -> " ")
     in
         if member text stopWords || length text <= 1 then
             []
