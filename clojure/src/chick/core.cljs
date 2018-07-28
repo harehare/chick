@@ -5,14 +5,11 @@
             [cljs.core.async :refer [chan <! close! pipeline]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
-(enable-console-print!)
-
 (defonce in  (chan 1024))
 
 (defonce out (chan 1024))
 
-(go (def score-db (<! (new-indexeddb-store "score")))
-    (println (str "create score db")))
+(go (def score-db (<! (new-indexeddb-store "score"))))
 
 (defn add-word
   [words url]
