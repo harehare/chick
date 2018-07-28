@@ -143,6 +143,9 @@ update msg model =
         OnErrorItems _ ->
             model ! [ errorItems (values model.items) ]
 
+        OnGetQuery text ->
+            model ! [ queryResult (tokeinze text) ]
+
 
 readHtml : Http.Response String -> Result String ResponseItem
 readHtml response =

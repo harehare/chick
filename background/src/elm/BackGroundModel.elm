@@ -8,6 +8,7 @@ type Msg
     = NoOp
     | OnCreateItem Item
     | OnCreateItemWithApi ( String, List Item )
+    | OnGetQuery String
     | IndexItem (Result Http.Error ResponseItem)
     | IndexItems (Result Http.Error (List ApiResponseItem))
     | OnErrorItems Int

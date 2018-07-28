@@ -40,7 +40,14 @@ function setSyncStorage(items) {
   return setStorage(items, chrome.storage.sync);
 }
 
+function openUrl(url) {
+  chrome.tabs.create({
+    url: url
+  });
+}
+
 export {
+  openUrl,
   getLocalStorage,
   getSyncStorage,
   setLocalStorage,

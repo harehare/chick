@@ -3,6 +3,12 @@ port module BackGroundSubscriptions exposing (..)
 import BackGroundModel exposing (..)
 
 
+port getQuery : (String -> msg) -> Sub msg
+
+
+port queryResult : List String -> Cmd msg
+
+
 port createItem : (Item -> msg) -> Sub msg
 
 
@@ -30,4 +36,5 @@ subscriptions model =
         [ createItem OnCreateItem
         , createItemWithApi OnCreateItemWithApi
         , getErrorItems OnErrorItems
+        , getQuery OnGetQuery
         ]

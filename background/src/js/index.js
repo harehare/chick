@@ -1,12 +1,19 @@
 import {
+  T,
+  cond,
+  equals,
+  take,
   pick,
   head,
   flatten,
   isEmpty,
   findIndex,
   splitEvery,
+  startsWith
 } from 'ramda';
+import escapeHtml from 'escape-html';
 import {
+  openUrl,
   getSyncStorage
 } from 'Common/chrome';
 import {
@@ -24,6 +31,9 @@ import {
 import {
   sleep
 } from 'Common/utils';
+import {
+  search
+} from 'Common/search';
 import {
   create,
   createIndex,
@@ -134,9 +144,7 @@ const fullIndex = () => {
 
       app.ports.getErrorItems.send(0);
     }
-
     resumeIndexing();
-    localStorage.setItem('indexing_complete', true);
   });
 };
 
@@ -156,6 +164,7 @@ const startFullIndexing = async () => {
   if (enabledBookmark) {
     fullIndex();
   }
+  localStorage.setItem('indexing_complete', true);
 };
 
 chrome.bookmarks.onCreated.addListener(async (_, item) => {
@@ -194,6 +203,46 @@ chrome.runtime.onMessage.addListener((message) => {
     chrome.storage.local.clear();
     startFullIndexing();
   }
+});
+
+chrome.omnibox.onInputChanged.addListener((text, suggest) => {
+  const doSearch = async (tokens) => {
+    app.ports.queryResult.unsubscribe(doSearch);
+    const searchResult = await search(tokens, false);
+    if (!isEmpty(searchResult)) {
+      suggest(take(6, searchResult).map(x => ({
+        content: x.url,
+        description: `<url>${escapeHtml(x.url)}</url> - <dim>${escapeHtml(x.title)}</dim>`
+      })).filter(x => !isEmpty(x.content)));
+    }
+  }
+  app.ports.queryResult.subscribe(doSearch);
+
+  if (!isEmpty(text) && text.length > 2) {
+    app.ports.getQuery.send(escapeHtml(text));
+  }
+});
+
+chrome.omnibox.onInputEntered.addListener((url, disposition) => {
+  cond([
+    [() => !url.startsWith('http'), () => (openUrl(`https://duckduckgo.com/?q=${encodeURIComponent(url)}`))],
+    [equals('newForegroundTab'), () => (openUrl(url))],
+    [equals('newBackgroundTab'), () => (chrome.tabs.query({
+      active: true,
+      currentWindow: true
+    }, tabs => {
+      openUrl(url);
+      chrome.tabs.move(tabs[0].id);
+    }))],
+    [T, () => (chrome.tabs.query({
+      active: true,
+      currentWindow: true
+    }, tabs => {
+      chrome.tabs.update(tabs[0].id, {
+        url: url
+      });
+    }))]
+  ])(disposition);
 });
 
 app.ports.indexItem.subscribe(async ({

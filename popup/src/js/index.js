@@ -1,10 +1,6 @@
-import {
-  prop
-} from 'ramda';
 import Elm from '../elm/Popup.elm';
 import {
   EventIndexing,
-  EventErrorIndexing
 } from 'Common/constants'
 import {
   indexingStatus,

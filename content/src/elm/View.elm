@@ -44,7 +44,7 @@ view model =
                 ]
                 [ SolidIcon.times ]
             , div [ id "chick-list", style [ ( "overflow-y", "scroll" ), ( "max-height", "80vh" ) ] ]
-                (List.take 50 model.items
+                (List.take 20 model.items
                     |> List.map
                         (\x ->
                             div [ style [ ( "margin", "12px" ), ( "padding", "5px" ) ] ]
