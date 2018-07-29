@@ -22,6 +22,20 @@ import {
 
   app.ports.saveSettings.subscribe(data => {
     setIndexingStatus(data.isIndexing);
+
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('indexed:')) {
+        const url = key.slice(8);
+        data.blockList.forEach(x => {
+          if (url.indexOf(x) !== -1) {
+            localStorage.removeItem(url);
+            chrome.storage.local.remove(url);
+            console.log(`remove index ${url}`);
+          }
+        });
+      }
+    });
+
     chrome.storage.sync.set({
       'option': omit(['blockKeyword', 'changed', 'isIndexing'], data)
     }, () => {

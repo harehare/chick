@@ -16,6 +16,7 @@ export const BlockList = [
   'https://127.0.0.1',
   'http://192.168',
   'https://data.heroku.com',
+  'https://trello.com',
   'google',
   'access_token',
   'auth',
@@ -23,5 +24,5 @@ export const BlockList = [
   'signin',
   'console',
   'chrome-extension',
-  'chrome-native'
+  'chrome-native',
 ]

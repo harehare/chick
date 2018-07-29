@@ -2,7 +2,7 @@ import Elm from '../elm/Main.elm';
 import {
   findIndex,
   assoc,
-  take
+  isEmpty
 } from 'ramda';
 import {
   getLocalStorage,
@@ -49,7 +49,7 @@ document.body.appendChild(div);
 
   const parsedQuery = escapeHtml(queryString.parse(location.search).q);
 
-  if (!parsedQuery) {
+  if (isEmpty(parsedQuery)) {
     return;
   }
 

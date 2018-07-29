@@ -3,6 +3,7 @@ dist
 elm-stuff
 webpack-stats.json
 compiled
+compiled-dev
 target
 chick-dist
 .nrepl-port

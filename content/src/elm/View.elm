@@ -62,6 +62,7 @@ view model =
                                             , ( "color", "#2F0676" )
                                             , ( "margin-bottom", "5px" )
                                             , ( "text-decoration", "unset" )
+                                            , ( "text-align", "left" )
                                             ]
                                         ]
                                         [ text x.title ]
@@ -74,6 +75,7 @@ view model =
                                         , ( "display", "block" )
                                         , ( "color", "#494949" )
                                         , ( "margin-bottom", "5px" )
+                                        , ( "text-align", "left" )
                                         ]
                                     ]
                                     (List.concat
@@ -100,6 +102,7 @@ view model =
                                         , ( "display", "flex" )
                                         , ( "color", "#888" )
                                         , ( "width", "25vw" )
+                                        , ( "text-align", "left" )
                                         ]
                                     ]
                                     [ span

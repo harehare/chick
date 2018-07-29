@@ -6,8 +6,9 @@
   :cljsbuild {:builds {:dev
                        {:source-paths ["src"]
                         :compiler {:main "chick.core"
-                                   :output-to "compiled/main.js"
-                                   :source-map "compiled/main.js.map"
+                                   :output-to "compiled-dev/main.js"
+                                   :output-dir "compiled-dev"
+                                   :source-map "compiled-dev/main.js.map"
                                    :optimizations :whitespace
                                    :pretty-print true}}
                        :prod

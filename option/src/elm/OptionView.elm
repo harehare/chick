@@ -26,7 +26,7 @@ view model =
             , ( "height", "100%" )
             , ( "overflow-y", "scroll" )
             , ( "background-color", "#FEFEFE" )
-            , ( "font-family", "Roboto" )
+            , ( "font-family", "'Raleway', sans-serif" )
             ]
         ]
         [ div
@@ -37,7 +37,7 @@ view model =
                 , ( "align-items", "center" )
                 ]
             ]
-            [ h4
+            [ h5
                 [ style
                     [ ( "color", "#FFF" )
                     , ( "margin-left", "10px" )
@@ -68,7 +68,7 @@ positionOption pos =
             , ( "background-color", "#FEFEFE" )
             ]
         ]
-        [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ] [ text "Position" ]
+        [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ] [ text "Display position" ]
         , Grid.row []
             [ Grid.col [ Col.lg6 ]
                 [ InputGroup.config (InputGroup.text [ Input.attrs [ id "top-input", onFocus (SelectText "top-input") ], toString pos.top |> Input.value, Input.placeholder "Top", Input.onInput (EditPosition "top") ])
@@ -97,7 +97,7 @@ viewOption option =
             , ( "background-color", "#FEFEFE" )
             ]
         ]
-        [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ] [ text "View" ]
+        [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ] [ text "Show chick results" ]
         , Checkbox.checkbox
             [ Checkbox.id "google", Checkbox.inline, Checkbox.checked option.google, Checkbox.attrs [ ChangeViewOption "google" |> onClick ] ]
             "Google"
@@ -182,7 +182,7 @@ indexOperation isIndexing =
             , ( "background-color", "#FEFEFE" )
             ]
         ]
-        [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ] [ text "Indexing" ]
+        [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ] [ text "Indexing operation" ]
         , Button.button
             [ Button.warning
             , Button.disabled isIndexing
@@ -216,7 +216,7 @@ advancedOptions ad =
                 , ( "font-family", "'Raleway', sans-serif" )
                 ]
             ]
-            [ text "Advanced" ]
+            [ text "Advanced option" ]
         , div [ style [ ( "margin-bottom", "5px" ) ] ]
             [ Form.label
                 [ style
@@ -285,6 +285,14 @@ advancedOptions ad =
                         [ text "Verify" ]
                     ]
                 |> InputGroup.view
+            , a
+                [ style
+                    [ ( "margin-top", "10px" )
+                    , ( "display", "inline-block" )
+                    ]
+                , href "https://chick-search.herokuapp.com/index.html"
+                ]
+                [ text "Api specification" ]
             ]
         ]
 

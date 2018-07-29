@@ -115,8 +115,9 @@ const fullIndex = () => {
   chrome.bookmarks.getTree(async (tree) => {
     if (head(tree).children) {
       const bookmarks = getBookmark(head(tree).children);
-      const indexDocuments = bookmarks.filter(v => (!hasIndex(v.url)));
       const option = getOption(await getSyncStorage('option'));
+      const userBlockList = option.blockList
+      const indexDocuments = bookmarks.filter(b => (!hasIndex(b.url) && findIndex(w => b.url.indexOf(w) != -1, [...BlockList, ...userBlockList]) === -1));
       const scrapingApi = option.advancedOption.scrapingApi;
       const totalCount = indexDocuments.length;
 
@@ -150,6 +151,14 @@ const fullIndex = () => {
 
 const itemIndexing = async (item) => {
   const option = getOption(await getSyncStorage('option'));
+  const userBlockList = option.blockList
+
+  console.log('user block list.', userBlockList);
+  if (findIndex(v => item.url.indexOf(v) != -1, [...BlockList, ...userBlockList]) != -1) {
+    console.log('skip index');
+    return
+  }
+
   const scrapingApi = option.advancedOption.scrapingApi;
   const isIndexed = await scrapingApi.verify ? createIndexWithApi(app, scrapingApi.url, [item]) : createIndex(app, item);
 
@@ -178,21 +187,12 @@ chrome.bookmarks.onCreated.addListener(async (_, item) => {
 });
 
 chrome.history.onVisited.addListener(async (item) => {
-  console.log('history index');
   const option = getOption(await getSyncStorage('option'));
   const enabledHistory = option.indexTarget.history;
-  const userBlockList = option.blockList
-
-  console.log('user block list.', userBlockList);
 
   if (!enabledHistory) {
     console.log('history is disabled.');
     return;
-  }
-
-  if (findIndex(v => item.url.indexOf(v) != -1, [...BlockList, ...userBlockList]) != -1) {
-    console.log('skip index');
-    return
   }
   itemIndexing(item);
 });
@@ -314,4 +314,10 @@ app.ports.errorItems.subscribe(async items => {
   }
 });
 
-startFullIndexing();
+chrome.runtime.onInstalled.addListener(() => {
+  startFullIndexing();
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  startFullIndexing();
+});

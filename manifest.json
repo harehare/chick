@@ -6,7 +6,6 @@
         "keyword": "c"
     },
     "permissions": [
-        "webRequest",
         "tabs",
         "storage",
         "unlimitedStorage",
@@ -16,8 +15,8 @@
         "https://*/"
     ],
     "background": {
-        "scripts": ["clojure/compiled/main.js", "dist/background.js"],
-        "persistent": true
+        "scripts": ["clojure/compiled-dev/main.js", "dist/background.js"],
+        "persistent": false
     },
     "icons": {
         "14": "img/icon_14.png",
@@ -31,9 +30,6 @@
         "512": "img/icon_512.png",
         "1024": "img/icon_1024.png"
     },
-    "web_accessible_resources": [
-        "img/*"
-    ],
     "browser_action": {
         "default_title": "Chick",
         "default_popup": "popup/index.html"
