@@ -10,7 +10,7 @@ Chick indexes all the text on the bookmarks and browsing history to local.
 
 ## Install
 
-Coming soon.
+https://chrome.google.com/webstore/detail/chick/iiekfnbpcjolepcejefknaoblbkegbdf
 
 ## TODO
 
