@@ -1,6 +1,6 @@
 # Chick
 
-Chrome extension for full text bookmarks and browsing history.
+Chrome extension for full text bookmarks and browsing history search.
 
 Start search in google, other search engine or Press c, then space or tab, in the omnibox to start searching your bookmarks and browsing history.
 

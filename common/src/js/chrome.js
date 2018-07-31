@@ -40,9 +40,10 @@ function setSyncStorage(items) {
   return setStorage(items, chrome.storage.sync);
 }
 
-function openUrl(url) {
+function openUrl(url, active = false) {
   chrome.tabs.create({
-    url: url
+    url,
+    active
   });
 }
 

@@ -226,22 +226,13 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
 chrome.omnibox.onInputEntered.addListener((url, disposition) => {
   cond([
     [() => !url.startsWith('http'), () => (openUrl(`https://duckduckgo.com/?q=${encodeURIComponent(url)}`))],
-    [equals('newForegroundTab'), () => (openUrl(url))],
-    [equals('newBackgroundTab'), () => (chrome.tabs.query({
-      active: true,
-      currentWindow: true
-    }, tabs => {
-      openUrl(url);
-      chrome.tabs.move(tabs[0].id);
-    }))],
-    [T, () => (chrome.tabs.query({
-      active: true,
-      currentWindow: true
-    }, tabs => {
-      chrome.tabs.update(tabs[0].id, {
+    [equals('newForegroundTab'), () => (openUrl(url, true))],
+    [equals('newBackgroundTab'), () => (openUrl(url))],
+    [T, () => (
+      chrome.tabs.update({
         url: url
-      });
-    }))]
+      })
+    )]
   ])(disposition);
 });
 

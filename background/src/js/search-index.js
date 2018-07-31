@@ -59,10 +59,6 @@ const create = items => {
 
 const createIndex = (app, item) => {
   return new Promise(async resolve => {
-    if (!item.title) {
-      resolve(false);
-      return;
-    }
     const url = await getLocalStorage(uuid5(item.url, uuid5.URL));
     if (!isEmpty(url)) {
       console.log('exist index');

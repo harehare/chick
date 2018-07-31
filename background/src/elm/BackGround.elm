@@ -1,14 +1,15 @@
 port module BackGround exposing (..)
 
+import Debug
 import BackGroundModel exposing (..)
 import BackGroundSubscriptions exposing (..)
 import Http
-import Regex exposing (replace, HowMany, regex, caseInsensitive)
+import Regex exposing (find, replace, HowMany, regex, caseInsensitive)
 import Json.Decode as Decode
 import Time
 import String.Extra exposing (stripTags)
 import String exposing (lines, length, trim, split, left, join)
-import List exposing (filter, map, concat, append)
+import List exposing (head, filter, map, concat, append)
 import List.Extra exposing (unique)
 import Dict exposing (Dict, get, insert, remove, fromList, toList, values)
 import NGram exposing (tokeinze)
@@ -66,6 +67,9 @@ update msg model =
                         Nothing ->
                             { url = "", title = "", lastVisitTime = Nothing }
 
+                title =
+                    getTitle data.body
+
                 text =
                     data.body
                         |> removeHtmlTag
@@ -87,7 +91,13 @@ update msg model =
                             { words = words
                             , snippet = left 200 text
                             , url = item.url
-                            , title = item.title
+                            , title =
+                                case title of
+                                    Just xs ->
+                                        xs
+
+                                    Nothing ->
+                                        item.title
                             , lastVisitTime = item.lastVisitTime
                             }
                       ]
@@ -150,6 +160,30 @@ update msg model =
 readHtml : Http.Response String -> Result String ResponseItem
 readHtml response =
     Ok ({ url = response.url, body = response.body })
+
+
+getTitle : String -> Maybe String
+getTitle text =
+    let
+        match =
+            text
+                |> find (Regex.AtMost 1) (regex "<title[^>]*?>(.+)</title>")
+                |> head
+
+        result =
+            case match of
+                Just xs ->
+                    xs.submatches
+
+                Nothing ->
+                    []
+    in
+        case head result of
+            Just xs ->
+                xs
+
+            Nothing ->
+                Nothing
 
 
 removeHtmlTag : String -> String

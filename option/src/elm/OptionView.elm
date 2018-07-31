@@ -154,20 +154,27 @@ blackUrlList keyword urlList =
                     [ text "Add" ]
                 ]
             |> InputGroup.view
-        , ListGroup.ul
-            (urlList
-                |> List.map
-                    (\x ->
-                        ListGroup.li []
-                            [ div
-                                [ style [ ( "display", "flex" ), ( "justify-content", "space-between" ) ]
+        , div
+            [ style
+                [ ( "max-height", "300px" )
+                , ( "overflow-y", "scroll" )
+                ]
+            ]
+            [ ListGroup.ul
+                (urlList
+                    |> List.map
+                        (\x ->
+                            ListGroup.li []
+                                [ div
+                                    [ style [ ( "display", "flex" ), ( "justify-content", "space-between" ) ]
+                                    ]
+                                    [ div [] [ text x ]
+                                    , div [ style [ ( "cursor", "pointer" ), ( "width", "20px" ) ], DeleteBlockKeyword x |> onClick ] [ SolidIcon.trash_alt ]
+                                    ]
                                 ]
-                                [ div [] [ text x ]
-                                , div [ style [ ( "cursor", "pointer" ), ( "width", "20px" ) ], DeleteBlockKeyword x |> onClick ] [ SolidIcon.trash_alt ]
-                                ]
-                            ]
-                    )
-            )
+                        )
+                )
+            ]
         ]
 
 
