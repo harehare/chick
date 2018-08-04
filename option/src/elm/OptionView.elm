@@ -13,6 +13,7 @@ import Bootstrap.ListGroup as ListGroup
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import FontAwesome.Solid as SolidIcon
+import FontAwesome.Brands as BrandsIcon
 import Bootstrap.Form as Form
 
 
@@ -191,18 +192,71 @@ indexOperation isIndexing =
         ]
         [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ] [ text "Indexing operation" ]
         , Button.button
-            [ Button.warning
-            , Button.disabled isIndexing
-            , Button.attrs [ style [ ( "margin", "15px" ) ] ]
-            , Button.onClick Reindexing
+            [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "165px" ) ] ]
+            , Button.onClick ImportPocket
+            , Button.outlineDark
             ]
-            [ text "Re-Indexing" ]
+            [ div
+                [ style
+                    [ ( "display", "flex" )
+                    , ( "align-items", "center" )
+                    , ( "justify-content", "space-between" )
+                    ]
+                ]
+                [ div
+                    [ style
+                        [ ( "width", "30px" )
+                        , ( "color", "#FF0045" )
+                        ]
+                    ]
+                    [ BrandsIcon.get_pocket ]
+                , div [ style [ ( "margin-bottom", "5px" ) ] ] [ text "Import pocket" ]
+                ]
+            ]
         , Button.button
-            [ Button.danger
-            , Button.attrs [ style [ ( "margin", "15px" ) ] ]
-            , Button.onClick DeleteIndex
+            [ Button.attrs [ style [ ( "width", "160px" ), ( "margin", "15px" ) ] ]
+            , Button.onClick Reindexing
+            , Button.outlineDark
             ]
-            [ text "Delete index" ]
+            [ div
+                [ style
+                    [ ( "display", "flex" )
+                    , ( "align-items", "center" )
+                    , ( "justify-content", "space-between" )
+                    ]
+                ]
+                [ div
+                    [ style
+                        [ ( "width", "30px" )
+                        , ( "color", "#417AF7" )
+                        ]
+                    ]
+                    [ SolidIcon.sync ]
+                , div [ style [ ( "margin-bottom", "5px" ) ] ] [ text "Re-Indexing" ]
+                ]
+            ]
+        , Button.button
+            [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "175px" ) ] ]
+            , Button.onClick DeleteIndex
+            , Button.outlineDark
+            ]
+            [ div
+                [ style
+                    [ ( "display", "flex" )
+                    , ( "align-items", "center" )
+                    , ( "justify-content", "space-between" )
+                    ]
+                ]
+                [ div
+                    [ style
+                        [ ( "width", "30px" )
+                        , ( "color", "#008709" )
+                        ]
+                    ]
+                    [ SolidIcon.trash ]
+                , div [ style [ ( "margin-bottom", "5px" ) ] ] [ text "Delete index all" ]
+                ]
+            ]
         ]
 
 

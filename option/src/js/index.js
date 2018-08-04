@@ -13,7 +13,8 @@ import {
   deleteIndexedStatus
 } from 'Common/option'
 import {
-  EventReIndexing
+  EventReIndexing,
+  EventCreateIndexFromPocket
 } from 'Common/constants'
 
 (async () => {
@@ -71,6 +72,16 @@ import {
     iziToast.info({
       title: 'Re-indexing',
       message: 'Re-indexing is launched now!!',
+    });
+  });
+
+  app.ports.importPocket.subscribe(_ => {
+    chrome.runtime.sendMessage({
+      type: EventCreateIndexFromPocket,
+    });
+    iziToast.info({
+      title: 'Import pocket',
+      message: 'Import pocket is launched now!!',
     });
   });
 

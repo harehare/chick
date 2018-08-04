@@ -21,6 +21,9 @@ port succeedVerify : String -> Cmd msg
 port failedVerify : String -> Cmd msg
 
 
+port importPocket : Int -> Cmd msg
+
+
 subscriptions model =
     Sub.batch
         []

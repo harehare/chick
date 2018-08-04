@@ -47,106 +47,100 @@ import {
 const app = Elm.BackGround.worker();
 const IndexParallel = 2;
 
-const fullIndex = () => {
-  const getBookmark = (bookmarks) => {
-    if (!bookmarks) return [];
-    return [...bookmarks.reduce((arr, v) => {
-      if (v.url) {
-        arr.push(pick(['url', 'title'], v));
-      }
-      return arr;
-    }, []), ...flatten(bookmarks.reduce((arr, v) => {
-      if (v.children) {
-        arr.push(getBookmark(v.children));
-      }
-      return arr;
-    }, []))];
-  }
+const getBookmark = (bookmarks) => {
+  if (!bookmarks) return [];
+  return [...bookmarks.reduce((arr, v) => {
+    if (v.url) {
+      arr.push(pick(['url', 'title'], v));
+    }
+    return arr;
+  }, []), ...flatten(bookmarks.reduce((arr, v) => {
+    if (v.children) {
+      arr.push(getBookmark(v.children));
+    }
+    return arr;
+  }, []))];
+}
 
-  const indexing = (items, total) => {
-    return new Promise(async resolve => {
-      for (const item of items) {
-        setIndexedUrl(item.url);
-        const isIndexed = await createIndex(app, item);
-        if (!isIndexed) continue;
-        const count = localStorage.getItem('currentCount');
-        const currentCount = (count ? parseInt(count) : 1) + 1;
-
-        chrome.runtime.sendMessage({
-          type: EventIndexing,
-          documentCount: total,
-          indexedCount: currentCount
-        });
-        localStorage.setItem('currentCount', currentCount);
-
-        while (indexingStatus()) {
-          await sleep(3000);
-          console.log('indexing suspend');
-        }
-      }
-      resolve();
-    });
-  };
-
-  const indexingWithApi = (items, total, url) => {
-    return new Promise(async resolve => {
-      items.forEach(v => {
-        setIndexedUrl(v.url);
-      });
-      const isIndexed = await createIndexWithApi(app, url, items);
-      if (!isIndexed) {
-        resolve();
-        return;
-      }
+const indexing = (items, total) => {
+  return new Promise(async resolve => {
+    for (const item of items) {
+      setIndexedUrl(item.url);
+      const isIndexed = await createIndex(app, item);
+      if (!isIndexed) continue;
       const count = localStorage.getItem('currentCount');
-      const currentCount = (count ? parseInt(count) : 1) + items.length;
+      const currentCount = (count ? parseInt(count) : 1) + 1;
 
-      localStorage.setItem('currentCount', currentCount);
       chrome.runtime.sendMessage({
         type: EventIndexing,
         documentCount: total,
         indexedCount: currentCount
       });
+      localStorage.setItem('currentCount', currentCount);
 
-      resolve();
-    });
-  };
-
-  chrome.bookmarks.getTree(async (tree) => {
-    if (head(tree).children) {
-      const bookmarks = getBookmark(head(tree).children);
-      const option = getOption(await getSyncStorage('option'));
-      const userBlockList = option.blockList
-      const indexDocuments = bookmarks.filter(b => (!hasIndex(b.url) && findIndex(w => b.url.indexOf(w) != -1, [...BlockList, ...userBlockList]) === -1));
-      const scrapingApi = option.advancedOption.scrapingApi;
-      const totalCount = indexDocuments.length;
-
-      if (isEmpty(indexDocuments)) {
-        console.log('bookmarks is indexed all.');
-        return;
+      while (indexingStatus()) {
+        await sleep(3000);
+        console.log('indexing suspend');
       }
-
-      if (scrapingApi.verify) {
-        for (const items of splitEvery(10, indexDocuments)) {
-          console.log(`request ${scrapingApi.url}`);
-          await indexingWithApi(items, totalCount, scrapingApi.url);
-          await sleep(5000);
-        }
-      } else {
-        await Promise.all(splitEvery(indexDocuments.length / IndexParallel, indexDocuments).map(v => indexing(v, totalCount)));
-      }
-
-      localStorage.setItem('indexingCount', totalCount);
-      chrome.runtime.sendMessage({
-        type: EventIndexing,
-        documentCount: totalCount,
-        indexedCount: totalCount
-      });
-
-      app.ports.getErrorItems.send(0);
     }
-    resumeIndexing();
+    resolve();
   });
+};
+
+const indexingWithApi = (items, total, url) => {
+  return new Promise(async resolve => {
+    items.forEach(v => {
+      setIndexedUrl(v.url);
+    });
+    const isIndexed = await createIndexWithApi(app, url, items);
+    if (!isIndexed) {
+      resolve();
+      return;
+    }
+    const count = localStorage.getItem('currentCount');
+    const currentCount = (count ? parseInt(count) : 1) + items.length;
+
+    localStorage.setItem('currentCount', currentCount);
+    chrome.runtime.sendMessage({
+      type: EventIndexing,
+      documentCount: total,
+      indexedCount: currentCount
+    });
+
+    resolve();
+  });
+};
+
+const fullIndex = async (indexDocuments) => {
+  const totalCount = indexDocuments.length;
+
+  if (isEmpty(indexDocuments)) {
+    console.log('document is indexed all.');
+    return;
+  }
+
+  const option = getOption(await getSyncStorage('option'));
+  const scrapingApi = option.advancedOption.scrapingApi;
+
+  if (scrapingApi.verify) {
+    for (const items of splitEvery(10, indexDocuments)) {
+      console.log(`request ${scrapingApi.url}`);
+      await indexingWithApi(items, totalCount, scrapingApi.url);
+      await sleep(5000);
+    }
+  } else {
+    await Promise.all(splitEvery(indexDocuments.length / IndexParallel, indexDocuments).map(v => indexing(v, totalCount)));
+  }
+
+  localStorage.setItem('indexingCount', totalCount);
+  chrome.runtime.sendMessage({
+    type: EventIndexing,
+    documentCount: totalCount,
+    indexedCount: totalCount
+  });
+
+  app.ports.getErrorItems.send(0);
+  resumeIndexing();
 };
 
 const itemIndexing = async (item) => {
@@ -171,9 +165,16 @@ const startFullIndexing = async () => {
   const option = getOption(await getSyncStorage('option'));
   const enabledBookmark = option.indexTarget.bookmark;
   if (enabledBookmark) {
-    fullIndex();
+    chrome.bookmarks.getTree(async (tree) => {
+      if (head(tree).children) {
+        const bookmarks = getBookmark(head(tree).children);
+        const userBlockList = option.blockList
+        const indexDocuments = bookmarks.filter(b => (!hasIndex(b.url) && findIndex(w => b.url.indexOf(w) != -1, [...BlockList, ...userBlockList]) === -1));
+        fullIndex(indexDocuments);
+      }
+    });
+    localStorage.setItem('indexing_complete', true);
   }
-  localStorage.setItem('indexing_complete', true);
 };
 
 chrome.bookmarks.onCreated.addListener(async (_, item) => {
@@ -311,4 +312,8 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.runtime.onStartup.addListener(() => {
   startFullIndexing();
+});
+
+document.addEventListener("fullIndex", e => {
+  fullIndex(e.detail.items);
 });

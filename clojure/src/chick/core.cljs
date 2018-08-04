@@ -2,6 +2,7 @@
   (:require [konserve.core :as k]
             [konserve.indexeddb :refer [new-indexeddb-store]]
             [chick.cache :as cache]
+            [chick.pocket :as pocket]
             [cljs.core.async :refer [chan <! close! pipeline]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
@@ -49,11 +50,16 @@
 
 (.. js/chrome -runtime -onMessage (addListener
                                    (fn [request sender sendResponse]
-                                     (when (= request.type "GET_SCORE")
-                                       (get-score request.urls request.words sendResponse))
+                                     (cond
+                                       (= request.type "GET_SCORE")
+                                       (get-score request.urls request.words sendResponse)
+                                       (= request.type "CREATE_INDEX_FROM_POCKET")
+                                       (pocket/start-index))
                                      true)))
 
 (.. js/document (addEventListener "addIndex" (fn [e]
                                                (let [url (.. e -detail -url)
                                                      words (.. e -detail -words)]
                                                  (add-word words url)))))
+
+; )

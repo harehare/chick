@@ -15,6 +15,7 @@ type Msg
     | Save
     | Reindexing
     | DeleteIndex
+    | ImportPocket
     | EditPosition String String
     | SelectText String
     | EditApiUrl Api String

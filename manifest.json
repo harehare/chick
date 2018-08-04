@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Chick",
     "description": "Chrome extension for full text bookmarks and browsing history.",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "omnibox": {
         "keyword": "c"
     },
@@ -12,6 +12,7 @@
         "unlimitedStorage",
         "bookmarks",
         "history",
+        "identity",
         "http://*/",
         "https://*/"
     ],

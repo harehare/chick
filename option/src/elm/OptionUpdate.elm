@@ -115,6 +115,9 @@ update msg model =
         DeleteIndex ->
             model ! [ deleteIndex 0 ]
 
+        ImportPocket ->
+            model ! [ importPocket 0 ]
+
         EditApiUrl api url ->
             let
                 scrapingApi =
