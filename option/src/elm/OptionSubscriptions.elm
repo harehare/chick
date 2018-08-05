@@ -1,6 +1,10 @@
 port module OptionSubscriptions exposing (..)
 
 import OptionModel exposing (..)
+import PopupModel exposing (IndexStatus)
+
+
+port updateStatus : (IndexStatus -> msg) -> Sub msg
 
 
 port saveSettings : Model -> Cmd msg
@@ -26,4 +30,4 @@ port importPocket : Int -> Cmd msg
 
 subscriptions model =
     Sub.batch
-        []
+        [ updateStatus UpdateStatus ]

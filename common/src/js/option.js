@@ -23,6 +23,10 @@ const getOption = data => {
       },
       changed: false,
       isIndexing: false,
+      status: {
+        indexedCount: 0,
+        documentCount: 0
+      },
       advancedOption: {
         scrapingApi: {
           url: '',
@@ -42,6 +46,13 @@ const getOption = data => {
     data.option.changed = false;
     data.option.blockKeyword = '';
     data.option.isIndexing = localStorage.getItem('suspend_indexing') === 'true';
+
+    if (!data.status) {
+      data.status = {
+        indexedCount: 0,
+        documentCount: 0
+      }
+    }
   }
   return data.option;
 };

@@ -9,8 +9,9 @@ import {
   isEmpty,
   findIndex,
   splitEvery,
-  startsWith
+  assoc
 } from 'ramda';
+import camelcasekeys from 'camelcase-keys';
 import escapeHtml from 'escape-html';
 import {
   openUrl,
@@ -51,7 +52,7 @@ const getBookmark = (bookmarks) => {
   if (!bookmarks) return [];
   return [...bookmarks.reduce((arr, v) => {
     if (v.url) {
-      arr.push(pick(['url', 'title'], v));
+      arr.push(assoc('itemType', 'bookmark', pick(['url', 'title'], v)));
     }
     return arr;
   }, []), ...flatten(bookmarks.reduce((arr, v) => {
@@ -62,56 +63,8 @@ const getBookmark = (bookmarks) => {
   }, []))];
 }
 
-const indexing = (items, total) => {
-  return new Promise(async resolve => {
-    for (const item of items) {
-      setIndexedUrl(item.url);
-      const isIndexed = await createIndex(app, item);
-      if (!isIndexed) continue;
-      const count = localStorage.getItem('currentCount');
-      const currentCount = (count ? parseInt(count) : 1) + 1;
-
-      chrome.runtime.sendMessage({
-        type: EventIndexing,
-        documentCount: total,
-        indexedCount: currentCount
-      });
-      localStorage.setItem('currentCount', currentCount);
-
-      while (indexingStatus()) {
-        await sleep(3000);
-        console.log('indexing suspend');
-      }
-    }
-    resolve();
-  });
-};
-
-const indexingWithApi = (items, total, url) => {
-  return new Promise(async resolve => {
-    items.forEach(v => {
-      setIndexedUrl(v.url);
-    });
-    const isIndexed = await createIndexWithApi(app, url, items);
-    if (!isIndexed) {
-      resolve();
-      return;
-    }
-    const count = localStorage.getItem('currentCount');
-    const currentCount = (count ? parseInt(count) : 1) + items.length;
-
-    localStorage.setItem('currentCount', currentCount);
-    chrome.runtime.sendMessage({
-      type: EventIndexing,
-      documentCount: total,
-      indexedCount: currentCount
-    });
-
-    resolve();
-  });
-};
-
 const fullIndex = async (indexDocuments) => {
+  localStorage.setItem('currentCount', 0);
   const totalCount = indexDocuments.length;
 
   if (isEmpty(indexDocuments)) {
@@ -121,6 +74,55 @@ const fullIndex = async (indexDocuments) => {
 
   const option = getOption(await getSyncStorage('option'));
   const scrapingApi = option.advancedOption.scrapingApi;
+
+  const indexing = (items, total) => {
+    return new Promise(async resolve => {
+      for (const item of items) {
+        setIndexedUrl(item.url);
+        const isIndexed = await createIndex(app, item);
+        if (!isIndexed) continue;
+        const count = localStorage.getItem('currentCount');
+        const currentCount = (count ? parseInt(count) : 1) + 1;
+
+        chrome.runtime.sendMessage({
+          type: EventIndexing,
+          documentCount: total,
+          indexedCount: currentCount
+        });
+        localStorage.setItem('currentCount', currentCount);
+
+        while (indexingStatus()) {
+          await sleep(3000);
+          console.log('indexing suspend');
+        }
+      }
+      resolve();
+    });
+  };
+
+  const indexingWithApi = (items, total, url) => {
+    return new Promise(async resolve => {
+      items.forEach(v => {
+        setIndexedUrl(v.url);
+      });
+      const isIndexed = await createIndexWithApi(app, url, items);
+      if (!isIndexed) {
+        resolve();
+        return;
+      }
+      const count = localStorage.getItem('currentCount');
+      const currentCount = (count ? parseInt(count) : 1) + items.length;
+
+      localStorage.setItem('currentCount', currentCount);
+      chrome.runtime.sendMessage({
+        type: EventIndexing,
+        documentCount: total,
+        indexedCount: currentCount
+      });
+
+      resolve();
+    });
+  };
 
   if (scrapingApi.verify) {
     for (const items of splitEvery(10, indexDocuments)) {
@@ -184,7 +186,7 @@ chrome.bookmarks.onCreated.addListener(async (_, item) => {
     console.log('bookmark is disabled.');
     return;
   }
-  itemIndexing(item);
+  itemIndexing(assoc('itemType', 'bookmark', item));
 });
 
 chrome.history.onVisited.addListener(async (item) => {
@@ -195,7 +197,7 @@ chrome.history.onVisited.addListener(async (item) => {
     console.log('history is disabled.');
     return;
   }
-  itemIndexing(item);
+  itemIndexing(assoc('itemType', 'history', item));
 });
 
 chrome.runtime.onMessage.addListener((message) => {
@@ -242,14 +244,16 @@ app.ports.indexItem.subscribe(async ({
   title,
   words,
   snippet,
-  lastVisitTime
+  lastVisitTime,
+  itemType
 }) => {
   await create([{
     url,
     title,
     words,
     snippet,
-    lastVisitTime
+    lastVisitTime,
+    itemType
   }]);
   if (isEmpty(url)) {
     return;
@@ -269,14 +273,16 @@ app.ports.indexItems.subscribe(async items => {
       title,
       words,
       snippet,
-      lastVisitTime
+      lastVisitTime,
+      itemType
     } = item;
     await create([{
       url,
       title: title ? title : snippet,
       words,
       snippet,
-      lastVisitTime
+      lastVisitTime,
+      itemType
     }]);
   }
 });
@@ -294,14 +300,16 @@ app.ports.errorItems.subscribe(async items => {
     const {
       url,
       title,
-      lastVisitTime
+      lastVisitTime,
+      itemType
     } = item;
     await create([{
       url,
       title,
       words: [],
       snippet: '',
-      lastVisitTime
+      lastVisitTime,
+      itemType
     }]);
   }
 });
@@ -315,5 +323,5 @@ chrome.runtime.onStartup.addListener(() => {
 });
 
 document.addEventListener("fullIndex", e => {
-  fullIndex(e.detail.items);
+  fullIndex(camelcasekeys(e.detail.items));
 });

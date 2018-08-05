@@ -65,7 +65,7 @@ update msg model =
                             xs
 
                         Nothing ->
-                            { url = "", title = "", lastVisitTime = Nothing }
+                            { url = "", title = "", lastVisitTime = Nothing, itemType = "" }
 
                 title =
                     getTitle data.body
@@ -99,6 +99,7 @@ update msg model =
                                     Nothing ->
                                         item.title
                             , lastVisitTime = item.lastVisitTime
+                            , itemType = item.itemType
                             }
                       ]
 
@@ -119,13 +120,14 @@ update msg model =
                                                 xs
 
                                             Nothing ->
-                                                { url = "", title = "", lastVisitTime = Nothing }
+                                                { url = "", title = "", lastVisitTime = Nothing, itemType = "" }
                                 in
                                     { words = x.tokens
                                     , snippet = x.snippet
                                     , url = item.url
                                     , title = item.title
                                     , lastVisitTime = item.lastVisitTime
+                                    , itemType = item.itemType
                                     }
                             )
 
@@ -142,7 +144,7 @@ update msg model =
                                                     xs
 
                                                 Nothing ->
-                                                    { url = "", title = "", lastVisitTime = Nothing }
+                                                    { url = "", title = "", lastVisitTime = Nothing, itemType = "" }
                                     in
                                         ( x.url, item )
                                 )
@@ -224,7 +226,7 @@ main =
         { init =
             ( { items =
                     fromList
-                        [ ( "", { url = "", title = "", lastVisitTime = Nothing } )
+                        [ ( "", { url = "", title = "", lastVisitTime = Nothing, itemType = "" } )
                         ]
               }
             , Cmd.none

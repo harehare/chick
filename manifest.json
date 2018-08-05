@@ -1,8 +1,8 @@
 {
     "manifest_version": 2,
     "name": "Chick",
-    "description": "Chrome extension for full text bookmarks and browsing history.",
-    "version": "0.0.2",
+    "description": "Chrome extension for full text bookmarks and browsing history search.",
+    "version": "0.0.3",
     "omnibox": {
         "keyword": "c"
     },
@@ -13,6 +13,7 @@
         "bookmarks",
         "history",
         "identity",
+        "alarms",
         "http://*/",
         "https://*/"
     ],

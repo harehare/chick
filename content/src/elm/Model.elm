@@ -27,7 +27,7 @@ type alias Item =
     { url : String
     , title : String
     , snippet : String
-    , history : Bool
+    , itemType : String
     }
 
 

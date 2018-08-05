@@ -9,6 +9,7 @@ import String exposing (toInt)
 import List.Extra exposing (unique)
 import OptionModel exposing (..)
 import OptionSubscriptions exposing (..)
+import PopupModel exposing (IndexStatus)
 import BackGround exposing (requestScrapingApi)
 import Update exposing (requestQueryParseApi, requestScoringApi)
 
@@ -117,6 +118,9 @@ update msg model =
 
         ImportPocket ->
             model ! [ importPocket 0 ]
+
+        UpdateStatus status ->
+            { model | status = status } ! []
 
         EditApiUrl api url ->
             let

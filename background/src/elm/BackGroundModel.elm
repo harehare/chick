@@ -24,6 +24,7 @@ type alias IndexData =
     , url : String
     , title : String
     , lastVisitTime : Maybe Int
+    , itemType : String
     }
 
 
@@ -31,6 +32,7 @@ type alias Item =
     { title : String
     , url : String
     , lastVisitTime : Maybe Int
+    , itemType : String
     }
 
 

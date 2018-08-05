@@ -26,8 +26,7 @@ const search = (tokens, useScore = true) => {
         const aScore = (searchResult[a] / tokenLen) * (url2score[index[a].url] || 1.0) * calcScore(tokens, index[a]);
         const bScore = (searchResult[b] / tokenLen) * (url2score[index[b].url] || 1.0) * calcScore(tokens, index[b]);
         return aScore > bScore ? -1 : searchResult[a] < searchResult[b] ? 1 : 0;
-      }).map(v =>
-        assoc('history', !!index[v].lastVisitTime, index[v])));
+      }).map(v => index[v]));
     };
 
     if (useScore) {

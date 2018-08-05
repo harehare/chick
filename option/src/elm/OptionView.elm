@@ -15,6 +15,8 @@ import Bootstrap.Grid.Col as Col
 import FontAwesome.Solid as SolidIcon
 import FontAwesome.Brands as BrandsIcon
 import Bootstrap.Form as Form
+import Bootstrap.Progress as Progress
+import PopupModel exposing (IndexStatus)
 
 
 view : Model -> Html Msg
@@ -48,6 +50,7 @@ view model =
                 ]
                 [ text "Chick Options" ]
             ]
+        , lazy indexStatus model.status
         , lazy viewOption model.viewOption
         , lazy indexOption model.indexTarget
         , lazy2 blackUrlList model.blockKeyword model.blockList
@@ -109,6 +112,41 @@ viewOption option =
             [ Checkbox.id "duckduckgo", Checkbox.inline, Checkbox.checked option.duckDuckGo, Checkbox.attrs [ ChangeViewOption "duckduckgo" |> onClick ] ]
             "DuckDuckGo"
         ]
+
+
+indexStatus : IndexStatus -> Html Msg
+indexStatus status =
+    let
+        currentStatus =
+            (toFloat status.indexedCount
+                / toFloat
+                    (if status.documentCount == 0 then
+                        1
+                     else
+                        status.documentCount
+                    )
+            )
+                * 100.0
+    in
+        div
+            [ style
+                [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
+                , ( "border", "1px solid rgba(150,150,150,0.3)" )
+                , ( "padding", "1% 2%" )
+                , ( "margin", "15px" )
+                , ( "background-color", "#FEFEFE" )
+                ]
+            ]
+            [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ]
+                [ text "Index Status" ]
+            , div
+                [ style [ ( "font-size", "0.9rem" ), ( "width", "200px" ) ] ]
+                [ text ((toString status.indexedCount) ++ " items indexed complete") ]
+            , if status.documentCount - status.indexedCount > 0 then
+                Progress.progress [ Progress.info, Progress.value currentStatus ]
+              else
+                span [] []
+            ]
 
 
 indexOption : IndexTarget -> Html Msg
@@ -210,7 +248,7 @@ indexOperation isIndexing =
                         ]
                     ]
                     [ BrandsIcon.get_pocket ]
-                , div [ style [ ( "margin-bottom", "5px" ) ] ] [ text "Import pocket" ]
+                , div [ style [ ( "margin-bottom", "7px" ) ] ] [ text "Import pocket" ]
                 ]
             ]
         , Button.button
@@ -232,7 +270,7 @@ indexOperation isIndexing =
                         ]
                     ]
                     [ SolidIcon.sync ]
-                , div [ style [ ( "margin-bottom", "5px" ) ] ] [ text "Re-Indexing" ]
+                , div [ style [ ( "margin-bottom", "7px" ) ] ] [ text "Re-Indexing" ]
                 ]
             ]
         , Button.button
@@ -254,7 +292,7 @@ indexOperation isIndexing =
                         ]
                     ]
                     [ SolidIcon.trash ]
-                , div [ style [ ( "margin-bottom", "5px" ) ] ] [ text "Delete index all" ]
+                , div [ style [ ( "margin-bottom", "7px" ) ] ] [ text "Delete index all" ]
                 ]
             ]
         ]

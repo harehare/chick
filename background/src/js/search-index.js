@@ -21,7 +21,8 @@ const create = items => {
         title,
         words,
         snippet,
-        lastVisitTime
+        lastVisitTime,
+        itemType
       } = i;
       if (!words) {
         continue;
@@ -38,7 +39,8 @@ const create = items => {
           url,
           title,
           snippet,
-          lastVisitTime
+          lastVisitTime,
+          itemType
         }
       });
       const currentIndex = await getLocalStorage(words);
@@ -66,7 +68,7 @@ const createIndex = (app, item) => {
       return;
     }
     item.lastVisitTime = parseInt(item.lastVisitTime) || null;
-    app.ports.createItem.send(pick(['url', 'title', 'lastVisitTime'], item));
+    app.ports.createItem.send(pick(['url', 'title', 'lastVisitTime', 'itemType'], item));
     resolve(true);
   });
 };

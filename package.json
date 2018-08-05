@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Fast Bookmark Search",
   "dependencies": {
+    "camelcase-keys": "^4.2.0",
     "escape-html": "^1.0.3",
     "izitoast": "^1.3.0",
     "moment": "^2.22.2",

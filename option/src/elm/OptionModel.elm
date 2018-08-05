@@ -3,6 +3,7 @@ module OptionModel exposing (..)
 import Http
 import BackGroundModel exposing (ApiResponseItem)
 import Model exposing (Score)
+import PopupModel exposing (IndexStatus)
 
 
 type Msg
@@ -25,6 +26,7 @@ type Msg
     | ResponseScrapingApi (Result Http.Error (List ApiResponseItem))
     | ResponseQueryParseApi (Result Http.Error (List String))
     | ResponseScoringApi (Result Http.Error (List Score))
+    | UpdateStatus IndexStatus
 
 
 type Api
@@ -42,6 +44,7 @@ type alias Model =
     , advancedOption : Advanced
     , changed : Bool
     , isIndexing : Bool
+    , status : IndexStatus
     }
 
 

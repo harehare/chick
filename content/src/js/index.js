@@ -78,7 +78,7 @@ document.body.appendChild(div);
           const aScore = aa ? aa : 0
           const bScore = bb ? bb : 0
           return aScore > bScore ? -1 : aScore === bScore ? 0 : 1;
-        }).map(v => assoc('history', !!index[v].lastVisitTime, index[v]))]);
+        }).map(v => index[v])]);
       });
 
       const urls = Object.values(index).map(v => v.url).filter(v => v.startsWith('http'));

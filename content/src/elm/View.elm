@@ -8,6 +8,7 @@ import String exposing (split, words)
 import Model exposing (..)
 import FontAwesome.Solid as SolidIcon
 import FontAwesome.Regular as RegularIcon
+import FontAwesome.Brands as BrandsIcon
 
 
 view : Model -> Html Msg
@@ -110,18 +111,33 @@ view model =
                                             [ ( "width", "0.9rem" )
                                             , ( "margin-top", "1px" )
                                             , ( "margin-right", "3px" )
-                                            , if x.history then
-                                                ( "color", "#57AD3C" )
-                                              else
-                                                ( "color", "#F5C50F" )
+                                            , case x.itemType of
+                                                "history" ->
+                                                    ( "color", "#57AD3C" )
+
+                                                "bookmark" ->
+                                                    ( "color", "#F5C50F" )
+
+                                                _ ->
+                                                    ( "color", "#FF0045" )
                                             ]
                                         ]
                                         [ if x.url == "" then
                                             span [] []
-                                          else if x.history then
-                                            SolidIcon.history
                                           else
-                                            RegularIcon.bookmark
+                                            (case x.itemType of
+                                                "history" ->
+                                                    SolidIcon.history
+
+                                                "bookmark" ->
+                                                    RegularIcon.bookmark
+
+                                                "pocket" ->
+                                                    BrandsIcon.get_pocket
+
+                                                _ ->
+                                                    SolidIcon.exclamation_circle
+                                            )
                                         ]
                                     , span
                                         [ style

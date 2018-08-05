@@ -9,17 +9,28 @@ import {
 } from 'Common/chrome';
 import {
   getOption,
+  documentCount,
   setIndexingStatus,
   deleteIndexedStatus
 } from 'Common/option'
 import {
   EventReIndexing,
-  EventCreateIndexFromPocket
+  EventCreateIndexFromPocket,
+  EventIndexing
 } from 'Common/constants'
 
 (async () => {
   const data = await getSyncStorage('option');
-  const app = Elm.Option.fullscreen(getOption(data));
+  const option = getOption(data);
+  const indexingCount = localStorage.getItem('indexingCount');
+  const currentCount = localStorage.getItem('currentCount');
+  const indexingComplete = localStorage.getItem('indexing_complete') === 'true';
+
+  option.status = {
+    documentCount: parseInt(indexingComplete ? documentCount() : indexingCount ? indexingCount : 0),
+    indexedCount: parseInt(indexingComplete ? documentCount() : currentCount ? currentCount : 0)
+  };
+  const app = Elm.Option.fullscreen(option);
 
   app.ports.saveSettings.subscribe(data => {
     setIndexingStatus(data.isIndexing);
@@ -45,6 +56,15 @@ import {
         message: 'Saved successfully.',
       });
     });
+  });
+
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === EventIndexing) {
+      app.ports.updateStatus.send({
+        documentCount: message.documentCount,
+        indexedCount: message.indexedCount
+      });
+    }
   });
 
   app.ports.succeedVerify.subscribe(apiName => {

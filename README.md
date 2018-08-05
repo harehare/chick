@@ -17,6 +17,7 @@ https://chrome.google.com/webstore/detail/chick/iiekfnbpcjolepcejefknaoblbkegbdf
 * [ ] Improving search accuracy
 * [ ] Add algolia search
 * [ ] Add pocket search
+* [ ] Add google drive search
 
 ## Advanced option
 
