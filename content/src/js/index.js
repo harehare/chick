@@ -47,7 +47,7 @@ document.body.appendChild(div);
     query: ''
   });
 
-  const parsedQuery = escapeHtml(queryString.parse(location.search).q);
+  const parsedQuery = escapeHtml(queryString.parse(location.search).q || queryString.parse(location.search).p);
 
   if (isEmpty(parsedQuery)) {
     return;
@@ -108,7 +108,7 @@ document.body.appendChild(div);
   }
 })();
 
-['https://fonts.googleapis.com/css?family=Raleway',
+['https://fonts.googleapis.com/css?family=Montserrat',
   'https://fonts.googleapis.com/css?family=Anton'
 ].forEach(url => {
   const link = document.createElement('link');

@@ -24,7 +24,7 @@ const create = items => {
         lastVisitTime,
         itemType
       } = i;
-      if (!words) {
+      if (isEmpty(words) || isEmpty(itemType)) {
         continue;
       }
       const id = uuid5(url, uuid5.URL);

@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import List exposing (..)
+import List.Extra exposing (uniqueBy)
 import String exposing (split, words)
 import Model exposing (..)
 import FontAwesome.Solid as SolidIcon
@@ -23,7 +24,7 @@ view model =
                 , ( "right", toString model.right ++ "px" )
                 , ( "z-index", "100" )
                 , ( "background-color", "#FEFEFE" )
-                , ( "font-family", "'Raleway', -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif" )
+                , ( "font-family", "'Montserrat', -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif" )
                 , ( "margin", "10px" )
                 , ( "margin-top", "5px" )
                 , ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
@@ -45,7 +46,8 @@ view model =
                 ]
                 [ SolidIcon.times ]
             , div [ id "chick-list", style [ ( "overflow-y", "scroll" ), ( "max-height", "80vh" ) ] ]
-                (List.take 20 model.items
+                (List.take 25 model.items
+                    |> uniqueBy (\x -> x.title)
                     |> List.map
                         (\x ->
                             div [ style [ ( "margin", "12px" ), ( "padding", "5px" ) ] ]

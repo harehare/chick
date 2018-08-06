@@ -13,14 +13,14 @@ view : Model -> Html Msg
 view model =
     div
         [ style
-            [ ( "width", "250px" )
+            [ ( "width", "280px" )
             , ( "height"
               , if model.status.documentCount - model.status.indexedCount > 0 then
                     "35px"
                 else
                     "30px"
               )
-            , ( "font-family", "Roboto" )
+            , ( "font-family", "Montserrat" )
             , ( "font-size", "0.9rem" )
             , ( "margin", "10px" )
             , ( "display", "flex" )
@@ -91,9 +91,9 @@ indexingStatus status =
                 ]
             ]
             [ if status.documentCount == 0 && status.indexedCount == 0 then
-                div [ style [ ( "font-size", "0.9rem" ), ( "width", "200px" ) ] ] [ text "Loading..." ]
+                div [ style [ ( "font-size", "0.85rem" ), ( "width", "220px" ) ] ] [ text "Loading..." ]
               else
-                div [ style [ ( "font-size", "0.9rem" ), ( "width", "200px" ) ] ] [ text ((toString status.indexedCount) ++ " items indexed complete") ]
+                div [ style [ ( "font-size", "0.85rem" ), ( "width", "220px" ) ] ] [ text ((toString status.indexedCount) ++ " items indexed complete") ]
             , if status.documentCount == 0 && status.indexedCount == 0 then
                 Progress.progress [ Progress.info, Progress.animated, Progress.value 100 ]
               else if status.documentCount - status.indexedCount > 0 then

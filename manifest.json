@@ -2,9 +2,9 @@
     "manifest_version": 2,
     "name": "Chick",
     "description": "Chrome extension for full text bookmarks and browsing history search.",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "omnibox": {
-        "keyword": "c"
+        "keyword": "e"
     },
     "permissions": [
         "tabs",
@@ -34,7 +34,7 @@
         "1024": "img/icon_1024.png"
     },
     "browser_action": {
-        "default_title": "Chick",
+        "default_title": "Pippi",
         "default_popup": "popup/index.html"
     },
     "content_scripts": [{

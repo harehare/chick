@@ -61,5 +61,3 @@
                                                (let [url (.. e -detail -url)
                                                      words (.. e -detail -words)]
                                                  (add-word words url)))))
-
-; )

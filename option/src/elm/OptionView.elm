@@ -29,7 +29,7 @@ view model =
             , ( "height", "100%" )
             , ( "overflow-y", "scroll" )
             , ( "background-color", "#FEFEFE" )
-            , ( "font-family", "'Raleway', sans-serif" )
+            , ( "font-family", "'Montserrat', sans-serif" )
             ]
         ]
         [ div
@@ -44,7 +44,7 @@ view model =
                 [ style
                     [ ( "color", "#FFF" )
                     , ( "margin-left", "10px" )
-                    , ( "font-family", "'Raleway', sans-serif" )
+                    , ( "font-family", "'Montserrat', sans-serif" )
                     , ( "margin-top", "5px" )
                     ]
                 ]
@@ -72,7 +72,7 @@ positionOption pos =
             , ( "background-color", "#FEFEFE" )
             ]
         ]
-        [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ] [ text "Display position" ]
+        [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ] [ text "Display position" ]
         , Grid.row []
             [ Grid.col [ Col.lg6 ]
                 [ InputGroup.config (InputGroup.text [ Input.attrs [ id "top-input", onFocus (SelectText "top-input") ], toString pos.top |> Input.value, Input.placeholder "Top", Input.onInput (EditPosition "top") ])
@@ -101,7 +101,7 @@ viewOption option =
             , ( "background-color", "#FEFEFE" )
             ]
         ]
-        [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ] [ text "Show chick results" ]
+        [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ] [ text "Show chick results" ]
         , Checkbox.checkbox
             [ Checkbox.id "google", Checkbox.inline, Checkbox.checked option.google, Checkbox.attrs [ ChangeViewOption "google" |> onClick ] ]
             "Google"
@@ -111,6 +111,9 @@ viewOption option =
         , Checkbox.checkbox
             [ Checkbox.id "duckduckgo", Checkbox.inline, Checkbox.checked option.duckDuckGo, Checkbox.attrs [ ChangeViewOption "duckduckgo" |> onClick ] ]
             "DuckDuckGo"
+        , Checkbox.checkbox
+            [ Checkbox.id "yahoo", Checkbox.inline, Checkbox.checked option.yahoo, Checkbox.attrs [ ChangeViewOption "yahoo" |> onClick ] ]
+            "Yahoo Japan"
         ]
 
 
@@ -137,10 +140,10 @@ indexStatus status =
                 , ( "background-color", "#FEFEFE" )
                 ]
             ]
-            [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ]
+            [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ]
                 [ text "Index Status" ]
             , div
-                [ style [ ( "font-size", "0.9rem" ), ( "width", "200px" ) ] ]
+                [ style [ ( "font-size", "0.9rem" ), ( "width", "230px" ) ] ]
                 [ text ((toString status.indexedCount) ++ " items indexed complete") ]
             , if status.documentCount - status.indexedCount > 0 then
                 Progress.progress [ Progress.info, Progress.value currentStatus ]
@@ -160,7 +163,7 @@ indexOption option =
             , ( "background-color", "#FEFEFE" )
             ]
         ]
-        [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ] [ text "Index for search" ]
+        [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ] [ text "Index for search" ]
         , Checkbox.checkbox
             [ Checkbox.id "bookmark", Checkbox.inline, Checkbox.checked option.bookmark, Checkbox.attrs [ ChangeIndexTarget "bookmark" |> onClick ] ]
             "Bookmark"
@@ -181,7 +184,7 @@ blackUrlList keyword urlList =
             , ( "background-color", "#FEFEFE" )
             ]
         ]
-        [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ] [ text "Blocking and filtering" ]
+        [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ] [ text "Blocking and filtering" ]
         , InputGroup.config (InputGroup.text [ Input.placeholder "Enter URL or Keyword", Input.onInput EditBlockKeyword ])
             |> InputGroup.successors
                 [ InputGroup.button
@@ -228,7 +231,7 @@ indexOperation isIndexing =
             , ( "background-color", "#FEFEFE" )
             ]
         ]
-        [ h5 [ style [ ( "font-family", "'Raleway', sans-serif" ) ] ] [ text "Indexing operation" ]
+        [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ] [ text "Indexing operation" ]
         , Button.button
             [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "165px" ) ] ]
             , Button.onClick ImportPocket
@@ -312,14 +315,14 @@ advancedOptions ad =
         [ h5
             [ style
                 [ ( "margin-bottom", "15px" )
-                , ( "font-family", "'Raleway', sans-serif" )
+                , ( "font-family", "'Montserrat', sans-serif" )
                 ]
             ]
             [ text "Advanced option" ]
         , div [ style [ ( "margin-bottom", "5px" ) ] ]
             [ Form.label
                 [ style
-                    [ ( "font-family", "'Raleway', sans-serif" )
+                    [ ( "font-family", "'Montserrat', sans-serif" )
                     , ( "font-size", "0.8rem" )
                     ]
                 , for "scraping-api"
@@ -342,7 +345,7 @@ advancedOptions ad =
         , div [ style [ ( "margin-bottom", "10px" ) ] ]
             [ Form.label
                 [ style
-                    [ ( "font-family", "'Raleway', sans-serif" )
+                    [ ( "font-family", "'Montserrat', sans-serif" )
                     , ( "font-size", "0.8rem" )
                     ]
                 , for "queryparse-api"
@@ -365,7 +368,7 @@ advancedOptions ad =
         , div [ style [ ( "margin-bottom", "10px" ) ] ]
             [ Form.label
                 [ style
-                    [ ( "font-family", "'Raleway', sans-serif" )
+                    [ ( "font-family", "'Montserrat', sans-serif" )
                     , ( "font-size", "0.8rem" )
                     ]
                 , for "scoring-api"
