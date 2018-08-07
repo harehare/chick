@@ -39,13 +39,8 @@ document.body.appendChild(div);
     return;
   }
 
-  const app = Elm.Main.embed(div, {
-    items: [],
-    visible: true,
-    top: position.top,
-    right: position.right,
-    query: ''
-  });
+  const app = Elm.Main.embed(div);
+  app.ports.setPosition.send([position.top, position.right]);
 
   const parsedQuery = escapeHtml(queryString.parse(location.search).q || queryString.parse(location.search).p);
 
@@ -79,6 +74,7 @@ document.body.appendChild(div);
           const bScore = bb ? bb : 0
           return aScore > bScore ? -1 : aScore === bScore ? 0 : 1;
         }).map(v => index[v])]);
+        app.ports.show.send(0)
       });
 
       const urls = Object.values(index).map(v => v.url).filter(v => v.startsWith('http'));
@@ -90,6 +86,7 @@ document.body.appendChild(div);
 
     } else {
       app.ports.searchResult.send([parsedQuery, await doSearch(tokens)]);
+      app.ports.show.send(0)
     }
   };
 

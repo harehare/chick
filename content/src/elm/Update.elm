@@ -8,6 +8,7 @@ import NGram exposing (tokeinze)
 import List
 import Set
 import Subscriptions exposing (..)
+import Animation
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -21,6 +22,42 @@ update msg model =
 
         CloseSearchResult ->
             { model | visible = False } ! []
+
+        SetPosition params ->
+            { model | top = Tuple.first params, right = Tuple.second params } ! []
+
+        Animate animMsg ->
+            { model | style = Animation.update animMsg model.style } ! []
+
+        Close ->
+            { model
+                | style =
+                    Animation.interrupt
+                        [ Animation.to
+                            [ Animation.opacity 1
+                            ]
+                        , Animation.to
+                            [ Animation.opacity 0
+                            ]
+                        ]
+                        model.style
+            }
+                ! []
+
+        Show _ ->
+            { model
+                | style =
+                    Animation.interrupt
+                        [ Animation.to
+                            [ Animation.opacity 0
+                            ]
+                        , Animation.to
+                            [ Animation.opacity 1
+                            ]
+                        ]
+                        model.style
+            }
+                ! []
 
         SearchResult params ->
             let

@@ -10,6 +10,7 @@ import Model exposing (..)
 import FontAwesome.Solid as SolidIcon
 import FontAwesome.Regular as RegularIcon
 import FontAwesome.Brands as BrandsIcon
+import Animation
 
 
 view : Model -> Html Msg
@@ -18,20 +19,22 @@ view model =
         span [] []
     else
         div
-            [ style
-                [ ( "position", "fixed" )
-                , ( "top", toString model.top ++ "px" )
-                , ( "right", toString model.right ++ "px" )
-                , ( "z-index", "100" )
-                , ( "background-color", "#FEFEFE" )
-                , ( "font-family", "'Montserrat', -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif" )
-                , ( "margin", "10px" )
-                , ( "margin-top", "5px" )
-                , ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
-                , ( "border", "1px solid rgba(150,150,150,0.3)" )
-                , ( "max-width", "28vw" )
-                ]
-            ]
+            (Animation.render model.style
+                ++ [ style
+                        [ ( "position", "fixed" )
+                        , ( "top", toString model.top ++ "px" )
+                        , ( "right", toString model.right ++ "px" )
+                        , ( "z-index", "100" )
+                        , ( "background-color", "#FEFEFE" )
+                        , ( "font-family", "'Montserrat', -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif" )
+                        , ( "margin", "10px" )
+                        , ( "margin-top", "5px" )
+                        , ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
+                        , ( "border", "1px solid rgba(150,150,150,0.3)" )
+                        , ( "max-width", "28vw" )
+                        ]
+                   ]
+            )
             [ div
                 [ style
                     [ ( "cursor", "pointer" )
@@ -43,6 +46,7 @@ view model =
                     , ( "width", "1.1rem" )
                     ]
                 , onClick CloseSearchResult
+                , onClick Close
                 ]
                 [ SolidIcon.times ]
             , div [ id "chick-list", style [ ( "overflow-y", "scroll" ), ( "max-height", "80vh" ) ] ]
