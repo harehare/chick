@@ -49,10 +49,10 @@ update msg model =
                 | style =
                     Animation.interrupt
                         [ Animation.to
-                            [ Animation.opacity 0
+                            [ Animation.opacity 0.7
                             ]
                         , Animation.to
-                            [ Animation.opacity 1
+                            [ Animation.opacity 1.0
                             ]
                         ]
                         model.style

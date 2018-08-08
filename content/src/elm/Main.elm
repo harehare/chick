@@ -17,7 +17,7 @@ main =
         { init =
             { style =
                 Animation.style
-                    [ Animation.opacity 0.0
+                    [ Animation.opacity 0.7
                     ]
             , visible = True
             , top = 130

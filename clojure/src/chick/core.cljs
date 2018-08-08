@@ -1,10 +1,9 @@
 (ns chick.core
   (:require [konserve.core :as k]
             [konserve.indexeddb :refer [new-indexeddb-store]]
-            [chick.cache :as cache]
             [chick.pocket :as pocket]
             [cljs.core.async :refer [chan <! close! pipeline]])
-  (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
+  (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (defonce in  (chan 1024))
 
@@ -37,12 +36,11 @@
         (cb (clj->js @result)))))
 
 (pipeline
- 5
+ 4
  (doto (chan) (close!))
- (map (fn [m] (go (let [{:keys [url words]} m
-                        words-info (if (cache/has? url) (cache/get url) (<! (k/get-in score-db [url])))]
-                    (cache/add url words-info)
-                    (let [word-count (reduce + (map (fn [m] (words-info (keyword m))) words))
+ (map (fn [m] (go (let [{:keys [url words]} m]
+                    (let [words-info (<! (k/get-in score-db [url]))
+                          word-count (reduce + (map (fn [m] (words-info (keyword m))) words))
                           word-total (words-info :total)]
                       (>! out {:url url :score (score word-count word-total)}))))))
  in

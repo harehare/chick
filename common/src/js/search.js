@@ -14,7 +14,7 @@ import {
   EventGetScore
 } from 'Common/constants';
 
-const search = (tokens, useScore = true) => {
+const search = (tokens, useScore = true, since = null) => {
   return new Promise(async (resolve) => {
     const itemIds = await getLocalStorage(tokens);
     const searchResult = filterResult(tokens, itemIds);
@@ -26,7 +26,12 @@ const search = (tokens, useScore = true) => {
         const aScore = (searchResult[a] / tokenLen) * (url2score[index[a].url] || 1.0) * calcScore(tokens, index[a]);
         const bScore = (searchResult[b] / tokenLen) * (url2score[index[b].url] || 1.0) * calcScore(tokens, index[b]);
         return aScore > bScore ? -1 : searchResult[a] < searchResult[b] ? 1 : 0;
-      }).map(v => index[v]));
+      }).reduce((arr, v) => {
+        if (!since || index[v].lastVisitTime > since) {
+          arr.push(index[v]);
+        }
+        return arr;
+      }, []));
     };
 
     if (useScore) {
