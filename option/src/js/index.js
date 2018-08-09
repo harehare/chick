@@ -85,7 +85,7 @@ import {
     document.querySelector(`#${id}`).select();
   });
 
-  app.ports.reindexing.subscribe(data => {
+  app.ports.reindexing.subscribe(_ => {
     chrome.runtime.sendMessage({
       type: EventReIndexing,
     });
@@ -105,7 +105,7 @@ import {
     });
   });
 
-  app.ports.deleteIndex.subscribe(data => {
+  app.ports.deleteIndex.subscribe(_ => {
     chrome.storage.local.clear();
     localStorage.clear();
     iziToast.success({

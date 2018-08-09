@@ -34,7 +34,7 @@
         "1024": "img/icon_1024.png"
     },
     "browser_action": {
-        "default_title": "Pippi",
+        "default_title": "Chick",
         "default_popup": "popup/index.html"
     },
     "content_scripts": [{

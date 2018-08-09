@@ -9,7 +9,7 @@ import {
   getSyncStorage
 } from 'Common/chrome';
 import {
-  getOption,
+  getOption
 } from 'Common/option';
 import queryString from 'query-string';
 import escapeHtml from 'escape-html';
@@ -48,7 +48,7 @@ document.body.appendChild(div);
     return;
   }
 
-  const search = async (tokens) => {
+  const search = async tokens => {
     const itemIds = await getLocalStorage(tokens);
     const {
       scoringApi
@@ -67,33 +67,39 @@ document.body.appendChild(div);
           arr[v.url] = (arr[v.url] || 1.0) + v.score;
           return arr;
         }, {});
-        app.ports.searchResult.send([parsedQuery, Object.keys(index).sort((a, b) => {
-          const aa = scoreMap[index[a].url];
-          const bb = scoreMap[index[b].url];
-          const aScore = aa ? aa : 0
-          const bScore = bb ? bb : 0
-          return aScore > bScore ? -1 : aScore === bScore ? 0 : 1;
-        }).map(v => index[v])]);
-        app.ports.show.send(0)
+        app.ports.searchResult.send([
+          parsedQuery,
+          Object.keys(index)
+          .sort((a, b) => {
+            const aa = scoreMap[index[a].url];
+            const bb = scoreMap[index[b].url];
+            const aScore = aa ? aa : 0;
+            const bScore = bb ? bb : 0;
+            return aScore > bScore ? -1 : aScore === bScore ? 0 : 1;
+          })
+          .map(v => index[v])
+        ]);
+        app.ports.show.send(0);
       });
 
-      const urls = Object.values(index).map(v => v.url).filter(v => v.startsWith('http'));
+      const urls = Object.values(index)
+        .map(v => v.url)
+        .filter(v => v.startsWith('http'));
       app.ports.scoring.send({
         apiUrl: scoringApi.url,
         urls,
         tokens
       });
-
     } else {
       app.ports.searchResult.send([parsedQuery, await doSearch(tokens)]);
-      app.ports.show.send(0)
+      app.ports.show.send(0);
     }
   };
 
   app.ports.tokenizeResult.subscribe(search);
   app.ports.queryParseResult.subscribe(search);
 
-  if (findIndex(x => x == parsedQuery, blockList) == -1) {
+  if (findIndex(x => x === parsedQuery, blockList) === -1) {
     const {
       queryParseApi
     } = advancedOption;
@@ -109,14 +115,15 @@ document.body.appendChild(div);
   'https://fonts.googleapis.com/css?family=Anton'
 ].forEach(url => {
   const link = document.createElement('link');
-  link.href = url
-  document.body.appendChild(link)
+  link.href = url;
+  document.body.appendChild(link);
 });
 
 const style = document.createElement('style');
-style.innerHTML = ["#chick-list::-webkit-scrollbar{width:2px;}",
-  "#chick-list::-webkit-scrollbar-track{background: #FFF;}",
-  "#chick-list::-webkit-scrollbar-thumb{background:#CCC}"
-].join("")
-style.type = "text/css";
+style.innerHTML = [
+  '#chick-list::-webkit-scrollbar{width:2px;}',
+  '#chick-list::-webkit-scrollbar-track{background: #FFF;}',
+  '#chick-list::-webkit-scrollbar-thumb{background:#CCC}'
+].join('');
+style.type = 'text/css';
 document.body.appendChild(style);

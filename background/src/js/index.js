@@ -64,6 +64,7 @@ const getBookmark = (bookmarks) => {
 }
 
 const fullIndex = async (indexDocuments) => {
+  let currentCount = 0;
   localStorage.setItem('currentCount', 0);
   const totalCount = indexDocuments.length;
 
@@ -81,8 +82,7 @@ const fullIndex = async (indexDocuments) => {
         setIndexedUrl(item.url);
         const isIndexed = await createIndex(app, item);
         if (!isIndexed) continue;
-        const count = localStorage.getItem('currentCount');
-        const currentCount = (count ? parseInt(count) : 1) + 1;
+        currentCount++;
 
         chrome.runtime.sendMessage({
           type: EventIndexing,
@@ -110,9 +110,7 @@ const fullIndex = async (indexDocuments) => {
         resolve();
         return;
       }
-      const count = localStorage.getItem('currentCount');
-      const currentCount = (count ? parseInt(count) : 1) + items.length;
-
+      currentCount++;
       localStorage.setItem('currentCount', currentCount);
       chrome.runtime.sendMessage({
         type: EventIndexing,
