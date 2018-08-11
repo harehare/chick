@@ -16,5 +16,5 @@ cp -r option $DIST
 cp -r img $DIST
 cp chick.png $DIST
 
-sed -i.bak 's/compiled-dev/compiled/g' $DIST/manifest.json
+yarn manifest-prod
 cd $DIST && zip -r chick.zip *

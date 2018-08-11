@@ -16,7 +16,10 @@ const getOption = data => {
         yahoo: true
       },
       blockList: [],
-      blockKeyword: "",
+      blockKeyword: '',
+      query: '',
+      searchResult: [],
+      deleteUrlList: [],
       indexTarget: {
         bookmark: true,
         history: true
@@ -45,6 +48,9 @@ const getOption = data => {
   } else {
     data.option.changed = false;
     data.option.blockKeyword = '';
+    data.option.query = '';
+    data.option.searchResult = [];
+    data.option.deleteUrlList = [];
     data.option.isIndexing = localStorage.getItem('suspend_indexing') === 'true';
 
     if (!data.status) {

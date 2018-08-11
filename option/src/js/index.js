@@ -1,9 +1,11 @@
 import {
   omit,
+  isEmpty
 } from 'ramda';
 import Elm from '../elm/Option.elm';
 import * as iziToast from "iziToast";
 import 'izitoast/dist/css/iziToast.min.css';
+import uuid5 from "uuid/v5";
 import {
   getSyncStorage
 } from 'Common/chrome';
@@ -18,6 +20,10 @@ import {
   EventCreateIndexFromPocket,
   EventIndexing
 } from 'Common/constants'
+import escapeHtml from 'escape-html';
+import {
+  search as doSearch
+} from 'Common/search';
 
 (async () => {
   const data = await getSyncStorage('option');
@@ -32,8 +38,25 @@ import {
   };
   const app = Elm.Option.fullscreen(option);
 
+  app.ports.doSearch.subscribe(query => {
+    if (isEmpty(query)) {
+      return;
+    }
+    app.ports.tokenizeNGram.send(escapeHtml(query));
+  });
+
+  app.ports.tokenizeResult.subscribe(async (tokens) => {
+    app.ports.optionSearchResult.send(await doSearch(tokens, false));
+  });
+
   app.ports.saveSettings.subscribe(data => {
     setIndexingStatus(data.isIndexing);
+
+    data.deleteUrlList.forEach(url => {
+      localStorage.removeItem(url);
+      chrome.storage.local.remove(uuid5(url, uuid5.URL));
+      console.log(`remove index ${url}`);
+    });
 
     Object.keys(localStorage).forEach(key => {
       if (key.startsWith('indexed:')) {
@@ -41,7 +64,7 @@ import {
         data.blockList.forEach(x => {
           if (url.indexOf(x) !== -1) {
             localStorage.removeItem(url);
-            chrome.storage.local.remove(url);
+            chrome.storage.local.remove(uuid5(url, uuid5.URL));
             console.log(`remove index ${url}`);
           }
         });

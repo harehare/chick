@@ -4,6 +4,9 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Lazy exposing (..)
+import List exposing (filter, member)
+import List.Extra exposing (uniqueBy)
+import String exposing (split)
 import OptionModel exposing (..)
 import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Form.Input as Input
@@ -14,9 +17,11 @@ import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import FontAwesome.Solid as SolidIcon
 import FontAwesome.Brands as BrandsIcon
+import FontAwesome.Regular as RegularIcon
 import Bootstrap.Form as Form
 import Bootstrap.Progress as Progress
 import PopupModel exposing (IndexStatus)
+import Model exposing (Item)
 
 
 view : Model -> Html Msg
@@ -50,6 +55,7 @@ view model =
                 ]
                 [ text "Chick Options" ]
             ]
+        , lazy3 searchResultList model.query model.deleteUrlList model.searchResult
         , lazy indexStatus model.status
         , lazy viewOption model.viewOption
         , lazy indexOption model.indexTarget
@@ -396,6 +402,157 @@ advancedOptions ad =
                 ]
                 [ text "Api specification" ]
             ]
+        ]
+
+
+searchResultList : String -> List String -> List Item -> Html Msg
+searchResultList query deleteItems items =
+    div
+        [ style
+            [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
+            , ( "border", "1px solid rgba(150,150,150,0.3)" )
+            , ( "padding", "1% 2%" )
+            , ( "margin", "15px" )
+            , ( "background-color", "#FEFEFE" )
+            ]
+        ]
+        [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ] [ text "Search" ]
+        , InputGroup.config
+            (InputGroup.text
+                [ query |> Input.value
+                , Input.placeholder "Enter search query"
+                , Input.onInput EditSearchQuery
+                ]
+            )
+            |> InputGroup.view
+        , div
+            [ style
+                [ ( "max-height", "400px" )
+                , ( "overflow-y", "scroll" )
+                ]
+            ]
+            (List.take 20 items
+                |> uniqueBy (\x -> x.title)
+                |> filter (\x -> not (member x.url deleteItems))
+                |> List.map
+                    (\x ->
+                        div [ style [ ( "margin", "12px" ), ( "padding", "5px" ) ] ]
+                            [ div []
+                                [ a
+                                    [ href x.url
+                                    , target "_blank"
+                                    , style
+                                        [ ( "max-width", "90vw" )
+                                        , ( "white-space", "nowrap" )
+                                        , ( "text-overflow", "ellipsis" )
+                                        , ( "overflow", "hidden" )
+                                        , ( "display", "block" )
+                                        , ( "font-size", "0.95rem" )
+                                        , ( "color", "#2F0676" )
+                                        , ( "margin-bottom", "5px" )
+                                        , ( "text-decoration", "unset" )
+                                        , ( "text-align", "left" )
+                                        ]
+                                    ]
+                                    [ text x.title ]
+                                ]
+                            , div
+                                [ style
+                                    [ ( "white-space", "wrap" )
+                                    , ( "font-size", "0.7rem" )
+                                    , ( "overflow", "hidden" )
+                                    , ( "display", "block" )
+                                    , ( "color", "#494949" )
+                                    , ( "margin-bottom", "5px" )
+                                    , ( "text-align", "left" )
+                                    ]
+                                ]
+                                (List.concat
+                                    (let
+                                        snipets =
+                                            split query x.snippet
+                                     in
+                                        if List.length snipets > 2 then
+                                            List.map
+                                                (\x ->
+                                                    [ text x, strong [] [ text query ] ]
+                                                )
+                                                snipets
+                                        else
+                                            [ [ text x.snippet ] ]
+                                    )
+                                )
+                            , div
+                                [ style
+                                    [ ( "white-space", "nowrap" )
+                                    , ( "font-size", "0.8rem" )
+                                    , ( "text-overflow", "ellipsis" )
+                                    , ( "overflow", "hidden" )
+                                    , ( "display", "flex" )
+                                    , ( "color", "#888" )
+                                    , ( "width", "90vw" )
+                                    , ( "text-align", "left" )
+                                    ]
+                                ]
+                                [ span
+                                    [ style
+                                        [ ( "width", "0.9rem" )
+                                        , ( "margin-top", "1px" )
+                                        , ( "margin-right", "3px" )
+                                        , case x.itemType of
+                                            "history" ->
+                                                ( "color", "#57AD3C" )
+
+                                            "bookmark" ->
+                                                ( "color", "#F5C50F" )
+
+                                            _ ->
+                                                ( "color", "#FF0045" )
+                                        ]
+                                    ]
+                                    [ if x.url == "" then
+                                        span [] []
+                                      else
+                                        (case x.itemType of
+                                            "history" ->
+                                                SolidIcon.history
+
+                                            "bookmark" ->
+                                                RegularIcon.bookmark
+
+                                            "pocket" ->
+                                                BrandsIcon.get_pocket
+
+                                            _ ->
+                                                SolidIcon.exclamation_circle
+                                        )
+                                    ]
+                                , span
+                                    [ style
+                                        [ ( "max-width", "80%" )
+                                        , ( "text-overflow", "ellipsis" )
+                                        , ( "white-space", "nowrap" )
+                                        , ( "overflow", "hidden" )
+                                        , ( "font-size", "0.8rem" )
+                                        ]
+                                    ]
+                                    [ text x.url ]
+                                ]
+                            , Button.button
+                                [ Button.attrs
+                                    [ style
+                                        [ ( "margin", "5px" )
+                                        , ( "width", "40px" )
+                                        , ( "height", "35px" )
+                                        ]
+                                    ]
+                                , Button.onClick (DeleteItem x.url)
+                                , Button.danger
+                                ]
+                                [ SolidIcon.trash_alt ]
+                            ]
+                    )
+            )
         ]
 
 

@@ -4,12 +4,15 @@ import Http
 import BackGroundModel exposing (ApiResponseItem)
 import Model exposing (Score)
 import PopupModel exposing (IndexStatus)
+import Model exposing (Item)
 
 
 type Msg
     = NoOp
     | EditBlockKeyword String
+    | EditSearchQuery String
     | DeleteBlockKeyword String
+    | DeleteItem String
     | AddBlockList
     | ChangeViewOption String
     | ChangeIndexTarget String
@@ -27,6 +30,8 @@ type Msg
     | ResponseQueryParseApi (Result Http.Error (List String))
     | ResponseScoringApi (Result Http.Error (List Score))
     | UpdateStatus IndexStatus
+    | OptionTokenizeNGram String
+    | OptionSearchResult (List Item)
 
 
 type Api
@@ -40,11 +45,14 @@ type alias Model =
     , viewOption : ViewOption
     , blockList : List String
     , blockKeyword : String
+    , query : String
+    , searchResult : List Item
     , indexTarget : IndexTarget
     , advancedOption : Advanced
     , changed : Bool
     , isIndexing : Bool
     , status : IndexStatus
+    , deleteUrlList : List String
     }
 
 

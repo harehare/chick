@@ -12,6 +12,8 @@ import OptionSubscriptions exposing (..)
 import PopupModel exposing (IndexStatus)
 import BackGround exposing (requestScrapingApi)
 import Update exposing (requestQueryParseApi, requestScoringApi)
+import Subscriptions exposing (tokenizeResult)
+import NGram exposing (tokeinze)
 
 
 delay : Time.Time -> msg -> Cmd msg
@@ -116,11 +118,28 @@ update msg model =
         DeleteIndex ->
             model ! [ deleteIndex 0 ]
 
+        DeleteItem url ->
+            { model
+                | deleteUrlList = url :: model.deleteUrlList
+                , searchResult = List.filter (\x -> url /= x.url) model.searchResult
+                , changed = True
+            }
+                ! []
+
         ImportPocket ->
             model ! [ importPocket 0 ]
 
         UpdateStatus status ->
             { model | status = status } ! []
+
+        OptionTokenizeNGram text ->
+            model ! [ tokenizeResult (tokeinze text) ]
+
+        EditSearchQuery query ->
+            { model | query = query } ! [ doSearch query ]
+
+        OptionSearchResult searchResult ->
+            { model | searchResult = searchResult } ! []
 
         EditApiUrl api url ->
             let

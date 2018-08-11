@@ -27,6 +27,8 @@
     "webpack-bundle-tracker": "^0.3.0"
   },
   "scripts": {
+    "manifest-dev": "jsonnet manifest-dev.jsonnet > manifest.json",
+    "manifest-prod": "jsonnet manifest-prod.jsonnet > manifest.json",
     "watch": "./node_modules/.bin/webpack --progress --config webpack.config.js --watch",
     "production": "./node_modules/.bin/webpack --progress --config webpack.config.js --env.target=production",
     "lint-staged": "lint-staged",
