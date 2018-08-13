@@ -17,6 +17,7 @@
     'http://*/',
     'https://*/',
   ],
+  offline_enabled: true,
   background: {
     scripts: ['clojure/compiled-dev/main.js', 'dist/background.js'],
     persistent: false,
