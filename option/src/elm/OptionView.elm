@@ -239,7 +239,29 @@ indexOperation isIndexing =
         ]
         [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ] [ text "Indexing operation" ]
         , Button.button
-            [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "165px" ) ] ]
+            [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "165px" ), ( "height", "45px" ) ] ]
+            , Button.onClick Export
+            , Button.outlineDark
+            ]
+            [ div
+                [ style
+                    [ ( "display", "flex" )
+                    , ( "align-items", "center" )
+                    , ( "justify-content", "space-between" )
+                    ]
+                ]
+                [ div
+                    [ style
+                        [ ( "width", "30px" )
+                        , ( "color", "#000" )
+                        ]
+                    ]
+                    [ SolidIcon.download ]
+                , div [ style [ ( "margin-bottom", "7px" ) ] ] [ text "Export index" ]
+                ]
+            ]
+        , Button.button
+            [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "165px" ), ( "height", "45px" ) ] ]
             , Button.onClick ImportPocket
             , Button.outlineDark
             ]
@@ -261,7 +283,7 @@ indexOperation isIndexing =
                 ]
             ]
         , Button.button
-            [ Button.attrs [ style [ ( "width", "160px" ), ( "margin", "15px" ) ] ]
+            [ Button.attrs [ style [ ( "width", "160px" ), ( "margin", "15px" ), ( "height", "45px" ) ] ]
             , Button.onClick Reindexing
             , Button.outlineDark
             ]
@@ -283,7 +305,7 @@ indexOperation isIndexing =
                 ]
             ]
         , Button.button
-            [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "175px" ) ] ]
+            [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "175px" ), ( "height", "45px" ) ] ]
             , Button.onClick DeleteIndex
             , Button.outlineDark
             ]

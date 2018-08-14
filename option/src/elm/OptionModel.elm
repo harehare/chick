@@ -20,6 +20,7 @@ type Msg
     | Reindexing
     | DeleteIndex
     | ImportPocket
+    | Export
     | EditPosition String String
     | SelectText String
     | EditApiUrl Api String

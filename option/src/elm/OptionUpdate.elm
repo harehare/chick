@@ -118,6 +118,9 @@ update msg model =
         DeleteIndex ->
             model ! [ deleteIndex 0 ]
 
+        Export ->
+            model ! [ export 0 ]
+
         DeleteItem url ->
             { model
                 | deleteUrlList = url :: model.deleteUrlList

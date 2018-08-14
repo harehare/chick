@@ -1,5 +1,6 @@
 import {
   omit,
+  head,
   isEmpty
 } from 'ramda';
 import Elm from '../elm/Option.elm';
@@ -7,6 +8,7 @@ import * as iziToast from "iziToast";
 import 'izitoast/dist/css/iziToast.min.css';
 import uuid5 from "uuid/v5";
 import {
+  getLocalStorage,
   getSyncStorage
 } from 'Common/chrome';
 import {
@@ -136,5 +138,27 @@ import {
       message: 'Deleted successfully.',
     });
     deleteIndexedStatus();
+  });
+
+  app.ports.export.subscribe(async _ => {
+    const arr = [];
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith('indexed:')) {
+        const url = key.slice(8);
+        const item = await getLocalStorage(uuid5(url, uuid5.URL));
+        const index = head(Object.values(item));
+        if (index && !isEmpty(item.itemType)) {
+          arr.push(`${url}\t${index.itemType}`);
+        }
+      }
+    }
+
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    a.href = `data:text/plain;charset=utf-8,${encodeURIComponent(arr.join('\n'))}`;
+    a.download = 'export-index.txt';
+    a.click();
+    document.body.removeChild(a);
   });
 })();

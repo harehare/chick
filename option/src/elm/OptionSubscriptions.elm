@@ -12,6 +12,9 @@ port updateStatus : (IndexStatus -> msg) -> Sub msg
 port optionSearchResult : (List Item -> msg) -> Sub msg
 
 
+port export : Int -> Cmd msg
+
+
 port saveSettings : Model -> Cmd msg
 
 
