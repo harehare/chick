@@ -157,7 +157,7 @@ import {
     document.body.appendChild(a);
     a.style = "display: none";
     a.href = `data:text/plain;charset=utf-8,${encodeURIComponent(arr.join('\n'))}`;
-    a.download = 'export-index.txt';
+    a.download = 'chick-index.tsv';
     a.click();
     document.body.removeChild(a);
   });

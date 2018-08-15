@@ -2,7 +2,7 @@
   manifest_version: 2,
   name: 'Chick',
   description: 'Chrome extension for full text bookmarks and browsing history search.',
-  version: '0.0.6',
+  version: '0.0.8',
   omnibox: {
     keyword: 'e',
   },
@@ -18,10 +18,6 @@
     'https://*/',
   ],
   offline_enabled: true,
-  background: {
-    scripts: ['clojure/compiled-dev/main.js', 'dist/background.js'],
-    persistent: false,
-  },
   icons: {
     '14': 'img/icon_14.png',
     '16': 'img/icon_16.png',

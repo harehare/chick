@@ -169,7 +169,8 @@ getTitle text =
     let
         match =
             text
-                |> find (Regex.AtMost 1) (regex "<title[^>]*?>(.+)</title>")
+                |> replace Regex.All (regex "\n") (\_ -> "")
+                |> find (Regex.AtMost 1) (regex "<title[^>]*?>([^<]+)</title>")
                 |> head
 
         result =
