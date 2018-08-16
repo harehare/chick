@@ -9,6 +9,7 @@ import 'izitoast/dist/css/iziToast.min.css';
 import uuid5 from "uuid/v5";
 import {
   getLocalStorage,
+  setLocalStorage,
   getSyncStorage
 } from 'Common/chrome';
 import {
@@ -58,6 +59,15 @@ import {
       localStorage.removeItem(url);
       chrome.storage.local.remove(uuid5(url, uuid5.URL));
       console.log(`remove index ${url}`);
+    });
+
+    data.indexInfo.forEach(async info => {
+      const id = uuid5(info.url, uuid5.URL);
+      const indexItem = await getLocalStorage(id);
+      console.log(Object.assign(indexItem[id], info));
+      await setLocalStorage({
+        [id]: Object.assign(indexItem[id], info)
+      });
     });
 
     Object.keys(localStorage).forEach(key => {

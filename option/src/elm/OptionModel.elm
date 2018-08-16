@@ -33,6 +33,7 @@ type Msg
     | UpdateStatus IndexStatus
     | OptionTokenizeNGram String
     | OptionSearchResult (List Item)
+    | Bookmark IndexInfo
 
 
 type Api
@@ -54,6 +55,13 @@ type alias Model =
     , isIndexing : Bool
     , status : IndexStatus
     , deleteUrlList : List String
+    , indexInfo : List IndexInfo
+    }
+
+
+type alias IndexInfo =
+    { url : String
+    , bookmark : Bool
     }
 
 

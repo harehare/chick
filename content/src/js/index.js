@@ -77,7 +77,7 @@ document.body.appendChild(div);
             const bScore = bb ? bb : 0;
             return aScore > bScore ? -1 : aScore === bScore ? 0 : 1;
           })
-          .map(v => index[v])
+          .map(v => assoc('bookmark', index[v].bookmark || false, index[v]))
         ]);
         app.ports.show.send(0);
       });

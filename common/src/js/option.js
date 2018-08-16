@@ -20,6 +20,7 @@ const getOption = data => {
       query: '',
       searchResult: [],
       deleteUrlList: [],
+      indexInfo: [],
       indexTarget: {
         bookmark: true,
         history: true
@@ -46,12 +47,15 @@ const getOption = data => {
       }
     }
   } else {
-    data.option.changed = false;
-    data.option.blockKeyword = '';
-    data.option.query = '';
-    data.option.searchResult = [];
-    data.option.deleteUrlList = [];
-    data.option.isIndexing = localStorage.getItem('suspend_indexing') === 'true';
+    Object.assign(data.option, {
+      changed: false,
+      blockKeyword: '',
+      query: '',
+      searchResult: [],
+      deleteUrlList: [],
+      isIndexing: localStorage.getItem('suspend_indexing') === 'true',
+      indexInfo: []
+    });
 
     if (!data.status) {
       data.status = {

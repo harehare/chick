@@ -60,7 +60,7 @@ view model =
                                         [ href x.url
                                         , target "_blank"
                                         , style
-                                            [ ( "max-width", "24vw" )
+                                            [ ( "max-width", "23vw" )
                                             , ( "white-space", "nowrap" )
                                             , ( "text-overflow", "ellipsis" )
                                             , ( "overflow", "hidden" )
@@ -72,7 +72,20 @@ view model =
                                             , ( "text-align", "left" )
                                             ]
                                         ]
-                                        [ text x.title ]
+                                        [ if x.bookmark then
+                                            span
+                                                [ style
+                                                    [ ( "display", "inline-block" )
+                                                    , ( "width", "1.0rem" )
+                                                    , ( "margin-right", "5px" )
+                                                    , ( "color", "#5879DB" )
+                                                    ]
+                                                ]
+                                                [ SolidIcon.star ]
+                                          else
+                                            span [] []
+                                        , text x.title
+                                        ]
                                     ]
                                 , div
                                     [ style

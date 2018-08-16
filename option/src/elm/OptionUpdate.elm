@@ -6,7 +6,7 @@ import Regex
 import Task
 import List exposing (..)
 import String exposing (toInt)
-import List.Extra exposing (unique)
+import List.Extra exposing (unique, find)
 import OptionModel exposing (..)
 import OptionSubscriptions exposing (..)
 import PopupModel exposing (IndexStatus)
@@ -117,6 +117,44 @@ update msg model =
 
         DeleteIndex ->
             model ! [ deleteIndex 0 ]
+
+        Bookmark info ->
+            let
+                index =
+                    find (\x -> info.url == x.url) model.indexInfo
+            in
+                { model
+                    | changed = True
+                    , searchResult =
+                        map
+                            (\x ->
+                                if x.url == info.url then
+                                    { url = x.url
+                                    , title = x.title
+                                    , snippet = x.snippet
+                                    , itemType = x.itemType
+                                    , bookmark = info.bookmark
+                                    }
+                                else
+                                    x
+                            )
+                            model.searchResult
+                    , indexInfo =
+                        case index of
+                            Just xs ->
+                                map
+                                    (\x ->
+                                        if x.url == xs.url then
+                                            xs
+                                        else
+                                            x
+                                    )
+                                    model.indexInfo
+
+                            Nothing ->
+                                info :: model.indexInfo
+                }
+                    ! []
 
         Export ->
             model ! [ export 0 ]

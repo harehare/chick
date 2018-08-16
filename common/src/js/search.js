@@ -28,7 +28,7 @@ const search = (tokens, useScore = true, since = null) => {
         return aScore > bScore ? -1 : searchResult[a] < searchResult[b] ? 1 : 0;
       }).reduce((arr, v) => {
         if (!since || index[v].lastVisitTime > since) {
-          arr.push(index[v]);
+          arr.push(assoc('bookmark', index[v].bookmark || false, index[v]));
         }
         return arr;
       }, []));
@@ -77,7 +77,7 @@ const filterResult = (tokens, searchResult) => {
 const calcScore = (tokens, document) => {
   const text = (document.title + document.snippet).toLowerCase();
   const lastVisitTime = prop('lastVisitTime', document);
-  return parseFloat(sum(map(v => text.indexOf(v) >= 0 ? 10.0 : !lastVisitTime ? 5.0 : 2.5, tokens)));
+  return parseFloat(sum(map(v => document.bookmark ? 100.0 : text.indexOf(v) >= 0 ? 10.0 : !lastVisitTime ? 5.0 : 2.5, tokens)));
 }
 
 export {

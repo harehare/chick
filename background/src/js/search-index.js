@@ -40,7 +40,8 @@ const create = items => {
           title,
           snippet,
           lastVisitTime,
-          itemType
+          itemType,
+          bookmark: false
         }
       });
       const currentIndex = await getLocalStorage(words);

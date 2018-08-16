@@ -34,6 +34,7 @@ type alias Item =
     , title : String
     , snippet : String
     , itemType : String
+    , bookmark : Bool
     }
 
 

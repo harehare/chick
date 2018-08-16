@@ -568,6 +568,21 @@ searchResultList query deleteItems items =
                                         , ( "height", "35px" )
                                         ]
                                     ]
+                                , Button.onClick (Bookmark { url = x.url, bookmark = not x.bookmark })
+                                , if x.bookmark then
+                                    Button.info
+                                  else
+                                    Button.outlineInfo
+                                ]
+                                [ SolidIcon.star ]
+                            , Button.button
+                                [ Button.attrs
+                                    [ style
+                                        [ ( "margin", "5px" )
+                                        , ( "width", "40px" )
+                                        , ( "height", "35px" )
+                                        ]
+                                    ]
                                 , Button.onClick (DeleteItem x.url)
                                 , Button.danger
                                 ]
