@@ -208,6 +208,7 @@ chrome.runtime.onMessage.addListener((message) => {
 
 chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   const doSearch = async (tokens) => {
+    console.log(tokens);
     app.ports.queryResult.unsubscribe(doSearch);
     const searchResult = await search(tokens, false);
     if (!isEmpty(searchResult)) {
@@ -219,7 +220,7 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   }
   app.ports.queryResult.subscribe(doSearch);
 
-  if (!isEmpty(text) && text.length > 2) {
+  if (!isEmpty(text)) {
     app.ports.getQuery.send(escapeHtml(text));
   }
 });

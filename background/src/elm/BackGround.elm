@@ -81,7 +81,7 @@ update msg model =
                     text
                         |> Normalize.normalize
                         |> lines
-                        |> filter (\x -> (trim x) /= "" || (x |> trim |> length) > 3)
+                        |> filter (\x -> (trim x) /= "")
                         |> map (\x -> map (\xx -> tokeinze xx) (split " " x) |> concat)
                         |> concat
                         |> unique
