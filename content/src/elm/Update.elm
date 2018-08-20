@@ -6,9 +6,7 @@ import Json.Decode as Decode
 import Model exposing (..)
 import NGram exposing (tokeinze)
 import List
-import Set
 import Subscriptions exposing (..)
-import Animation
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -20,44 +18,14 @@ update msg model =
         TokenizeNGram text ->
             model ! [ tokenizeResult (tokeinze text) ]
 
-        CloseSearchResult ->
-            { model | visible = False } ! []
+        ToggleSearchResult ->
+            { model | visible = not model.visible } ! [ setVisiblety (not model.visible) ]
 
-        SetPosition params ->
-            { model | top = Tuple.first params, right = Tuple.second params } ! []
+        ImageUrl url ->
+            { model | imageUrl = url } ! []
 
-        Animate animMsg ->
-            { model | style = Animation.update animMsg model.style } ! []
-
-        Close ->
-            { model
-                | style =
-                    Animation.interrupt
-                        [ Animation.to
-                            [ Animation.opacity 1
-                            ]
-                        , Animation.to
-                            [ Animation.opacity 0
-                            ]
-                        ]
-                        model.style
-            }
-                ! []
-
-        Show _ ->
-            { model
-                | style =
-                    Animation.interrupt
-                        [ Animation.to
-                            [ Animation.opacity 0.7
-                            ]
-                        , Animation.to
-                            [ Animation.opacity 1.0
-                            ]
-                        ]
-                        model.style
-            }
-                ! []
+        ChangeVisiblety visible ->
+            { model | visible = visible } ! []
 
         SearchResult params ->
             let

@@ -23,7 +23,6 @@ import {
   EventCreateIndexFromPocket,
   EventIndexing
 } from 'Common/constants'
-import escapeHtml from 'escape-html';
 import {
   search as doSearch
 } from 'Common/search';
@@ -45,7 +44,7 @@ import {
     if (isEmpty(query)) {
       return;
     }
-    app.ports.tokenizeNGram.send(escapeHtml(query));
+    app.ports.tokenizeNGram.send(query);
   });
 
   app.ports.tokenizeResult.subscribe(async (tokens) => {

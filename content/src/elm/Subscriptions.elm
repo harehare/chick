@@ -1,8 +1,6 @@
 port module Subscriptions exposing (..)
 
-import Time exposing (millisecond)
 import Model exposing (..)
-import Animation
 
 
 port tokenizeNGram : (String -> msg) -> Sub msg
@@ -20,26 +18,28 @@ port queryParse : (( String, String ) -> msg) -> Sub msg
 port queryParseResult : List String -> Cmd msg
 
 
+port imageUrl : (String -> msg) -> Sub msg
+
+
 port scoring : (ScoringApiRequest -> msg) -> Sub msg
 
 
-port setPosition : (( Int, Int ) -> msg) -> Sub msg
-
-
-port show : (Int -> msg) -> Sub msg
+port changeVisiblety : (Bool -> msg) -> Sub msg
 
 
 port scoreResult : List Score -> Cmd msg
+
+
+port setVisiblety : Bool -> Cmd msg
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ tokenizeNGram TokenizeNGram
-        , show Show
         , searchResult SearchResult
         , queryParse QueryParse
         , scoring Scoring
-        , setPosition SetPosition
-        , Animation.subscription Animate [ model.style ]
+        , imageUrl ImageUrl
+        , changeVisiblety ChangeVisiblety
         ]

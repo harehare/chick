@@ -60,39 +60,9 @@ view model =
         , lazy viewOption model.viewOption
         , lazy indexOption model.indexTarget
         , lazy2 blackUrlList model.blockKeyword model.blockList
-        , lazy positionOption model.position
         , lazy indexOperation model.isIndexing
         , lazy advancedOptions model.advancedOption
         , lazy buttonArea model.changed
-        ]
-
-
-positionOption : Position -> Html Msg
-positionOption pos =
-    div
-        [ style
-            [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
-            , ( "border", "1px solid rgba(150,150,150,0.3)" )
-            , ( "padding", "1% 2%" )
-            , ( "margin", "15px" )
-            , ( "background-color", "#FEFEFE" )
-            ]
-        ]
-        [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ] [ text "Display position" ]
-        , Grid.row []
-            [ Grid.col [ Col.lg6 ]
-                [ InputGroup.config (InputGroup.text [ Input.attrs [ id "top-input", onFocus (SelectText "top-input") ], toString pos.top |> Input.value, Input.placeholder "Top", Input.onInput (EditPosition "top") ])
-                    |> InputGroup.predecessors
-                        [ InputGroup.span [] [ text "Top" ] ]
-                    |> InputGroup.view
-                ]
-            , Grid.col [ Col.lg6 ]
-                [ InputGroup.config (InputGroup.text [ Input.attrs [ id "right-input", onFocus (SelectText "right-input") ], toString pos.right |> Input.value, Input.placeholder "Right", Input.onInput (EditPosition "right") ])
-                    |> InputGroup.predecessors
-                        [ InputGroup.span [] [ text "Right" ] ]
-                    |> InputGroup.view
-                ]
-            ]
         ]
 
 

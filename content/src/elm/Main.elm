@@ -15,15 +15,10 @@ main : Program Never Model Msg
 main =
     Html.program
         { init =
-            { style =
-                Animation.style
-                    [ Animation.opacity 0.7
-                    ]
-            , visible = True
-            , top = 130
-            , right = 10
+            { visible = True
             , query = ""
             , items = []
+            , imageUrl = ""
             }
                 ! []
         , view = view

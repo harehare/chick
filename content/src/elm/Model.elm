@@ -1,31 +1,26 @@
 module Model exposing (..)
 
 import Http
-import Animation
 
 
 type Msg
     = NoOp
     | TokenizeNGram String
-    | CloseSearchResult
     | SearchResult ( String, List Item )
+    | ToggleSearchResult
     | QueryParse ( String, String )
-    | SetPosition ( Int, Int )
     | QueryParseResult (Result Http.Error (List String))
     | Scoring ScoringApiRequest
     | ScoreResult (Result Http.Error (List Score))
-    | Show Int
-    | Close
-    | Animate Animation.Msg
+    | ImageUrl String
+    | ChangeVisiblety Bool
 
 
 type alias Model =
     { items : List Item
     , visible : Bool
-    , top : Int
-    , right : Int
     , query : String
-    , style : Animation.State
+    , imageUrl : String
     }
 
 

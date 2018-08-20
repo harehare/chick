@@ -12,7 +12,6 @@ import {
   getOption
 } from 'Common/option';
 import queryString from 'query-string';
-import escapeHtml from 'escape-html';
 import {
   search as doSearch
 } from 'Common/search';
@@ -25,7 +24,6 @@ document.body.appendChild(div);
   const {
     viewOption,
     blockList,
-    position,
     advancedOption
   } = getOption(option);
 
@@ -40,13 +38,18 @@ document.body.appendChild(div);
   }
 
   const app = Elm.Main.embed(div);
-  app.ports.setPosition.send([position.top, position.right]);
+  const parsedQuery = queryString.parse(location.search).q || queryString.parse(location.search).p;
 
-  const parsedQuery = escapeHtml(queryString.parse(location.search).q || queryString.parse(location.search).p);
+  app.ports.imageUrl.send(chrome.runtime.getURL('img/logo.png'));
+  app.ports.changeVisiblety.send(!localStorage.getItem('visible') || localStorage.getItem('visible') === 'true');
 
   if (isEmpty(parsedQuery)) {
     return;
   }
+
+  app.ports.setVisiblety.subscribe(visible => {
+    localStorage.setItem('visible', visible);
+  });
 
   const search = async tokens => {
     const itemIds = await getLocalStorage(tokens);

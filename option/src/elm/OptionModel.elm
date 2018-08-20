@@ -21,7 +21,6 @@ type Msg
     | DeleteIndex
     | ImportPocket
     | Export
-    | EditPosition String String
     | SelectText String
     | EditApiUrl Api String
     | VerifyScrapingApi
@@ -43,8 +42,7 @@ type Api
 
 
 type alias Model =
-    { position : Position
-    , viewOption : ViewOption
+    { viewOption : ViewOption
     , blockList : List String
     , blockKeyword : String
     , query : String
@@ -62,12 +60,6 @@ type alias Model =
 type alias IndexInfo =
     { url : String
     , bookmark : Bool
-    }
-
-
-type alias Position =
-    { top : Int
-    , right : Int
     }
 
 

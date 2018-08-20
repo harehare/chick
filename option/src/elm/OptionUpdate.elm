@@ -35,7 +35,7 @@ update msg model =
             { model | changed = True, blockList = model.blockList |> List.filter (\x -> x /= keyword) } ! []
 
         AddBlockList ->
-            { model | changed = True, blockList = model.blockKeyword :: model.blockList |> unique } ! []
+            { model | changed = True, blockKeyword = "", blockList = model.blockKeyword :: model.blockList |> unique } ! []
 
         ChangeViewOption service ->
             let
@@ -232,43 +232,6 @@ update msg model =
                         }
                 }
                     ! []
-
-        EditPosition pos val ->
-            let
-                newPos =
-                    if Regex.contains (Regex.regex "\\d+") val then
-                        case toInt val of
-                            Ok v ->
-                                Just v
-
-                            Err _ ->
-                                Nothing
-                    else
-                        Nothing
-
-                top =
-                    if pos == "top" then
-                        case newPos of
-                            Just x ->
-                                x
-
-                            Nothing ->
-                                130
-                    else
-                        model.position.top
-
-                right =
-                    if pos == "right" then
-                        case newPos of
-                            Just x ->
-                                x
-
-                            Nothing ->
-                                10
-                    else
-                        model.position.right
-            in
-                { model | changed = True, position = { top = top, right = right } } ! []
 
         SelectText id ->
             model ! [ selectText id ]

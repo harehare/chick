@@ -5,10 +5,6 @@ import {
 const getOption = data => {
   if (!data.option || isEmpty(data.option)) {
     data.option = {
-      position: {
-        top: 130,
-        right: 10
-      },
       viewOption: {
         google: true,
         bing: true,
