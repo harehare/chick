@@ -12,11 +12,21 @@ Chick indexes all the text on the bookmarks and browsing history to local.
 
 https://chrome.google.com/webstore/detail/chick/iiekfnbpcjolepcejefknaoblbkegbdf
 
+# Query
+
+## type
+
+Use `type:` to filter in search result.
+
+```
+type:(bookmark|history|pocket)
+```
+
 ## TODO
 
 * [ ] Improving search accuracy
-* [ ] Add algolia search
-* [ ] Add pocket search
+* [ ] Add import/export
+* [ ] Add Query
 * [ ] Add google drive search
 
 ## Advanced option

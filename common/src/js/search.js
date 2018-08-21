@@ -2,9 +2,15 @@ import {
   filter,
   map,
   sum,
+  and,
   prop,
   assoc,
-  take
+  take,
+  head,
+  cond,
+  startsWith,
+  T,
+  groupBy
 } from 'ramda';
 import moment from 'moment';
 import {
@@ -14,7 +20,28 @@ import {
   EventGetScore
 } from 'Common/constants';
 
-const search = (tokens, useScore = true, since = null) => {
+const queryParser = (query) => {
+  const tokens = query.split(' ').map(x => cond([
+    [startsWith('type:'), t => ({
+      itemType: t.split(':')[1]
+    })],
+    [T, t => ({
+      query: t
+    })],
+  ])(x));
+
+  return Object.entries(groupBy((token) => head(Object.keys(token)), tokens)).reduce((arr, [k, v]) => {
+    arr[k] = v.reduce(((arr, x) => {
+      return arr + ' ' + Object.values(x).join(' ');
+    }), "").trim();
+    return arr;
+  }, {});
+};
+
+const search = (tokens, useScore = true, filters = {
+  since: null,
+  itemType: null
+}) => {
   return new Promise(async (resolve) => {
     const itemIds = await getLocalStorage(tokens);
     const searchResult = filterResult(tokens, itemIds);
@@ -27,7 +54,7 @@ const search = (tokens, useScore = true, since = null) => {
         const bScore = (searchResult[b] / tokenLen) * (url2score[index[b].url] || 1.0) * calcScore(tokens, index[b]);
         return aScore > bScore ? -1 : searchResult[a] < searchResult[b] ? 1 : 0;
       }).reduce((arr, v) => {
-        if (!since || index[v].lastVisitTime > since) {
+        if (and(!filters.since || index[v].lastVisitTime > filters.since, !filters.itemType || index[v].itemType === filters.itemType)) {
           arr.push(assoc('bookmark', index[v].bookmark || false, index[v]));
         }
         return arr;
@@ -82,6 +109,7 @@ const calcScore = (tokens, document) => {
 
 export {
   search,
+  queryParser,
   getOldindex,
   deleteIndex
 }

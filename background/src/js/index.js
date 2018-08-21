@@ -33,7 +33,8 @@ import {
   sleep
 } from 'Common/utils';
 import {
-  search
+  search,
+  queryParser
 } from 'Common/search';
 import {
   create,
@@ -207,9 +208,11 @@ chrome.runtime.onMessage.addListener((message) => {
 
 chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   const doSearch = async (tokens) => {
-    console.log(tokens);
     app.ports.queryResult.unsubscribe(doSearch);
-    const searchResult = await search(tokens, false);
+    const searchResult = await search(tokens, false, {
+      itemType: queryInfo.itemType,
+      since: null
+    });
     if (!isEmpty(searchResult)) {
       suggest(take(6, searchResult).map(x => ({
         content: x.url,
@@ -219,8 +222,10 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   }
   app.ports.queryResult.subscribe(doSearch);
 
-  if (!isEmpty(text)) {
-    app.ports.getQuery.send(escapeHtml(text));
+  const queryInfo = queryParser(text);
+
+  if (!isEmpty(queryInfo.query)) {
+    app.ports.getQuery.send(queryInfo.query);
   }
 });
 

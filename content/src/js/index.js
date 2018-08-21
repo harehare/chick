@@ -13,7 +13,8 @@ import {
 } from 'Common/option';
 import queryString from 'query-string';
 import {
-  search as doSearch
+  search as doSearch,
+  queryParser
 } from 'Common/search';
 
 const div = document.createElement('div');
@@ -47,6 +48,8 @@ document.body.appendChild(div);
     return;
   }
 
+  const queryInfo = queryParser(parsedQuery);
+
   app.ports.setVisiblety.subscribe(visible => {
     localStorage.setItem('visible', visible);
   });
@@ -58,6 +61,7 @@ document.body.appendChild(div);
     } = advancedOption;
 
     if (scoringApi.verify) {
+      // TODO: itemType
       const ids = Object.values(itemIds).reduce((arr, v) => {
         v.forEach(vv => {
           arr[vv] = 1;
@@ -94,7 +98,10 @@ document.body.appendChild(div);
         tokens
       });
     } else {
-      app.ports.searchResult.send([parsedQuery, await doSearch(tokens)]);
+      app.ports.searchResult.send([queryInfo.query, await doSearch(tokens, true, {
+        itemType: queryInfo.itemType,
+        since: null
+      })]);
       app.ports.show.send(0);
     }
   };
@@ -102,14 +109,14 @@ document.body.appendChild(div);
   app.ports.tokenizeResult.subscribe(search);
   app.ports.queryParseResult.subscribe(search);
 
-  if (findIndex(x => x === parsedQuery, blockList) === -1) {
+  if (findIndex(x => x === queryInfo.query, blockList) === -1) {
     const {
       queryParseApi
     } = advancedOption;
     if (queryParseApi.verify) {
-      app.ports.queryParse.send([queryParseApi.url, parsedQuery]);
+      app.ports.queryParse.send([queryParseApi.url, queryInfo.query]);
     } else {
-      app.ports.tokenizeNGram.send(parsedQuery);
+      app.ports.tokenizeNGram.send(queryInfo.query);
     }
   }
 })();

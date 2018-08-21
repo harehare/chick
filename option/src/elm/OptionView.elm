@@ -13,8 +13,6 @@ import Bootstrap.Form.Input as Input
 import Bootstrap.Button as Button
 import Bootstrap.Form.InputGroup as InputGroup
 import Bootstrap.ListGroup as ListGroup
-import Bootstrap.Grid as Grid
-import Bootstrap.Grid.Col as Col
 import FontAwesome.Solid as SolidIcon
 import FontAwesome.Brands as BrandsIcon
 import FontAwesome.Regular as RegularIcon
@@ -77,7 +75,13 @@ viewOption option =
             , ( "background-color", "#FEFEFE" )
             ]
         ]
-        [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ] [ text "Show chick results" ]
+        [ h5
+            [ style
+                [ ( "font-family", "'Roboto', sans-serif" )
+                , ( "font-weight", "300" )
+                ]
+            ]
+            [ text "Show chick results" ]
         , Checkbox.checkbox
             [ Checkbox.id "google", Checkbox.inline, Checkbox.checked option.google, Checkbox.attrs [ ChangeViewOption "google" |> onClick ] ]
             "Google"
@@ -116,7 +120,12 @@ indexStatus status =
                 , ( "background-color", "#FEFEFE" )
                 ]
             ]
-            [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ]
+            [ h5
+                [ style
+                    [ ( "font-family", "'Roboto', sans-serif" )
+                    , ( "font-weight", "300" )
+                    ]
+                ]
                 [ text "Index Status" ]
             , div
                 [ style [ ( "font-size", "0.9rem" ), ( "width", "230px" ) ] ]
@@ -139,7 +148,13 @@ indexOption option =
             , ( "background-color", "#FEFEFE" )
             ]
         ]
-        [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ] [ text "Index for search" ]
+        [ h5
+            [ style
+                [ ( "font-family", "'Roboto', sans-serif" )
+                , ( "font-weight", "300" )
+                ]
+            ]
+            [ text "Index for search" ]
         , Checkbox.checkbox
             [ Checkbox.id "bookmark", Checkbox.inline, Checkbox.checked option.bookmark, Checkbox.attrs [ ChangeIndexTarget "bookmark" |> onClick ] ]
             "Bookmark"
@@ -160,7 +175,13 @@ blackUrlList keyword urlList =
             , ( "background-color", "#FEFEFE" )
             ]
         ]
-        [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ] [ text "Blocking and filtering" ]
+        [ h5
+            [ style
+                [ ( "font-family", "'Roboto', sans-serif" )
+                , ( "font-weight", "300" )
+                ]
+            ]
+            [ text "Blocking and filtering" ]
         , InputGroup.config (InputGroup.text [ Input.placeholder "Enter URL or Keyword", Input.onInput EditBlockKeyword ])
             |> InputGroup.successors
                 [ InputGroup.button
@@ -207,7 +228,13 @@ indexOperation isIndexing =
             , ( "background-color", "#FEFEFE" )
             ]
         ]
-        [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ] [ text "Indexing operation" ]
+        [ h5
+            [ style
+                [ ( "font-family", "'Roboto', sans-serif" )
+                , ( "font-weight", "300" )
+                ]
+            ]
+            [ text "Indexing operation" ]
         , Button.button
             [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "165px" ), ( "height", "45px" ) ] ]
             , Button.onClick Export
@@ -313,14 +340,16 @@ advancedOptions ad =
         [ h5
             [ style
                 [ ( "margin-bottom", "15px" )
-                , ( "font-family", "'Montserrat', sans-serif" )
+                , ( "font-family", "'Roboto', sans-serif" )
+                , ( "font-weight", "300" )
                 ]
             ]
             [ text "Advanced option" ]
         , div [ style [ ( "margin-bottom", "5px" ) ] ]
             [ Form.label
                 [ style
-                    [ ( "font-family", "'Montserrat', sans-serif" )
+                    [ ( "font-family", "'Roboto', sans-serif" )
+                    , ( "font-weight", "300" )
                     , ( "font-size", "0.8rem" )
                     ]
                 , for "scraping-api"
@@ -343,7 +372,8 @@ advancedOptions ad =
         , div [ style [ ( "margin-bottom", "10px" ) ] ]
             [ Form.label
                 [ style
-                    [ ( "font-family", "'Montserrat', sans-serif" )
+                    [ ( "font-family", "'Roboto', sans-serif" )
+                    , ( "font-weight", "300" )
                     , ( "font-size", "0.8rem" )
                     ]
                 , for "queryparse-api"
@@ -366,7 +396,8 @@ advancedOptions ad =
         , div [ style [ ( "margin-bottom", "10px" ) ] ]
             [ Form.label
                 [ style
-                    [ ( "font-family", "'Montserrat', sans-serif" )
+                    [ ( "font-family", "'Roboto', sans-serif" )
+                    , ( "font-weight", "300" )
                     , ( "font-size", "0.8rem" )
                     ]
                 , for "scoring-api"
@@ -408,7 +439,13 @@ searchResultList query deleteItems items =
             , ( "background-color", "#FEFEFE" )
             ]
         ]
-        [ h5 [ style [ ( "font-family", "'Montserrat', sans-serif" ) ] ] [ text "Search" ]
+        [ h5
+            [ style
+                [ ( "font-family", "'Roboto', sans-serif" )
+                , ( "font-weight", "300" )
+                ]
+            ]
+            [ text "Search" ]
         , InputGroup.config
             (InputGroup.text
                 [ query |> Input.value

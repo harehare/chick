@@ -76,7 +76,7 @@ const hasIndex = (url) => {
 }
 
 const deleteIndexedStatus = () => {
-  localStorage.key.forEach(v => {
+  Object.keys(localStorage).forEach(v => {
     if (v.startsWith('indexed:')) {
       localStorage.removeItem(v);
     }
