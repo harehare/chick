@@ -162,12 +162,46 @@ import {
       }
     }
 
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     document.body.appendChild(a);
-    a.style = "display: none";
+    a.style = 'display: none';
     a.href = `data:text/plain;charset=utf-8,${encodeURIComponent(arr.join('\n'))}`;
     a.download = 'chick-index.tsv';
     a.click();
     document.body.removeChild(a);
   });
+
+  app.ports.importIndex.subscribe(_ => {
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    input.type = 'file';
+    input.style = 'display:none';
+    input.onchange = (file) => {
+      console.log(file);
+      if (!file.target.files || !file.target.files[0]) {
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        chrome.runtime.sendMessage({
+          type: 'IMPORT_INDEX',
+          data: e.target.result
+        });
+        iziToast.info({
+          title: 'Import index',
+          message: 'Import index is launched now!!',
+        });
+        document.body.removeChild(input);
+      }
+      reader.onerror = () => {
+        iziToast.error({
+          title: 'Import index',
+          message: 'Failed import.',
+        });
+      };
+      reader.readAsText(file.target.files[0]);
+    };
+    input.click();
+  });
+
 })();

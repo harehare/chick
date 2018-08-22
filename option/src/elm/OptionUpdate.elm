@@ -242,6 +242,9 @@ update msg model =
         VerifyQueryParseApi ->
             model ! [ requestQueryParseApi model.advancedOption.queryParseApi.url "test" ResponseQueryParseApi ]
 
+        Import ->
+            model ! [ importIndex 0 ]
+
         VerifyScoringApi ->
             model
                 ! [ requestScoringApi

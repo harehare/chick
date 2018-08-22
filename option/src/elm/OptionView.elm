@@ -237,6 +237,28 @@ indexOperation isIndexing =
             [ text "Indexing operation" ]
         , Button.button
             [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "165px" ), ( "height", "45px" ) ] ]
+            , Button.onClick Import
+            , Button.outlineDark
+            ]
+            [ div
+                [ style
+                    [ ( "display", "flex" )
+                    , ( "align-items", "center" )
+                    , ( "justify-content", "space-between" )
+                    ]
+                ]
+                [ div
+                    [ style
+                        [ ( "width", "30px" )
+                        , ( "color", "#000" )
+                        ]
+                    ]
+                    [ SolidIcon.copy ]
+                , div [ style [ ( "margin-bottom", "7px" ) ] ] [ text "Import index" ]
+                ]
+            ]
+        , Button.button
+            [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "165px" ), ( "height", "45px" ) ] ]
             , Button.onClick Export
             , Button.outlineDark
             ]

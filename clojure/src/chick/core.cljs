@@ -2,6 +2,7 @@
   (:require [konserve.core :as k]
             [konserve.indexeddb :refer [new-indexeddb-store]]
             [chick.pocket :as pocket]
+            [chick.import :as importer]
             [cljs.core.async :refer [chan <! close! pipeline]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
@@ -52,7 +53,9 @@
                                        (= request.type "GET_SCORE")
                                        (get-score request.urls request.words sendResponse)
                                        (= request.type "CREATE_INDEX_FROM_POCKET")
-                                       (pocket/start-index))
+                                       (pocket/start-index)
+                                       (= request.type "IMPORT_INDEX")
+                                       (importer/import-index request.data))
                                      true)))
 
 (.. js/document (addEventListener "addIndex" (fn [e]

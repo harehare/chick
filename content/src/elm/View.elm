@@ -64,7 +64,7 @@ view model =
                       , if model.visible then
                             "-1px"
                         else
-                            "-450px"
+                            "-36vw"
                       )
                     , ( "z-index", "100" )
                     , ( "background-color", "#FEFEFE" )
@@ -75,7 +75,7 @@ view model =
                     , ( "border-top", "1px solid rgba(150,150,150,0.3)" )
                     , ( "border-bottom", "1px solid rgba(150,150,150,0.3)" )
                     , ( "border-left", "1px solid rgba(150,150,150,0.3)" )
-                    , ( "width", "450px" )
+                    , ( "width", "35vw" )
                     ]
                 ]
                 [ div [ id "chick-list", style [ ( "overflow-y", "scroll" ), ( "max-height", "80vh" ) ] ]
@@ -89,7 +89,7 @@ view model =
                                             [ href x.url
                                             , target "_blank"
                                             , style
-                                                [ ( "max-width", "23vw" )
+                                                [ ( "max-width", "28vw" )
                                                 , ( "white-space", "nowrap" )
                                                 , ( "text-overflow", "ellipsis" )
                                                 , ( "overflow", "hidden" )
@@ -150,7 +150,7 @@ view model =
                                             , ( "overflow", "hidden" )
                                             , ( "display", "flex" )
                                             , ( "color", "#888" )
-                                            , ( "width", "25vw" )
+                                            , ( "width", "33vw" )
                                             , ( "text-align", "left" )
                                             ]
                                         ]

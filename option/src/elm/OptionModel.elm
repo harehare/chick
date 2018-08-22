@@ -21,6 +21,7 @@ type Msg
     | DeleteIndex
     | ImportPocket
     | Export
+    | Import
     | SelectText String
     | EditApiUrl Api String
     | VerifyScrapingApi

@@ -39,6 +39,9 @@ port importPocket : Int -> Cmd msg
 port doSearch : String -> Cmd msg
 
 
+port importIndex : Int -> Cmd msg
+
+
 subscriptions model =
     Sub.batch
         [ updateStatus UpdateStatus
