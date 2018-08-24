@@ -27,20 +27,6 @@ const getOption = data => {
         indexedCount: 0,
         documentCount: 0
       },
-      advancedOption: {
-        scrapingApi: {
-          url: '',
-          verify: false
-        },
-        queryParseApi: {
-          url: '',
-          verify: false
-        },
-        scoringApi: {
-          url: '',
-          verify: false
-        }
-      }
     }
   } else {
     Object.assign(data.option, {

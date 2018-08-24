@@ -2,7 +2,6 @@ module OptionModel exposing (..)
 
 import Http
 import BackGroundModel exposing (ApiResponseItem)
-import Model exposing (Score)
 import PopupModel exposing (IndexStatus)
 import Model exposing (Item)
 
@@ -23,13 +22,6 @@ type Msg
     | Export
     | Import
     | SelectText String
-    | EditApiUrl Api String
-    | VerifyScrapingApi
-    | VerifyQueryParseApi
-    | VerifyScoringApi
-    | ResponseScrapingApi (Result Http.Error (List ApiResponseItem))
-    | ResponseQueryParseApi (Result Http.Error (List String))
-    | ResponseScoringApi (Result Http.Error (List Score))
     | UpdateStatus IndexStatus
     | OptionTokenizeNGram String
     | OptionSearchResult (List Item)
@@ -49,7 +41,6 @@ type alias Model =
     , query : String
     , searchResult : List Item
     , indexTarget : IndexTarget
-    , advancedOption : Advanced
     , changed : Bool
     , isIndexing : Bool
     , status : IndexStatus
@@ -61,13 +52,6 @@ type alias Model =
 type alias IndexInfo =
     { url : String
     , bookmark : Bool
-    }
-
-
-type alias Advanced =
-    { scrapingApi : ApiStatus
-    , queryParseApi : ApiStatus
-    , scoringApi : ApiStatus
     }
 
 

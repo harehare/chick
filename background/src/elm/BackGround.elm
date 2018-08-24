@@ -1,6 +1,5 @@
 port module BackGround exposing (..)
 
-import Debug
 import BackGroundModel exposing (..)
 import BackGroundSubscriptions exposing (..)
 import Http
@@ -37,22 +36,6 @@ update msg model =
                             }
                         )
                   ]
-
-        OnCreateItemWithApi values ->
-            let
-                items =
-                    Tuple.second values
-
-                urls =
-                    map (\x -> x.url) items
-
-                url =
-                    Tuple.first values
-
-                addItems =
-                    map (\x -> ( x.url, x )) items
-            in
-                { model | items = append (toList model.items) addItems |> fromList } ! [ requestScrapingApi url urls IndexItems ]
 
         IndexItem (Err err) ->
             model ! [ indexError 1 ]
@@ -102,55 +85,6 @@ update msg model =
                             , itemType = item.itemType
                             }
                       ]
-
-        IndexItems (Err _) ->
-            model ! [ indexError 1 ]
-
-        IndexItems (Ok data) ->
-            let
-                items =
-                    data
-                        |> filter (\x -> x.statusCode == 200)
-                        |> map
-                            (\x ->
-                                let
-                                    item =
-                                        case get x.url model.items of
-                                            Just xs ->
-                                                xs
-
-                                            Nothing ->
-                                                { url = "", title = "", lastVisitTime = Nothing, itemType = "" }
-                                in
-                                    { words = x.tokens
-                                    , snippet = x.snippet
-                                    , url = item.url
-                                    , title = item.title
-                                    , lastVisitTime = item.lastVisitTime
-                                    , itemType = item.itemType
-                                    }
-                            )
-
-                errorItems =
-                    Dict.fromList
-                        (data
-                            |> filter (\x -> x.statusCode /= 200)
-                            |> map
-                                (\x ->
-                                    let
-                                        item =
-                                            case get x.url model.items of
-                                                Just xs ->
-                                                    xs
-
-                                                Nothing ->
-                                                    { url = "", title = "", lastVisitTime = Nothing, itemType = "" }
-                                    in
-                                        ( x.url, item )
-                                )
-                        )
-            in
-                { model | items = errorItems } ! [ indexItems items ]
 
         OnErrorItems _ ->
             model ! [ errorItems (values model.items) ]
@@ -205,20 +139,6 @@ removeUnnecessary text =
         |> replace Regex.All (regex " +") (\_ -> " ")
         |> replace Regex.All (regex "\n|\t|\x0D|&quot;") (\_ -> " ")
         |> replace Regex.All (regex Stopwords.words |> caseInsensitive) (\_ -> "")
-
-
-decodeScrapingApiResponse : Decode.Decoder ApiResponseItem
-decodeScrapingApiResponse =
-    Decode.map4 ApiResponseItem
-        (Decode.field "url" Decode.string)
-        (Decode.field "tokens" (Decode.list Decode.string))
-        (Decode.field "snippet" Decode.string)
-        (Decode.field "status_code" Decode.int)
-
-
-requestScrapingApi : String -> List String -> (Result Http.Error (List ApiResponseItem) -> a) -> Cmd a
-requestScrapingApi apiUrl urls msg =
-    Http.send msg (Http.get (apiUrl ++ "?urls=" ++ (Http.encodeUri (join "," urls))) (Decode.list decodeScrapingApiResponse))
 
 
 main : Program Never Model Msg

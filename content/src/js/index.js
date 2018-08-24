@@ -5,7 +5,6 @@ import {
   isEmpty
 } from 'ramda';
 import {
-  getLocalStorage,
   getSyncStorage
 } from 'Common/chrome';
 import {
@@ -55,69 +54,16 @@ document.body.appendChild(div);
   });
 
   const search = async tokens => {
-    const itemIds = await getLocalStorage(tokens);
-    const {
-      scoringApi
-    } = advancedOption;
-
-    if (scoringApi.verify) {
-      // TODO: itemType
-      const ids = Object.values(itemIds).reduce((arr, v) => {
-        v.forEach(vv => {
-          arr[vv] = 1;
-        });
-        return arr;
-      }, {});
-      const index = await getLocalStorage(ids);
-      app.ports.scoreResult.subscribe(score => {
-        const scoreMap = score.reduce((arr, v) => {
-          arr[v.url] = (arr[v.url] || 1.0) + v.score;
-          return arr;
-        }, {});
-        app.ports.searchResult.send([
-          parsedQuery,
-          Object.keys(index)
-          .sort((a, b) => {
-            const aa = scoreMap[index[a].url];
-            const bb = scoreMap[index[b].url];
-            const aScore = aa ? aa : 0;
-            const bScore = bb ? bb : 0;
-            return aScore > bScore ? -1 : aScore === bScore ? 0 : 1;
-          })
-          .map(v => assoc('bookmark', index[v].bookmark || false, index[v]))
-        ]);
-        app.ports.show.send(0);
-      });
-
-      const urls = Object.values(index)
-        .map(v => v.url)
-        .filter(v => v.startsWith('http'));
-      app.ports.scoring.send({
-        apiUrl: scoringApi.url,
-        urls,
-        tokens
-      });
-    } else {
-      app.ports.searchResult.send([queryInfo.query, await doSearch(tokens, true, {
-        itemType: queryInfo.itemType,
-        since: null
-      })]);
-      app.ports.show.send(0);
-    }
+    app.ports.searchResult.send([queryInfo.query, await doSearch(tokens, true, {
+      itemType: queryInfo.itemType,
+      since: null
+    })]);
   };
 
   app.ports.tokenizeResult.subscribe(search);
-  app.ports.queryParseResult.subscribe(search);
 
   if (findIndex(x => x === queryInfo.query, blockList) === -1) {
-    const {
-      queryParseApi
-    } = advancedOption;
-    if (queryParseApi.verify) {
-      app.ports.queryParse.send([queryParseApi.url, queryInfo.query]);
-    } else {
-      app.ports.tokenizeNGram.send(queryInfo.query);
-    }
+    app.ports.tokenizeNGram.send(queryInfo.query);
   }
 })();
 

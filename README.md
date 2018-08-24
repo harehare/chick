@@ -29,12 +29,6 @@ type:(bookmark|history|pocket)
 * [ ] Add Query
 * [ ] Add google drive search
 
-## Advanced option
-
-You can extend search using api.
-
-Api specification is [here](https://chick-search.herokuapp.com/).
-
 ## License
 
 MIT

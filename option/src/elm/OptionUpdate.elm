@@ -10,8 +10,6 @@ import List.Extra exposing (unique, find)
 import OptionModel exposing (..)
 import OptionSubscriptions exposing (..)
 import PopupModel exposing (IndexStatus)
-import BackGround exposing (requestScrapingApi)
-import Update exposing (requestQueryParseApi, requestScoringApi)
 import Subscriptions exposing (tokenizeResult)
 import NGram exposing (tokeinze)
 
@@ -90,27 +88,7 @@ update msg model =
                     ! []
 
         Save ->
-            let
-                advanced =
-                    (if model.advancedOption.scrapingApi.url == "" then
-                        updateVerifyStatus Scraping model.advancedOption model.advancedOption.scrapingApi False
-                     else
-                        model.advancedOption
-                    )
-                        |> (\x ->
-                                if x.queryParseApi.url == "" then
-                                    updateVerifyStatus QueryParse x x.queryParseApi False
-                                else
-                                    x
-                           )
-                        |> (\x ->
-                                if x.scoringApi.url == "" then
-                                    updateVerifyStatus Scoring x x.scoringApi False
-                                else
-                                    x
-                           )
-            in
-                { model | changed = False, advancedOption = advanced } ! [ saveSettings model ]
+            { model | changed = False } ! [ saveSettings model ]
 
         Reindexing ->
             { model | isIndexing = True } ! [ reindexing 0 ]
@@ -182,116 +160,8 @@ update msg model =
         OptionSearchResult searchResult ->
             { model | searchResult = searchResult } ! []
 
-        EditApiUrl api url ->
-            let
-                scrapingApi =
-                    if api == Scraping then
-                        url
-                    else
-                        model.advancedOption.scrapingApi.url
-
-                queryParseApi =
-                    if api == QueryParse then
-                        url
-                    else
-                        model.advancedOption.queryParseApi.url
-
-                scoringApi =
-                    if api == Scoring then
-                        url
-                    else
-                        model.advancedOption.scoringApi.url
-            in
-                { model
-                    | changed = True
-                    , advancedOption =
-                        { scrapingApi =
-                            { url = scrapingApi
-                            , verify =
-                                if scrapingApi == "" then
-                                    False
-                                else
-                                    model.advancedOption.scrapingApi.verify
-                            }
-                        , queryParseApi =
-                            { url = queryParseApi
-                            , verify =
-                                if queryParseApi == "" then
-                                    False
-                                else
-                                    model.advancedOption.queryParseApi.verify
-                            }
-                        , scoringApi =
-                            { url = scoringApi
-                            , verify =
-                                if scoringApi == "" then
-                                    False
-                                else
-                                    model.advancedOption.scoringApi.verify
-                            }
-                        }
-                }
-                    ! []
-
         SelectText id ->
             model ! [ selectText id ]
 
-        VerifyScrapingApi ->
-            model ! [ requestScrapingApi model.advancedOption.scrapingApi.url [ "http://example.com/" ] ResponseScrapingApi ]
-
-        VerifyQueryParseApi ->
-            model ! [ requestQueryParseApi model.advancedOption.queryParseApi.url "test" ResponseQueryParseApi ]
-
         Import ->
             model ! [ importIndex 0 ]
-
-        VerifyScoringApi ->
-            model
-                ! [ requestScoringApi
-                        { apiUrl = model.advancedOption.scoringApi.url
-                        , urls = [ "http://example.com/" ]
-                        , tokens = [ "example" ]
-                        }
-                        ResponseScoringApi
-                  ]
-
-        ResponseScrapingApi (Err _) ->
-            { model | advancedOption = (updateVerifyStatus Scraping model.advancedOption model.advancedOption.scrapingApi False) }
-                ! [ failedVerify "Scraping API" ]
-
-        ResponseScrapingApi (Ok result) ->
-            { model | changed = True, advancedOption = (updateVerifyStatus Scraping model.advancedOption model.advancedOption.scrapingApi True) }
-                ! [ succeedVerify "Scraping API" ]
-
-        ResponseQueryParseApi (Err _) ->
-            { model | advancedOption = (updateVerifyStatus QueryParse model.advancedOption model.advancedOption.queryParseApi False) }
-                ! [ failedVerify "Query Parse API" ]
-
-        ResponseQueryParseApi (Ok result) ->
-            { model | changed = True, advancedOption = (updateVerifyStatus QueryParse model.advancedOption model.advancedOption.queryParseApi True) }
-                ! [ succeedVerify "Query Parse API" ]
-
-        ResponseScoringApi (Err _) ->
-            { model | advancedOption = (updateVerifyStatus Scoring model.advancedOption model.advancedOption.scoringApi False) }
-                ! [ failedVerify "Scoring API" ]
-
-        ResponseScoringApi (Ok result) ->
-            { model | changed = True, advancedOption = (updateVerifyStatus Scoring model.advancedOption model.advancedOption.scoringApi True) }
-                ! [ succeedVerify "Scoring API" ]
-
-
-updateVerifyStatus : Api -> Advanced -> ApiStatus -> Bool -> Advanced
-updateVerifyStatus apiType option api verify =
-    let
-        result =
-            { api | verify = verify }
-    in
-        case apiType of
-            Scraping ->
-                { option | scrapingApi = result }
-
-            QueryParse ->
-                { option | queryParseApi = result }
-
-            Scoring ->
-                { option | scoringApi = result }

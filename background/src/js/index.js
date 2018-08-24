@@ -39,7 +39,6 @@ import {
 import {
   create,
   createIndex,
-  createIndexWithApi
 } from './search-index';
 import Elm from "../elm/BackGround.elm";
 import {
@@ -74,9 +73,6 @@ const fullIndex = async (indexDocuments) => {
     return;
   }
 
-  const option = getOption(await getSyncStorage('option'));
-  const scrapingApi = option.advancedOption.scrapingApi;
-
   const indexing = (items, total) => {
     return new Promise(async resolve => {
       for (const item of items) {
@@ -101,39 +97,9 @@ const fullIndex = async (indexDocuments) => {
     });
   };
 
-  const indexingWithApi = (items, total, url) => {
-    return new Promise(async resolve => {
-      items.forEach(v => {
-        setIndexedUrl(v.url);
-      });
-      const isIndexed = await createIndexWithApi(app, url, items);
-      if (!isIndexed) {
-        resolve();
-        return;
-      }
-      currentCount++;
-      localStorage.setItem('currentCount', currentCount);
-      chrome.runtime.sendMessage({
-        type: EventIndexing,
-        documentCount: total,
-        indexedCount: currentCount
-      });
-
-      resolve();
-    });
-  };
-
-  if (scrapingApi.verify) {
-    for (const items of splitEvery(10, indexDocuments)) {
-      console.log(`request ${scrapingApi.url}`);
-      await indexingWithApi(items, totalCount, scrapingApi.url);
-      await sleep(5000);
-    }
-  } else {
-    await Promise.all(splitEvery(indexDocuments.length / IndexParallel, indexDocuments).map(v => indexing(v, totalCount)));
-  }
-
+  await Promise.all(splitEvery(indexDocuments.length / IndexParallel, indexDocuments).map(v => indexing(v, totalCount)));
   localStorage.setItem('indexingCount', totalCount);
+
   chrome.runtime.sendMessage({
     type: EventIndexing,
     documentCount: totalCount,
@@ -154,10 +120,7 @@ const itemIndexing = async (item) => {
     return
   }
 
-  const scrapingApi = option.advancedOption.scrapingApi;
-  const isIndexed = await scrapingApi.verify ? createIndexWithApi(app, scrapingApi.url, [item]) : createIndex(app, item);
-
-  if (!isIndexed) return;
+  if (!createIndex(app, item)) return;
   setIndexedUrl(item.url);
 }
 
@@ -267,27 +230,6 @@ app.ports.indexItem.subscribe(async ({
       words
     }
   }));
-});
-
-app.ports.indexItems.subscribe(async items => {
-  for (const item of items) {
-    const {
-      url,
-      title,
-      words,
-      snippet,
-      lastVisitTime,
-      itemType
-    } = item;
-    await create([{
-      url,
-      title: title ? title : snippet,
-      words,
-      snippet,
-      lastVisitTime,
-      itemType
-    }]);
-  }
 });
 
 app.ports.indexError.subscribe(errorCount => {

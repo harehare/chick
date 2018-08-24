@@ -59,7 +59,6 @@ view model =
         , lazy indexOption model.indexTarget
         , lazy2 blackUrlList model.blockKeyword model.blockList
         , lazy indexOperation model.isIndexing
-        , lazy advancedOptions model.advancedOption
         , lazy buttonArea model.changed
         ]
 
@@ -344,108 +343,6 @@ indexOperation isIndexing =
                     [ SolidIcon.trash ]
                 , div [ style [ ( "margin-bottom", "7px" ) ] ] [ text "Delete index all" ]
                 ]
-            ]
-        ]
-
-
-advancedOptions : Advanced -> Html Msg
-advancedOptions ad =
-    div
-        [ style
-            [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
-            , ( "border", "1px solid rgba(150,150,150,0.3)" )
-            , ( "padding", "1% 2%" )
-            , ( "margin", "15px" )
-            , ( "background-color", "#FEFEFE" )
-            ]
-        ]
-        [ h5
-            [ style
-                [ ( "margin-bottom", "15px" )
-                , ( "font-family", "'Roboto', sans-serif" )
-                , ( "font-weight", "300" )
-                ]
-            ]
-            [ text "Advanced option" ]
-        , div [ style [ ( "margin-bottom", "5px" ) ] ]
-            [ Form.label
-                [ style
-                    [ ( "font-family", "'Roboto', sans-serif" )
-                    , ( "font-weight", "300" )
-                    , ( "font-size", "0.8rem" )
-                    ]
-                , for "scraping-api"
-                ]
-                [ text "Scraping API" ]
-            , InputGroup.config (InputGroup.text [ ad.scrapingApi.url |> Input.value, Input.placeholder "Scraping API", Input.id "scraping-api", Input.onInput (EditApiUrl Scraping) ])
-                |> InputGroup.successors
-                    [ InputGroup.button
-                        [ Button.disabled (ad.scrapingApi.url == "")
-                        , if ad.scrapingApi.verify then
-                            Button.success
-                          else
-                            Button.danger
-                        , Button.onClick VerifyScrapingApi
-                        ]
-                        [ text "Verify" ]
-                    ]
-                |> InputGroup.view
-            ]
-        , div [ style [ ( "margin-bottom", "10px" ) ] ]
-            [ Form.label
-                [ style
-                    [ ( "font-family", "'Roboto', sans-serif" )
-                    , ( "font-weight", "300" )
-                    , ( "font-size", "0.8rem" )
-                    ]
-                , for "queryparse-api"
-                ]
-                [ text "Query Parse API" ]
-            , InputGroup.config (InputGroup.text [ ad.queryParseApi.url |> Input.value, Input.placeholder "Query Parse API", Input.id "queryparse-api", Input.onInput (EditApiUrl QueryParse) ])
-                |> InputGroup.successors
-                    [ InputGroup.button
-                        [ Button.disabled (ad.queryParseApi.url == "")
-                        , if ad.queryParseApi.verify then
-                            Button.success
-                          else
-                            Button.danger
-                        , Button.onClick VerifyQueryParseApi
-                        ]
-                        [ text "Verify" ]
-                    ]
-                |> InputGroup.view
-            ]
-        , div [ style [ ( "margin-bottom", "10px" ) ] ]
-            [ Form.label
-                [ style
-                    [ ( "font-family", "'Roboto', sans-serif" )
-                    , ( "font-weight", "300" )
-                    , ( "font-size", "0.8rem" )
-                    ]
-                , for "scoring-api"
-                ]
-                [ text "Scoring API" ]
-            , InputGroup.config (InputGroup.text [ ad.scoringApi.url |> Input.value, Input.placeholder "Scoring API", Input.id "scoring-api", Input.onInput (EditApiUrl Scoring) ])
-                |> InputGroup.successors
-                    [ InputGroup.button
-                        [ Button.disabled (ad.scoringApi.url == "")
-                        , if ad.scoringApi.verify then
-                            Button.success
-                          else
-                            Button.danger
-                        , Button.onClick VerifyScoringApi
-                        ]
-                        [ text "Verify" ]
-                    ]
-                |> InputGroup.view
-            , a
-                [ style
-                    [ ( "margin-top", "10px" )
-                    , ( "display", "inline-block" )
-                    ]
-                , href "https://chick-search.herokuapp.com/index.html"
-                ]
-                [ text "Api specification" ]
             ]
         ]
 

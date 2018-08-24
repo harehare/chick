@@ -74,34 +74,7 @@ const createIndex = (app, item) => {
   });
 };
 
-const createIndexWithApi = async (app, url, items) => {
-  return new Promise(async resolve => {
-    const targetItems = items.filter(async v => {
-      const url = await getLocalStorage(uuid5(v.url, uuid5.URL));
-      if (!isEmpty(url)) {
-        return false;
-      }
-      if (v.title) {
-        return true;
-      }
-      return false;
-    });
-
-    if (isEmpty(targetItems)) {
-      console.log('exist index');
-      resolve(false);
-    }
-    for (const items of splitEvery(10, targetItems)) {
-      console.log("indexed");
-      app.ports.createItemWithApi.send([url, items.map(v => assoc('lastVisitTime', v.lastVisitTime ? Math.round(v.lastVisitTime) : null, v))]);
-      await sleep(1000);
-    }
-    resolve(true);
-  });
-};
-
 export {
   create,
   createIndex,
-  createIndexWithApi
 };
