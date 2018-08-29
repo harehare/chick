@@ -1,8 +1,10 @@
 port module BackGround exposing (..)
 
+import Debug
 import BackGroundModel exposing (..)
 import BackGroundSubscriptions exposing (..)
 import Http
+import Json.Encode as Encode
 import Regex exposing (find, replace, HowMany, regex, caseInsensitive)
 import Json.Decode as Decode
 import Time
@@ -23,19 +25,59 @@ update msg model =
             model ! []
 
         OnCreateItem item ->
-            { model | items = insert item.url item model.items }
-                ! [ Http.send IndexItem
-                        (Http.request
-                            { method = "GET"
-                            , headers = []
+            { model | items = insert item.url item model.items } ! [ fetchUrlInfo item IndexItem ]
+
+        OnCreateItemFromApi items ->
+            let
+                url =
+                    Tuple.first items
+
+                item =
+                    Tuple.second items
+            in
+                { model | searchApiUrl = url ++ "/index", items = insert item.url item model.items } ! [ fetchUrlInfo item IndexItemFromApi ]
+
+        IndexCompleted (Err err) ->
+            model ! [ indexError 1 ]
+
+        IndexCompleted (Ok data) ->
+            -- TODO:
+            model ! []
+
+        IndexItemFromApi (Err err) ->
+            model ! [ indexError 1 ]
+
+        IndexItemFromApi (Ok data) ->
+            let
+                item =
+                    case get data.url model.items of
+                        Just xs ->
+                            xs
+
+                        Nothing ->
+                            { url = "", title = "", lastVisitTime = Nothing, itemType = "" }
+
+                title =
+                    getTitle data.body
+            in
+                model
+                    ! [ requestIndexApi model.searchApiUrl
+                            { title =
+                                case title of
+                                    Just xs ->
+                                        xs
+
+                                    Nothing ->
+                                        item.title
                             , url = item.url
-                            , body = Http.emptyBody
-                            , expect = Http.expectStringResponse readHtml
-                            , timeout = Just (3 * Time.second)
-                            , withCredentials = False
+                            , body =
+                                data.body
+                                    |> removeHtmlTag
+                                    |> stripTags
+                                    |> removeUnnecessary
+                            , itemType = item.itemType
                             }
-                        )
-                  ]
+                      ]
 
         IndexItem (Err err) ->
             model ! [ indexError 1 ]
@@ -141,6 +183,52 @@ removeUnnecessary text =
         |> replace Regex.All (regex Stopwords.words |> caseInsensitive) (\_ -> "")
 
 
+decodeIndexApiResponse : Decode.Decoder IndexApiResponse
+decodeIndexApiResponse =
+    Decode.map IndexApiResponse
+        (Decode.field "count" Decode.int)
+
+
+encodeIndexApiRequest : IndexApiItem -> List Encode.Value
+encodeIndexApiRequest item =
+    [ Encode.object
+        [ ( "title", Encode.string item.title )
+        , ( "url", Encode.string item.url )
+        , ( "body", Encode.string item.body )
+        , ( "itemType", Encode.string item.itemType )
+        ]
+    ]
+
+
+requestIndexApi : String -> IndexApiItem -> Cmd Msg
+requestIndexApi url item =
+    Http.send IndexCompleted
+        (Http.post url
+            (item
+                |> encodeIndexApiRequest
+                |> Encode.list
+                |> Debug.log "test"
+                |> Http.jsonBody
+            )
+            decodeIndexApiResponse
+        )
+
+
+fetchUrlInfo : Item -> (Result Http.Error ResponseItem -> a) -> Cmd a
+fetchUrlInfo item msg =
+    Http.send msg
+        (Http.request
+            { method = "GET"
+            , headers = []
+            , url = item.url
+            , body = Http.emptyBody
+            , expect = Http.expectStringResponse readHtml
+            , timeout = Just (3 * Time.second)
+            , withCredentials = False
+            }
+        )
+
+
 main : Program Never Model Msg
 main =
     Platform.program
@@ -149,6 +237,7 @@ main =
                     fromList
                         [ ( "", { url = "", title = "", lastVisitTime = Nothing, itemType = "" } )
                         ]
+              , searchApiUrl = ""
               }
             , Cmd.none
             )

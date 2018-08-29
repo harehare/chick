@@ -165,6 +165,7 @@ chrome.history.onVisited.addListener(async (item) => {
 chrome.runtime.onMessage.addListener((message) => {
   if (message.type === EventReIndexing) {
     console.log('start reindexing...');
+    localStorage.clear();
     startFullIndexing();
   }
 });

@@ -2,16 +2,18 @@ import uuid5 from "uuid/v5";
 import {
   isEmpty,
   pick,
-  assoc,
-  splitEvery
 } from "ramda";
 import {
   getLocalStorage,
-  setLocalStorage
+  setLocalStorage,
+  getSyncStorage
 } from "Common/chrome";
 import {
   sleep
 } from 'Common/utils'
+import {
+  getOption,
+} from 'Common/option'
 
 const create = items => {
   return new Promise(async resolve => {
@@ -63,13 +65,26 @@ const create = items => {
 const createIndex = (app, item) => {
   return new Promise(async resolve => {
     const url = await getLocalStorage(uuid5(item.url, uuid5.URL));
+    const option = await getSyncStorage('option');
+    const {
+      searchApi
+    } = getOption(option);
+
     if (!isEmpty(url)) {
       console.log('exist index');
       resolve(false)
       return;
     }
     item.lastVisitTime = parseInt(item.lastVisitTime) || null;
-    app.ports.createItem.send(pick(['url', 'title', 'lastVisitTime', 'itemType'], item));
+
+    const indexItem = pick(['url', 'title', 'lastVisitTime', 'itemType'], item);
+
+    if (searchApi.verify) {
+      app.ports.createItemFromApi.send([searchApi.url, indexItem]);
+    } else {
+      app.ports.createItem.send(indexItem);
+    }
+
     resolve(true);
   });
 };

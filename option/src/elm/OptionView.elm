@@ -59,6 +59,7 @@ view model =
         , lazy indexOption model.indexTarget
         , lazy2 blackUrlList model.blockKeyword model.blockList
         , lazy indexOperation model.isIndexing
+        , lazy advanced model.searchApi
         , lazy buttonArea model.changed
         ]
 
@@ -160,6 +161,52 @@ indexOption option =
         , Checkbox.checkbox
             [ Checkbox.id "history", Checkbox.inline, Checkbox.checked option.history, Checkbox.attrs [ ChangeIndexTarget "history" |> onClick ] ]
             "History"
+        ]
+
+
+advanced : ApiStatus -> Html Msg
+advanced status =
+    div
+        [ style
+            [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
+            , ( "border", "1px solid rgba(150,150,150,0.3)" )
+            , ( "padding", "1% 2%" )
+            , ( "margin", "15px" )
+            , ( "background-color", "#FEFEFE" )
+            ]
+        ]
+        [ h5
+            [ style
+                [ ( "margin-bottom", "15px" )
+                , ( "font-family", "'Roboto', sans-serif" )
+                , ( "font-weight", "300" )
+                ]
+            ]
+            [ text "Advanced" ]
+        , div [ style [ ( "margin-bottom", "5px" ) ] ]
+            [ Form.label
+                [ style
+                    [ ( "font-family", "'Roboto', sans-serif" )
+                    , ( "font-weight", "300" )
+                    , ( "font-size", "0.8rem" )
+                    ]
+                , for "index-api"
+                ]
+                [ text "Index Extended API" ]
+            , InputGroup.config (InputGroup.text [ status.url |> Input.value, Input.id "index-api", Input.placeholder "Enter URL", Input.onInput EditApiUrl ])
+                |> InputGroup.successors
+                    [ InputGroup.button
+                        [ Button.disabled (status.url == "")
+                        , if status.verify then
+                            Button.success
+                          else
+                            Button.danger
+                        , Button.onClick VerifySearchApi
+                        ]
+                        [ text "Verify" ]
+                    ]
+                |> InputGroup.view
+            ]
         ]
 
 

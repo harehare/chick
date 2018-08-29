@@ -27,6 +27,10 @@ const getOption = data => {
         indexedCount: 0,
         documentCount: 0
       },
+      searchApi: {
+        url: '',
+        verify: false
+      }
     }
   } else {
     Object.assign(data.option, {
@@ -38,6 +42,13 @@ const getOption = data => {
       isIndexing: localStorage.getItem('suspend_indexing') === 'true',
       indexInfo: []
     });
+
+    if (!data.searchApi) {
+      data.searchApi = {
+        url: '',
+        verify: false
+      }
+    }
 
     if (!data.status) {
       data.status = {

@@ -2,16 +2,15 @@ module OptionUpdate exposing (..)
 
 import Time
 import Process
-import Regex
 import Task
+import String exposing (isEmpty)
 import List exposing (..)
-import String exposing (toInt)
 import List.Extra exposing (unique, find)
 import OptionModel exposing (..)
 import OptionSubscriptions exposing (..)
-import PopupModel exposing (IndexStatus)
 import Subscriptions exposing (tokenizeResult)
 import NGram exposing (tokeinze)
+import Update exposing (requestSearchApi)
 
 
 delay : Time.Time -> msg -> Cmd msg
@@ -165,3 +164,26 @@ update msg model =
 
         Import ->
             model ! [ importIndex 0 ]
+
+        VerifySearchApi ->
+            { model | changed = True } ! [ requestSearchApi model.searchApi.url "test" ResponseSearchApi ]
+
+        ResponseSearchApi (Err err) ->
+            { model | searchApi = { url = model.searchApi.url, verify = False } } ! []
+
+        ResponseSearchApi (Ok items) ->
+            { model | changed = True, searchApi = { url = model.searchApi.url, verify = True } } ! []
+
+        EditApiUrl url ->
+            { model
+                | changed = True
+                , searchApi =
+                    { url = url
+                    , verify =
+                        if String.isEmpty url then
+                            False
+                        else
+                            model.searchApi.verify
+                    }
+            }
+                ! []

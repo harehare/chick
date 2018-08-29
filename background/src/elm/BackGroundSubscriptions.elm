@@ -12,6 +12,9 @@ port queryResult : List String -> Cmd msg
 port createItem : (Item -> msg) -> Sub msg
 
 
+port createItemFromApi : (( String, Item ) -> msg) -> Sub msg
+
+
 port getErrorItems : (Int -> msg) -> Sub msg
 
 
@@ -28,6 +31,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ createItem OnCreateItem
+        , createItemFromApi OnCreateItemFromApi
         , getErrorItems OnErrorItems
         , getQuery OnGetQuery
         ]

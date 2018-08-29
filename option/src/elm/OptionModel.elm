@@ -1,7 +1,6 @@
 module OptionModel exposing (..)
 
 import Http
-import BackGroundModel exposing (ApiResponseItem)
 import PopupModel exposing (IndexStatus)
 import Model exposing (Item)
 
@@ -17,6 +16,7 @@ type Msg
     | ChangeIndexTarget String
     | Save
     | Reindexing
+    | EditApiUrl String
     | DeleteIndex
     | ImportPocket
     | Export
@@ -26,6 +26,8 @@ type Msg
     | OptionTokenizeNGram String
     | OptionSearchResult (List Item)
     | Bookmark IndexInfo
+    | VerifySearchApi
+    | ResponseSearchApi (Result Http.Error (List Item))
 
 
 type Api
@@ -46,6 +48,7 @@ type alias Model =
     , status : IndexStatus
     , deleteUrlList : List String
     , indexInfo : List IndexInfo
+    , searchApi : ApiStatus
     }
 
 

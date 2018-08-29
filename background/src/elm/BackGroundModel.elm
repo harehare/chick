@@ -7,13 +7,18 @@ import Dict exposing (Dict)
 type Msg
     = NoOp
     | OnCreateItem Item
+    | OnCreateItemFromApi ( String, Item )
     | OnGetQuery String
     | IndexItem (Result Http.Error ResponseItem)
+    | IndexItemFromApi (Result Http.Error ResponseItem)
+    | IndexCompleted (Result Http.Error IndexApiResponse)
     | OnErrorItems Int
 
 
 type alias Model =
-    { items : Dict String Item }
+    { items : Dict String Item
+    , searchApiUrl : String
+    }
 
 
 type alias IndexData =
@@ -40,9 +45,14 @@ type alias ResponseItem =
     }
 
 
-type alias ApiResponseItem =
-    { url : String
-    , tokens : List String
-    , snippet : String
-    , statusCode : Int
+type alias IndexApiItem =
+    { title : String
+    , url : String
+    , body : String
+    , itemType : String
+    }
+
+
+type alias IndexApiResponse =
+    { count : Int
     }

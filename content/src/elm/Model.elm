@@ -10,6 +10,8 @@ type Msg
     | ToggleSearchResult
     | ImageUrl String
     | ChangeVisiblety Bool
+    | SearchApi ( String, String )
+    | SearchApiResult (Result Http.Error (List Item))
 
 
 type alias Model =
