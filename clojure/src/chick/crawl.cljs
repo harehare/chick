@@ -1,3 +1,0 @@
-(ns chick.crawl)
-
-; TODO

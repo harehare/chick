@@ -79,10 +79,16 @@ update msg model =
                         not model.indexTarget.history
                     else
                         model.indexTarget.history
+
+                pocket =
+                    if target == "pocket" then
+                        not model.indexTarget.pocket
+                    else
+                        model.indexTarget.pocket
             in
                 { model
                     | changed = True
-                    , indexTarget = { bookmark = bookmark, history = history }
+                    , indexTarget = { bookmark = bookmark, history = history, pocket = pocket }
                 }
                     ! []
 

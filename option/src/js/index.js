@@ -81,7 +81,7 @@ import {
         });
       }
     });
-
+    localStorage.setItem('pocket-indexing?', data.indexTarget.pocket)
     chrome.storage.sync.set({
       'option': omit(['blockKeyword', 'changed', 'isIndexing'], data)
     }, () => {

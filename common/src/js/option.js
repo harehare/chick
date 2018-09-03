@@ -19,7 +19,8 @@ const getOption = data => {
       indexInfo: [],
       indexTarget: {
         bookmark: true,
-        history: true
+        history: true,
+        pocket: true,
       },
       changed: false,
       isIndexing: false,
@@ -43,15 +44,19 @@ const getOption = data => {
       indexInfo: []
     });
 
-    if (!data.searchApi) {
-      data.searchApi = {
+    if (!data.option.indexTarget.pocket) {
+      data.option.indexTarget.pocket = false;
+    }
+
+    if (!data.option.searchApi) {
+      data.option.searchApi = {
         url: '',
         verify: false
       }
     }
 
-    if (!data.status) {
-      data.status = {
+    if (!data.option.status) {
+      data.option.status = {
         indexedCount: 0,
         documentCount: 0
       }

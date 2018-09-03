@@ -13,6 +13,7 @@ export const BlockList = [
   'http://192.',
   'http://10.',
   'https://10.',
+  'localhost',
   'google',
   'access_token',
   'auth',

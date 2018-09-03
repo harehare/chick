@@ -161,6 +161,9 @@ indexOption option =
         , Checkbox.checkbox
             [ Checkbox.id "history", Checkbox.inline, Checkbox.checked option.history, Checkbox.attrs [ ChangeIndexTarget "history" |> onClick ] ]
             "History"
+        , Checkbox.checkbox
+            [ Checkbox.id "pocket", Checkbox.inline, Checkbox.checked option.pocket, Checkbox.attrs [ ChangeIndexTarget "pocket" |> onClick ] ]
+            "Pocket"
         ]
 
 

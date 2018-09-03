@@ -9,9 +9,6 @@ import {
   getSyncStorage
 } from "Common/chrome";
 import {
-  sleep
-} from 'Common/utils'
-import {
   getOption,
 } from 'Common/option'
 

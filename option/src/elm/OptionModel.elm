@@ -75,4 +75,5 @@ type alias ViewOption =
 type alias IndexTarget =
     { bookmark : Bool
     , history : Bool
+    , pocket : Bool
     }

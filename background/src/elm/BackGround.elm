@@ -1,6 +1,5 @@
 port module BackGround exposing (..)
 
-import Debug
 import BackGroundModel exposing (..)
 import BackGroundSubscriptions exposing (..)
 import Http
@@ -207,7 +206,6 @@ requestIndexApi url item =
             (item
                 |> encodeIndexApiRequest
                 |> Encode.list
-                |> Debug.log "test"
                 |> Http.jsonBody
             )
             decodeIndexApiResponse
