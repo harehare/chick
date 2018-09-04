@@ -1,3 +1,16 @@
+function sendMessage(message) {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(message, res => {
+      const err = chrome.runtime.lastError;
+      if (err) {
+        reject(err);
+      } else {
+        resolve(res);
+      }
+    });
+  });
+}
+
 function getStorage(keys, fun) {
   return new Promise((resolve, reject) => {
     fun.get(keys, items => {
@@ -52,5 +65,6 @@ export {
   getLocalStorage,
   getSyncStorage,
   setLocalStorage,
-  setSyncStorage
+  setSyncStorage,
+  sendMessage
 };

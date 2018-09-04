@@ -12,7 +12,7 @@ import Html exposing (..)
 
 init : Model -> ( Model, Cmd Msg )
 init model =
-    ( model, Cmd.none )
+    model ! [ doSearch model.query ]
 
 
 main : Program Model Model Msg

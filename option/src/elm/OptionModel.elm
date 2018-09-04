@@ -25,9 +25,11 @@ type Msg
     | UpdateStatus IndexStatus
     | OptionTokenizeNGram String
     | OptionSearchResult (List Item)
+    | CallSearchApi ( String, String )
     | Bookmark IndexInfo
     | VerifySearchApi
     | ResponseSearchApi (Result Http.Error (List Item))
+    | SearchApiResult (Result Http.Error (List Item))
 
 
 type Api
@@ -49,6 +51,7 @@ type alias Model =
     , deleteUrlList : List String
     , indexInfo : List IndexInfo
     , searchApi : ApiStatus
+    , logoUrl : String
     }
 
 

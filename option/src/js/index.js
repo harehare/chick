@@ -6,11 +6,13 @@ import {
 import Elm from '../elm/Option.elm';
 import * as iziToast from "iziToast";
 import 'izitoast/dist/css/iziToast.min.css';
-import uuid5 from "uuid/v5";
+import uuid5 from 'uuid/v5';
+import queryString from 'query-string';
 import {
   getLocalStorage,
   setLocalStorage,
-  getSyncStorage
+  getSyncStorage,
+  sendMessage
 } from 'Common/chrome';
 import {
   getOption,
@@ -33,18 +35,31 @@ import {
   const indexingCount = localStorage.getItem('indexingCount');
   const currentCount = localStorage.getItem('currentCount');
   const indexingComplete = localStorage.getItem('indexing_complete') === 'true';
+  const parsedQuery = queryString.parse(location.search);
 
+  option.query = parsedQuery.q ? parsedQuery.q : '';
+  option.logoUrl = chrome.runtime.getURL('img/logo.png');
   option.status = {
     documentCount: parseInt(indexingComplete ? documentCount() : indexingCount ? indexingCount : 0),
     indexedCount: parseInt(indexingComplete ? documentCount() : currentCount ? currentCount : 0)
   };
   const app = Elm.Option.fullscreen(option);
 
-  app.ports.doSearch.subscribe(query => {
+  app.ports.doSearch.subscribe(async query => {
     if (isEmpty(query)) {
       return;
     }
-    app.ports.tokenizeNGram.send(query);
+
+    const option = await getSyncStorage('option');
+    const {
+      searchApi
+    } = getOption(option);
+
+    if (searchApi.verify) {
+      app.ports.callSearchApi.send([searchApi.url, query]);
+    } else {
+      app.ports.tokenizeNGram.send(query);
+    }
   });
 
   app.ports.tokenizeResult.subscribe(async (tokens) => {
@@ -83,7 +98,7 @@ import {
     });
     localStorage.setItem('pocket-indexing?', data.indexTarget.pocket)
     chrome.storage.sync.set({
-      'option': omit(['blockKeyword', 'changed', 'isIndexing'], data)
+      'option': omit(['blockKeyword', 'changed', 'isIndexing', 'logoUrl'], data)
     }, () => {
       iziToast.success({
         title: 'Saved',

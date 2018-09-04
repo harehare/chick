@@ -37,23 +37,16 @@ view model =
         ]
         [ div
             [ style
-                [ ( "background-color", "#2593E5" )
-                , ( "height", "50px" )
+                [ ( "background-color", "#FCFCFC" )
+                , ( "min-height", "70px" )
+                , ( "width", "100%" )
+                , ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
                 , ( "display", "flex" )
                 , ( "align-items", "center" )
                 ]
             ]
-            [ h5
-                [ style
-                    [ ( "color", "#FFF" )
-                    , ( "margin-left", "10px" )
-                    , ( "font-family", "'Montserrat', sans-serif" )
-                    , ( "margin-top", "5px" )
-                    ]
-                ]
-                [ text "Chick Options" ]
+            [ lazy3 (searchResultList model.logoUrl) model.query model.deleteUrlList model.searchResult
             ]
-        , lazy3 searchResultList model.query model.deleteUrlList model.searchResult
         , lazy indexStatus model.status
         , lazy viewOption model.viewOption
         , lazy indexOption model.indexTarget
@@ -71,7 +64,7 @@ viewOption option =
             [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
             , ( "border", "1px solid rgba(150,150,150,0.3)" )
             , ( "padding", "1% 2%" )
-            , ( "margin", "15px" )
+            , ( "margin", "5px" )
             , ( "background-color", "#FEFEFE" )
             ]
         ]
@@ -116,7 +109,7 @@ indexStatus status =
                 [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
                 , ( "border", "1px solid rgba(150,150,150,0.3)" )
                 , ( "padding", "1% 2%" )
-                , ( "margin", "15px" )
+                , ( "margin", "5px" )
                 , ( "background-color", "#FEFEFE" )
                 ]
             ]
@@ -144,7 +137,7 @@ indexOption option =
             [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
             , ( "border", "1px solid rgba(150,150,150,0.3)" )
             , ( "padding", "1% 2%" )
-            , ( "margin", "15px" )
+            , ( "margin", "5px" )
             , ( "background-color", "#FEFEFE" )
             ]
         ]
@@ -174,7 +167,7 @@ advanced status =
             [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
             , ( "border", "1px solid rgba(150,150,150,0.3)" )
             , ( "padding", "1% 2%" )
-            , ( "margin", "15px" )
+            , ( "margin", "5px" )
             , ( "background-color", "#FEFEFE" )
             ]
         ]
@@ -220,7 +213,7 @@ blackUrlList keyword urlList =
             [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
             , ( "border", "1px solid rgba(150,150,150,0.3)" )
             , ( "padding", "1% 2%" )
-            , ( "margin", "15px" )
+            , ( "margin", "5px" )
             , ( "background-color", "#FEFEFE" )
             ]
         ]
@@ -273,7 +266,7 @@ indexOperation isIndexing =
             [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
             , ( "border", "1px solid rgba(150,150,150,0.3)" )
             , ( "padding", "1% 2%" )
-            , ( "margin", "15px" )
+            , ( "margin", "5px" )
             , ( "background-color", "#FEFEFE" )
             ]
         ]
@@ -397,35 +390,47 @@ indexOperation isIndexing =
         ]
 
 
-searchResultList : String -> List String -> List Item -> Html Msg
-searchResultList query deleteItems items =
+searchResultList : String -> String -> List String -> List Item -> Html Msg
+searchResultList logoUrl query deleteItems items =
     div
         [ style
-            [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
-            , ( "border", "1px solid rgba(150,150,150,0.3)" )
-            , ( "padding", "1% 2%" )
-            , ( "margin", "15px" )
-            , ( "background-color", "#FEFEFE" )
+            [ ( "width", "100%" )
             ]
         ]
-        [ h5
+        [ div
             [ style
-                [ ( "font-family", "'Roboto', sans-serif" )
-                , ( "font-weight", "300" )
+                [ ( "display", "flex" )
+                , ( "align-items", "center" )
+                , ( "min-height", "70px" )
                 ]
             ]
-            [ text "Search" ]
-        , InputGroup.config
-            (InputGroup.text
-                [ query |> Input.value
-                , Input.placeholder "Enter search query"
-                , Input.onInput EditSearchQuery
+            [ img
+                [ src logoUrl
+                , style
+                    [ ( "width", "50px" )
+                    , ( "height", "50px" )
+                    ]
                 ]
-            )
-            |> InputGroup.view
+                []
+            , InputGroup.config
+                (InputGroup.text
+                    [ query |> Input.value
+                    , Input.placeholder "Enter search query"
+                    , Input.onInput EditSearchQuery
+                    ]
+                )
+                |> InputGroup.predecessors
+                    [ InputGroup.span
+                        [ style [ ( "background-color", "#FEFEFE" ) ]
+                        ]
+                        [ div [ style [ ( "width", "15px" ) ] ] [ SolidIcon.search ] ]
+                    ]
+                |> InputGroup.view
+            ]
         , div
             [ style
-                [ ( "max-height", "400px" )
+                [ ( "max-height", "100%" )
+                , ( "border", "1px solid rgba(150,150,150,0.3)" )
                 , ( "overflow-y", "scroll" )
                 ]
             ]
@@ -527,7 +532,7 @@ searchResultList query deleteItems items =
                                     ]
                                 , span
                                     [ style
-                                        [ ( "max-width", "80%" )
+                                        [ ( "max-width", "100%" )
                                         , ( "text-overflow", "ellipsis" )
                                         , ( "white-space", "nowrap" )
                                         , ( "overflow", "hidden" )

@@ -14,7 +14,8 @@ import {
 } from 'ramda';
 import moment from 'moment';
 import {
-  getLocalStorage
+  getLocalStorage,
+  sendMessage
 } from 'Common/chrome';
 import {
   EventGetScore
@@ -48,10 +49,10 @@ const search = (tokens, useScore = true, filters = {
     const index = await getLocalStorage(Object.keys(searchResult));
 
     const doSearch = (url2score = {}) => {
-      const tokenLen = tokens.length;
+      const tokenNum = tokens.length;
       resolve(Object.keys(index).sort((a, b) => {
-        const aScore = (searchResult[a] / tokenLen) * (url2score[index[a].url] || 1.0) * calcScore(tokens, index[a]);
-        const bScore = (searchResult[b] / tokenLen) * (url2score[index[b].url] || 1.0) * calcScore(tokens, index[b]);
+        const aScore = (searchResult[a] / tokenNum) * (url2score[index[a].url] || 1.0) * calcScore(tokens, index[a]);
+        const bScore = (searchResult[b] / tokenNum) * (url2score[index[b].url] || 1.0) * calcScore(tokens, index[b]);
         return aScore > bScore ? -1 : searchResult[a] < searchResult[b] ? 1 : 0;
       }).reduce((arr, v) => {
         if (and(!filters.since || index[v].lastVisitTime > filters.since, !filters.itemType || index[v].itemType === filters.itemType)) {
@@ -62,18 +63,17 @@ const search = (tokens, useScore = true, filters = {
     };
 
     if (useScore) {
-      chrome.runtime.sendMessage({
+      const res = await sendMessage({
         urls: take(20, Object.values(index).map(x => x.url)),
         words: tokens,
         type: EventGetScore
-      }, (res) => {
-        if (!res) console.log('error scoring.');
-        const url2score = Object.values(res || []).reduce((arr, v) => {
-          arr[v.url] = (arr[v.url] || 0.0) + v.score;
-          return arr;
-        }, {});
-        doSearch(url2score);
       });
+      if (!res) console.log('error scoring.');
+      const url2score = Object.values(res || []).reduce((arr, v) => {
+        arr[v.url] = (arr[v.url] || 0.0) + v.score;
+        return arr;
+      }, {});
+      doSearch(url2score);
     } else {
       doSearch();
     }
@@ -82,7 +82,7 @@ const search = (tokens, useScore = true, filters = {
 };
 
 const getOldindex = (index) => {
-  const day = moment().add(-2, 'weeks');
+  const day = moment().add(-4, 'weeks');
   return filter(x => prop('lastVisitTime', x) && x.lastVisitTime < day, index);
 }
 

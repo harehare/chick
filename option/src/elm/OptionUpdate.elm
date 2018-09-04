@@ -153,6 +153,15 @@ update msg model =
         ImportPocket ->
             model ! [ importPocket 0 ]
 
+        CallSearchApi req ->
+            model ! [ requestSearchApi (Tuple.first req) (Tuple.second req) SearchApiResult ]
+
+        SearchApiResult (Err err) ->
+            model ! []
+
+        SearchApiResult (Ok items) ->
+            { model | searchResult = items } ! []
+
         UpdateStatus status ->
             { model | status = status } ! []
 
@@ -175,10 +184,10 @@ update msg model =
             { model | changed = True } ! [ requestSearchApi model.searchApi.url "test" ResponseSearchApi ]
 
         ResponseSearchApi (Err err) ->
-            { model | searchApi = { url = model.searchApi.url, verify = False } } ! []
+            { model | searchApi = { url = model.searchApi.url, verify = False } } ! [ failedVerify "" ]
 
         ResponseSearchApi (Ok items) ->
-            { model | changed = True, searchApi = { url = model.searchApi.url, verify = True } } ! []
+            { model | changed = True, searchApi = { url = model.searchApi.url, verify = True } } ! [ succeedVerify "" ]
 
         EditApiUrl url ->
             { model

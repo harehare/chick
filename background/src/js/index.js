@@ -46,7 +46,7 @@ import {
 } from './blocklist';
 
 const app = Elm.BackGround.worker();
-const IndexParallel = 2;
+const IndexParallel = 4;
 
 const getBookmark = (bookmarks) => {
   if (!bookmarks) return [];
@@ -195,7 +195,7 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
 
 chrome.omnibox.onInputEntered.addListener((url, disposition) => {
   cond([
-    [() => !url.startsWith('http'), () => (openUrl(`https://duckduckgo.com/?q=${encodeURIComponent(url)}`))],
+    [() => !url.startsWith('http'), () => (openUrl(chrome.runtime.getURL('option/index.html?q=') + encodeURIComponent(url), true))],
     [equals('newForegroundTab'), () => (openUrl(url, true))],
     [equals('newBackgroundTab'), () => (openUrl(url))],
     [T, () => (

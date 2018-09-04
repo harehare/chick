@@ -14,7 +14,7 @@ import {
 
 const create = items => {
   return new Promise(async resolve => {
-    for (const i of items) {
+    for (const item of items) {
       const {
         url,
         title,
@@ -22,7 +22,7 @@ const create = items => {
         snippet,
         lastVisitTime,
         itemType
-      } = i;
+      } = item;
       if (isEmpty(words) || isEmpty(itemType)) {
         continue;
       }
