@@ -10,29 +10,14 @@ update msg model =
         NoOp ->
             model ! []
 
-        Index status ->
-            { model | status = status } ! []
-
-        AddIndex i ->
-            { model
-                | status =
-                    { documentCount = model.status.documentCount + i
-                    , indexedCount = model.status.indexedCount
-                    }
-            }
-                ! []
-
-        AddIndexComplate i ->
-            { model
-                | status =
-                    { documentCount = model.status.documentCount
-                    , indexedCount = model.status.indexedCount + i
-                    }
-            }
-                ! []
-
         ShowOption ->
             model ! [ showOption 0 ]
+
+        EditSearchQuery query ->
+            { model | query = query } ! []
+
+        DoSearch ->
+            model ! [ openSearchPage model.query ]
 
         SuspendResume ->
             let

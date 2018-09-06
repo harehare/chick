@@ -39,8 +39,9 @@ document.body.appendChild(div);
 
   const app = Elm.Main.embed(div);
   const parsedQuery = queryString.parse(location.search).q || queryString.parse(location.search).p;
+  const logoUrl = chrome.runtime.getURL('img/logo.png')
 
-  app.ports.imageUrl.send(chrome.runtime.getURL('img/logo.png'));
+  app.ports.imageUrl.send(logoUrl);
   app.ports.changeVisiblety.send(!localStorage.getItem('visible') || localStorage.getItem('visible') === 'true');
 
   if (isEmpty(parsedQuery)) {
@@ -53,11 +54,25 @@ document.body.appendChild(div);
     localStorage.setItem('visible', visible);
   });
 
+  const updateSearchResult = (items) => {
+    items.forEach((i) => {
+      const element = document.querySelector(`a[href="${i.url}"]`)
+      if (element) {
+        const img = document.createElement('img');
+        img.src = logoUrl;
+        img.style.width = '30px';
+        element.parentNode.insertBefore(img, element);
+      }
+    });
+  };
+
   const search = async tokens => {
-    app.ports.searchResult.send([queryInfo.query, await doSearch(tokens, true, {
+    const result = await doSearch(tokens, true, {
       itemType: queryInfo.itemType,
       since: null
-    })]);
+    });
+    app.ports.searchResult.send([queryInfo.query, result]);
+    updateSearchResult(result);
   };
 
   app.ports.tokenizeResult.subscribe(search);

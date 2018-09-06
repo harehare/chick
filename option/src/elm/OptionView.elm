@@ -18,7 +18,6 @@ import FontAwesome.Brands as BrandsIcon
 import FontAwesome.Regular as RegularIcon
 import Bootstrap.Form as Form
 import Bootstrap.Progress as Progress
-import PopupModel exposing (IndexStatus)
 import Model exposing (Item)
 
 
@@ -65,6 +64,7 @@ viewOption option =
             , ( "border", "1px solid rgba(150,150,150,0.3)" )
             , ( "padding", "1% 2%" )
             , ( "margin", "5px" )
+            , ( "border-radius", "5px" )
             , ( "background-color", "#FEFEFE" )
             ]
         ]
@@ -110,6 +110,7 @@ indexStatus status =
                 , ( "border", "1px solid rgba(150,150,150,0.3)" )
                 , ( "padding", "1% 2%" )
                 , ( "margin", "5px" )
+                , ( "border-radius", "5px" )
                 , ( "background-color", "#FEFEFE" )
                 ]
             ]
@@ -138,6 +139,7 @@ indexOption option =
             , ( "border", "1px solid rgba(150,150,150,0.3)" )
             , ( "padding", "1% 2%" )
             , ( "margin", "5px" )
+            , ( "border-radius", "5px" )
             , ( "background-color", "#FEFEFE" )
             ]
         ]
@@ -168,6 +170,7 @@ advanced status =
             , ( "border", "1px solid rgba(150,150,150,0.3)" )
             , ( "padding", "1% 2%" )
             , ( "margin", "5px" )
+            , ( "border-radius", "5px" )
             , ( "background-color", "#FEFEFE" )
             ]
         ]
@@ -214,6 +217,7 @@ blackUrlList keyword urlList =
             , ( "border", "1px solid rgba(150,150,150,0.3)" )
             , ( "padding", "1% 2%" )
             , ( "margin", "5px" )
+            , ( "border-radius", "5px" )
             , ( "background-color", "#FEFEFE" )
             ]
         ]
@@ -267,6 +271,7 @@ indexOperation isIndexing =
             , ( "border", "1px solid rgba(150,150,150,0.3)" )
             , ( "padding", "1% 2%" )
             , ( "margin", "5px" )
+            , ( "border-radius", "5px" )
             , ( "background-color", "#FEFEFE" )
             ]
         ]

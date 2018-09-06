@@ -1,7 +1,6 @@
 port module OptionSubscriptions exposing (..)
 
 import OptionModel exposing (..)
-import PopupModel exposing (IndexStatus)
 import Model exposing (Item)
 import Subscriptions exposing (tokenizeNGram)
 

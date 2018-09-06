@@ -136,7 +136,11 @@ update msg model =
 
 readHtml : Http.Response String -> Result String ResponseItem
 readHtml response =
-    Ok ({ url = response.url, body = response.body })
+    Ok
+        ({ url = response.url
+         , body = response.body
+         }
+        )
 
 
 getTitle : String -> Maybe String

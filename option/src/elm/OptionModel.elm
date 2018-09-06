@@ -1,7 +1,6 @@
 module OptionModel exposing (..)
 
 import Http
-import PopupModel exposing (IndexStatus)
 import Model exposing (Item)
 
 
@@ -36,6 +35,12 @@ type Api
     = Scraping
     | QueryParse
     | Scoring
+
+
+type alias IndexStatus =
+    { documentCount : Int
+    , indexedCount : Int
+    }
 
 
 type alias Model =

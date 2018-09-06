@@ -7,30 +7,17 @@ import {
   setIndexingStatus,
   documentCount
 } from 'Common/option'
-
-const indexingCount = localStorage.getItem('indexingCount');
-const currentCount = localStorage.getItem('currentCount');
-const indexingComplete = localStorage.getItem('indexing_complete') === 'true';
+import {
+  openUrl,
+} from 'Common/chrome';
 
 const app = Elm.Popup.fullscreen({
-  status: {
-    documentCount: parseInt(indexingComplete ? documentCount() : indexingCount ? indexingCount : 0),
-    indexedCount: parseInt(indexingComplete ? documentCount() : currentCount ? currentCount : 0)
-  },
-  suspend: indexingStatus()
+  suspend: indexingStatus(),
+  query: '',
 });
 
-chrome.runtime.onMessage.addListener((message) => {
-  if (message.type === EventIndexing) {
-    app.ports.index.send({
-      documentCount: message.documentCount,
-      indexedCount: message.indexedCount
-    });
-  }
-});
-
-app.ports.showOption.subscribe(() => {
-  window.open(chrome.extension.getURL("option/index.html"));
+app.ports.openSearchPage.subscribe((query) => {
+  openUrl(`${chrome.extension.getURL("option/index.html")}?q=${query}`, true);
 });
 
 app.ports.suspend.subscribe(status => {
