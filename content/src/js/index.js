@@ -60,7 +60,7 @@ document.body.appendChild(div);
       if (element) {
         const img = document.createElement('img');
         img.src = logoUrl;
-        img.style.width = '30px';
+        img.style.width = '16px';
         element.parentNode.insertBefore(img, element);
       }
     });

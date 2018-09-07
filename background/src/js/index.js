@@ -206,6 +206,19 @@ chrome.omnibox.onInputEntered.addListener((url, disposition) => {
   ])(disposition);
 });
 
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    type: 'normal',
+    title: 'Search',
+    id: 'chick',
+    contexts: ['selection'],
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info) => {
+  openUrl(`${chrome.extension.getURL("option/index.html")}?q=${encodeURIComponent(info.selectionText)}`, true);
+});
+
 app.ports.indexItem.subscribe(async ({
   url,
   title,

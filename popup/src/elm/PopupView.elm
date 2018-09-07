@@ -8,13 +8,14 @@ import FontAwesome.Solid as SolidIcon
 import Bootstrap.Form.InputGroup as InputGroup
 import Bootstrap.Form.Input as Input
 import Bootstrap.Button as Button
+import Html.Events.Extra exposing (onEnter)
 
 
 view : Model -> Html Msg
 view model =
     div
         [ style
-            [ ( "width", "400px" )
+            [ ( "width", "300px" )
             , ( "height", "40px" )
             , ( "font-family", "Montserrat" )
             , ( "font-size", "0.9rem" )
@@ -44,7 +45,8 @@ searchBox query =
                     [ query |> Input.value
                     , Input.placeholder "Enter search query"
                     , Input.onInput EditSearchQuery
-                    , Input.attrs [ style [ ( "border", "none" ) ] ]
+                    , Input.id "search-query"
+                    , Input.attrs [ onEnter DoSearch ]
                     ]
                 )
                 |> InputGroup.successors

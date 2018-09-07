@@ -2,6 +2,7 @@ module PopupUpdate exposing (..)
 
 import PopupModel exposing (..)
 import PopupSubscriptions exposing (..)
+import Json.Decode as Decode
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -25,3 +26,11 @@ update msg model =
                     not model.suspend
             in
                 { model | suspend = status } ! [ suspend status ]
+
+
+isEnter : Msg -> number -> Decode.Decoder Msg
+isEnter msg code =
+    if code == 13 then
+        Decode.succeed msg
+    else
+        Decode.fail "not Enter"
