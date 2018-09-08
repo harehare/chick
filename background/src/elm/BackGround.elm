@@ -8,13 +8,14 @@ import Regex exposing (find, replace, HowMany, regex, caseInsensitive)
 import Json.Decode as Decode
 import Time
 import String.Extra exposing (stripTags)
-import String exposing (lines, length, trim, split, left, join)
+import String exposing (lines, length, trim, split, left, join, isEmpty)
 import List exposing (head, filter, map, concat, append)
 import List.Extra exposing (unique)
 import Dict exposing (Dict, get, insert, remove, fromList, toList, values)
 import NGram exposing (tokeinze)
 import Normalize
 import Stopwords
+import Update exposing (requestSearchApi)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -46,6 +47,14 @@ update msg model =
         IndexItemFromApi (Err err) ->
             model ! [ indexError 1 ]
 
+        IndexAll _ ->
+            { model | indexingItems = [] }
+                ! [ if isEmpty model.searchApiUrl then
+                        Cmd.none
+                    else
+                        requestIndexApi model.searchApiUrl model.indexingItems
+                  ]
+
         IndexItemFromApi (Ok data) ->
             let
                 item =
@@ -56,26 +65,38 @@ update msg model =
                         Nothing ->
                             { url = "", title = "", lastVisitTime = Nothing, itemType = "" }
 
-                title =
-                    getTitle data.body
-            in
-                model
-                    ! [ requestIndexApi model.searchApiUrl
-                            { title =
-                                case title of
-                                    Just xs ->
-                                        xs
+                items =
+                    { title =
+                        case getTitle data.body of
+                            Just xs ->
+                                xs
 
-                                    Nothing ->
-                                        item.title
-                            , url = item.url
-                            , body =
-                                data.body
-                                    |> removeHtmlTag
-                                    |> stripTags
-                                    |> removeUnnecessary
-                            , itemType = item.itemType
-                            }
+                            Nothing ->
+                                item.title
+                    , url = item.url
+                    , body =
+                        data.body
+                            |> removeHtmlTag
+                            |> stripTags
+                            |> removeUnnecessary
+                    , itemType = item.itemType
+                    }
+                        :: model.indexingItems
+
+                doIndex =
+                    List.length items > 30
+            in
+                { model
+                    | indexingItems =
+                        if doIndex then
+                            []
+                        else
+                            items
+                }
+                    ! [ if doIndex then
+                            requestIndexApi model.searchApiUrl items
+                        else
+                            Cmd.none
                       ]
 
         IndexItem (Err err) ->
@@ -132,6 +153,15 @@ update msg model =
 
         OnGetQuery text ->
             model ! [ queryResult (tokeinze text) ]
+
+        BackgroundSearchApi req ->
+            model ! [ requestSearchApi (Tuple.first req) (Tuple.second req) SearchApiResult ]
+
+        SearchApiResult (Err err) ->
+            model ! []
+
+        SearchApiResult (Ok items) ->
+            model ! [ setSearchResult items ]
 
 
 readHtml : Http.Response String -> Result String ResponseItem
@@ -192,22 +222,25 @@ decodeIndexApiResponse =
         (Decode.field "count" Decode.int)
 
 
-encodeIndexApiRequest : IndexApiItem -> List Encode.Value
-encodeIndexApiRequest item =
-    [ Encode.object
-        [ ( "title", Encode.string item.title )
-        , ( "url", Encode.string item.url )
-        , ( "body", Encode.string item.body )
-        , ( "itemType", Encode.string item.itemType )
-        ]
-    ]
+encodeIndexApiRequest : List IndexApiItem -> List Encode.Value
+encodeIndexApiRequest items =
+    List.map
+        (\i ->
+            Encode.object
+                [ ( "title", Encode.string i.title )
+                , ( "url", Encode.string i.url )
+                , ( "body", Encode.string i.body )
+                , ( "itemType", Encode.string i.itemType )
+                ]
+        )
+        items
 
 
-requestIndexApi : String -> IndexApiItem -> Cmd Msg
-requestIndexApi url item =
+requestIndexApi : String -> List IndexApiItem -> Cmd Msg
+requestIndexApi url items =
     Http.send IndexCompleted
         (Http.post url
-            (item
+            (items
                 |> encodeIndexApiRequest
                 |> Encode.list
                 |> Http.jsonBody
@@ -240,6 +273,7 @@ main =
                         [ ( "", { url = "", title = "", lastVisitTime = Nothing, itemType = "" } )
                         ]
               , searchApiUrl = ""
+              , indexingItems = []
               }
             , Cmd.none
             )

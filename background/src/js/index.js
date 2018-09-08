@@ -107,6 +107,7 @@ const fullIndex = async (indexDocuments) => {
   });
 
   app.ports.getErrorItems.send(0);
+  app.ports.indexAllFromApi.send(0);
   resumeIndexing();
 };
 
@@ -170,7 +171,7 @@ chrome.runtime.onMessage.addListener((message) => {
   }
 });
 
-chrome.omnibox.onInputChanged.addListener((text, suggest) => {
+chrome.omnibox.onInputChanged.addListener(async (text, suggest) => {
   const doSearch = async (tokens) => {
     app.ports.queryResult.unsubscribe(doSearch);
     const searchResult = await search(tokens, false, {
@@ -184,12 +185,32 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
       })).filter(x => !isEmpty(x.content)));
     }
   }
-  app.ports.queryResult.subscribe(doSearch);
+
+  const setSearchResult = async (items) => {
+    app.ports.setSearchResult.unsubscribe(setSearchResult);
+    if (!isEmpty(items)) {
+      suggest(take(6, items).map(x => ({
+        content: x.url,
+        description: `<url>${escapeHtml(x.url)}</url> - <dim>${escapeHtml(x.title)}</dim>`
+      })).filter(x => !isEmpty(x.content)));
+    }
+  }
 
   const queryInfo = queryParser(text);
 
   if (!isEmpty(queryInfo.query)) {
-    app.ports.getQuery.send(queryInfo.query);
+    const option = await getSyncStorage('option');
+    const {
+      searchApi
+    } = getOption(option);
+
+    if (searchApi.verify) {
+      app.ports.setSearchResult.subscribe(setSearchResult);
+      app.ports.backgroundSearchApi.send([searchApi.url, queryInfo.query]);
+    } else {
+      app.ports.queryResult.subscribe(doSearch);
+      app.ports.getQuery.send(queryInfo.query);
+    }
   }
 });
 

@@ -2,6 +2,7 @@ module BackGroundModel exposing (..)
 
 import Http
 import Dict exposing (Dict)
+import Model
 
 
 type Msg
@@ -12,12 +13,16 @@ type Msg
     | IndexItem (Result Http.Error ResponseItem)
     | IndexItemFromApi (Result Http.Error ResponseItem)
     | IndexCompleted (Result Http.Error IndexApiResponse)
+    | IndexAll Int
     | OnErrorItems Int
+    | BackgroundSearchApi ( String, String )
+    | SearchApiResult (Result Http.Error (List Model.Item))
 
 
 type alias Model =
     { items : Dict String Item
     , searchApiUrl : String
+    , indexingItems : List IndexApiItem
     }
 
 
