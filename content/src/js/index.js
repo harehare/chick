@@ -69,7 +69,8 @@ document.body.appendChild(div);
   const search = async tokens => {
     const result = await doSearch(tokens, true, {
       itemType: queryInfo.itemType,
-      since: null
+      before: queryInfo.before,
+      after: queryInfo.after,
     });
     app.ports.searchResult.send([queryInfo.query, result]);
     updateSearchResult(result);

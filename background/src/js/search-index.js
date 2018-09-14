@@ -20,7 +20,7 @@ const create = items => {
         title,
         words,
         snippet,
-        lastVisitTime,
+        createdAt,
         itemType
       } = item;
       if (isEmpty(words) || isEmpty(itemType)) {
@@ -38,7 +38,7 @@ const create = items => {
           url,
           title,
           snippet,
-          lastVisitTime,
+          createdAt,
           itemType,
           bookmark: false
         }
@@ -72,9 +72,9 @@ const createIndex = (app, item) => {
       resolve(false)
       return;
     }
-    item.lastVisitTime = parseInt(item.lastVisitTime) || null;
+    item.createdAt = parseInt(item.createdAt) || null;
 
-    const indexItem = pick(['url', 'title', 'lastVisitTime', 'itemType'], item);
+    const indexItem = pick(['url', 'title', 'createdAt', 'itemType'], item);
 
     if (searchApi.verify) {
       app.ports.createItemFromApi.send([searchApi.url, indexItem]);

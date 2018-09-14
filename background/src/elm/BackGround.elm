@@ -63,7 +63,7 @@ update msg model =
                             xs
 
                         Nothing ->
-                            { url = "", title = "", lastVisitTime = Nothing, itemType = "" }
+                            { url = "", title = "", createdAt = Nothing, itemType = "" }
 
                 items =
                     { title =
@@ -110,7 +110,7 @@ update msg model =
                             xs
 
                         Nothing ->
-                            { url = "", title = "", lastVisitTime = Nothing, itemType = "" }
+                            { url = "", title = "", createdAt = Nothing, itemType = "" }
 
                 title =
                     getTitle data.body
@@ -143,7 +143,7 @@ update msg model =
 
                                     Nothing ->
                                         item.title
-                            , lastVisitTime = item.lastVisitTime
+                            , createdAt = item.createdAt
                             , itemType = item.itemType
                             }
                       ]
@@ -270,7 +270,7 @@ main =
         { init =
             ( { items =
                     fromList
-                        [ ( "", { url = "", title = "", lastVisitTime = Nothing, itemType = "" } )
+                        [ ( "", { url = "", title = "", createdAt = Nothing, itemType = "" } )
                         ]
               , searchApiUrl = ""
               , indexingItems = []

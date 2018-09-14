@@ -26,6 +26,12 @@ const queryParser = (query) => {
     [startsWith('type:'), t => ({
       itemType: t.split(':')[1]
     })],
+    [startsWith('before:'), t => ({
+      before: moment(t.split(':')[1]).valueOf()
+    })],
+    [startsWith('after:'), t => ({
+      after: moment(t.split(':')[1]).valueOf()
+    })],
     [T, t => ({
       query: t
     })],
@@ -40,7 +46,8 @@ const queryParser = (query) => {
 };
 
 const search = (tokens, useScore = true, filters = {
-  since: null,
+  before: null,
+  after: null,
   itemType: null
 }) => {
   return new Promise(async (resolve) => {
@@ -55,7 +62,7 @@ const search = (tokens, useScore = true, filters = {
         const bScore = (searchResult[b] / tokenNum) * (url2score[index[b].url] || 1.0) * calcScore(tokens, index[b]);
         return aScore > bScore ? -1 : searchResult[a] < searchResult[b] ? 1 : 0;
       }).reduce((arr, v) => {
-        if (and(!filters.since || index[v].lastVisitTime > filters.since, !filters.itemType || index[v].itemType === filters.itemType)) {
+        if (and(!filters.before || index[v].createdAt <= filters.before, !filters.after || index[v].createdAt >= filters.after, !filters.itemType || index[v].itemType === filters.itemType)) {
           arr.push(assoc('bookmark', index[v].bookmark || false, index[v]));
         }
         return arr;
@@ -83,7 +90,7 @@ const search = (tokens, useScore = true, filters = {
 
 const getOldindex = (index) => {
   const day = moment().add(-4, 'weeks');
-  return filter(x => prop('lastVisitTime', x) && x.lastVisitTime < day, index);
+  return filter(x => prop('createdAt', x) && x.itemType === 'history' && x.createdAt < day, index);
 }
 
 const deleteIndex = async (tokens, indexes) => {
@@ -103,8 +110,7 @@ const filterResult = (tokens, searchResult) => {
 
 const calcScore = (tokens, document) => {
   const text = (document.title + document.snippet).toLowerCase();
-  const lastVisitTime = prop('lastVisitTime', document);
-  return parseFloat(sum(map(v => document.bookmark ? 100.0 : text.indexOf(v) >= 0 ? 10.0 : !lastVisitTime ? 5.0 : 2.5, tokens)));
+  return parseFloat(sum(map(v => document.bookmark ? 100.0 : text.indexOf(v) >= 0 ? 10.0 : document.itemType == 'bookmark' ? 5.0 : 2.5, tokens)));
 }
 
 export {

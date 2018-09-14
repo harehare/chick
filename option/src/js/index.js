@@ -26,7 +26,8 @@ import {
   EventIndexing
 } from 'Common/constants'
 import {
-  search as doSearch
+  search as doSearch,
+  queryParser
 } from 'Common/search';
 
 (async () => {
@@ -50,20 +51,23 @@ import {
       return;
     }
 
+    const queryInfo = queryParser(query);
     const option = await getSyncStorage('option');
     const {
       searchApi
     } = getOption(option);
 
     if (searchApi.verify) {
-      app.ports.callSearchApi.send([searchApi.url, query]);
+      app.ports.callSearchApi.send([searchApi.url, queryInfo.query]);
     } else {
-      app.ports.tokenizeNGram.send(query);
+      app.ports.tokenizeNGram.send(queryInfo.query);
     }
   });
 
   app.ports.tokenizeResult.subscribe(async (tokens) => {
-    app.ports.optionSearchResult.send(await doSearch(tokens, false));
+    app.ports.optionSearchResult.send(await doSearch(tokens, false, {
+
+    }));
   });
 
   app.ports.saveSettings.subscribe(data => {
@@ -192,7 +196,6 @@ import {
     input.type = 'file';
     input.style = 'display:none';
     input.onchange = (file) => {
-      console.log(file);
       if (!file.target.files || !file.target.files[0]) {
         return;
       }

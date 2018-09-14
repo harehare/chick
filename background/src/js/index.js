@@ -15,8 +15,10 @@ import camelcasekeys from 'camelcase-keys';
 import escapeHtml from 'escape-html';
 import {
   openUrl,
+  getLocalStorage,
   getSyncStorage
 } from 'Common/chrome';
+import uuid5 from "uuid/v5";
 import {
   getOption,
   resumeIndexing,
@@ -149,6 +151,7 @@ chrome.bookmarks.onCreated.addListener(async (_, item) => {
     console.log('bookmark is disabled.');
     return;
   }
+  item.createdAt = item.dateAdded;
   itemIndexing(assoc('itemType', 'bookmark', item));
 });
 
@@ -160,23 +163,35 @@ chrome.history.onVisited.addListener(async (item) => {
     console.log('history is disabled.');
     return;
   }
+  item.createdAt = item.lastVisitTime;
   itemIndexing(assoc('itemType', 'history', item));
 });
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener(async (message) => {
   if (message.type === EventReIndexing) {
     console.log('start reindexing...');
-    localStorage.clear();
-    startFullIndexing();
+    const items = Object.keys(localStorage).reduce((arr, x) => {
+      if (x.startsWith('indexed:')) {
+        arr.push(uuid5(x.slice(8), uuid5.URL));
+        localStorage.removeItem(x);
+      }
+      return arr;
+    }, []);
+    const indexedItems = await getLocalStorage(items);
+    chrome.storage.local.clear();
+    fullIndex(Object.values(indexedItems));
   }
 });
 
 chrome.omnibox.onInputChanged.addListener(async (text, suggest) => {
+  const queryInfo = queryParser(text);
+
   const doSearch = async (tokens) => {
     app.ports.queryResult.unsubscribe(doSearch);
     const searchResult = await search(tokens, false, {
       itemType: queryInfo.itemType,
-      since: null
+      before: queryInfo.before,
+      after: queryInfo.after,
     });
     if (!isEmpty(searchResult)) {
       suggest(take(6, searchResult).map(x => ({
@@ -195,8 +210,6 @@ chrome.omnibox.onInputChanged.addListener(async (text, suggest) => {
       })).filter(x => !isEmpty(x.content)));
     }
   }
-
-  const queryInfo = queryParser(text);
 
   if (!isEmpty(queryInfo.query)) {
     const option = await getSyncStorage('option');
@@ -245,7 +258,7 @@ app.ports.indexItem.subscribe(async ({
   title,
   words,
   snippet,
-  lastVisitTime,
+  createdAt,
   itemType
 }) => {
   await create([{
@@ -253,7 +266,7 @@ app.ports.indexItem.subscribe(async ({
     title,
     words,
     snippet,
-    lastVisitTime,
+    createdAt,
     itemType
   }]);
   if (isEmpty(url)) {
@@ -280,7 +293,7 @@ app.ports.errorItems.subscribe(async items => {
     const {
       url,
       title,
-      lastVisitTime,
+      createdAt,
       itemType
     } = item;
     await create([{
@@ -288,7 +301,7 @@ app.ports.errorItems.subscribe(async items => {
       title,
       words: [],
       snippet: '',
-      lastVisitTime,
+      createdAt,
       itemType
     }]);
   }

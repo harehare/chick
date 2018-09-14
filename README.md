@@ -16,10 +16,20 @@ https://chrome.google.com/webstore/detail/chick/iiekfnbpcjolepcejefknaoblbkegbdf
 
 ## type
 
-Use `type:` to filter in search result.
-
 ```
 type:(bookmark|history|pocket)
+```
+
+## before
+
+```
+before:2018-08-01
+```
+
+## after
+
+```
+after:2018-08-01
 ```
 
 ## TODO
