@@ -24,6 +24,9 @@ port search : (( String, String ) -> msg) -> Sub msg
 port setVisiblety : Bool -> Cmd msg
 
 
+port openOption : Int -> Cmd msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch

@@ -51,7 +51,6 @@ view model =
         , lazy indexOption model.indexTarget
         , lazy2 blackUrlList model.blockKeyword model.blockList
         , lazy indexOperation model.isIndexing
-        , lazy advanced model.searchApi
         , lazy buttonArea model.changed
         ]
 

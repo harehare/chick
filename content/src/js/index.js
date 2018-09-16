@@ -1,7 +1,6 @@
 import Elm from '../elm/Main.elm';
 import {
   findIndex,
-  assoc,
   isEmpty
 } from 'ramda';
 import {
@@ -15,6 +14,9 @@ import {
   search as doSearch,
   queryParser
 } from 'Common/search';
+import {
+  EventOpenTab,
+} from 'Common/constants';
 
 const div = document.createElement('div');
 document.body.appendChild(div);
@@ -52,6 +54,13 @@ document.body.appendChild(div);
 
   app.ports.setVisiblety.subscribe(visible => {
     localStorage.setItem('visible', visible);
+  });
+
+  app.ports.openOption.subscribe(_ => {
+    chrome.runtime.sendMessage({
+      type: EventOpenTab,
+      url: chrome.runtime.getURL('option/index.html'),
+    });
   });
 
   const updateSearchResult = (items) => {

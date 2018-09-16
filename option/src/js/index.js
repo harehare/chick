@@ -37,6 +37,7 @@ import {
   const currentCount = localStorage.getItem('currentCount');
   const indexingComplete = localStorage.getItem('indexing_complete') === 'true';
   const parsedQuery = queryString.parse(location.search);
+  let queryInfo = null;
 
   option.query = parsedQuery.q ? parsedQuery.q : '';
   option.logoUrl = chrome.runtime.getURL('img/logo.png');
@@ -51,7 +52,7 @@ import {
       return;
     }
 
-    const queryInfo = queryParser(query);
+    queryInfo = queryParser(query);
     const option = await getSyncStorage('option');
     const {
       searchApi
@@ -65,9 +66,11 @@ import {
   });
 
   app.ports.tokenizeResult.subscribe(async (tokens) => {
-    app.ports.optionSearchResult.send(await doSearch(tokens, false, {
-
-    }));
+    app.ports.optionSearchResult.send(await doSearch(tokens, false, queryInfo ? {
+      itemType: queryInfo.itemType,
+      before: queryInfo.before,
+      after: queryInfo.after
+    } : {}));
   });
 
   app.ports.saveSettings.subscribe(data => {

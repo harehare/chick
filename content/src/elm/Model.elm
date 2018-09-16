@@ -10,6 +10,7 @@ type Msg
     | ToggleSearchResult
     | ImageUrl String
     | ChangeVisiblety Bool
+    | OpenOption
     | SearchApi ( String, String )
     | SearchApiResult (Result Http.Error (List Item))
 

@@ -25,8 +25,8 @@ view model =
                     , ( "top", "135px" )
                     , ( "right", "1px" )
                     , ( "z-index", "110" )
-                    , ( "width", "50px" )
-                    , ( "height", "50px" )
+                    , ( "width", "30px" )
+                    , ( "height", "30px" )
                     , ( "cursor", "pointer" )
                     , ( "background-color"
                       , if model.visible then
@@ -50,11 +50,38 @@ view model =
                 [ img
                     [ src model.imageUrl
                     , style
-                        [ ( "width", "50px" )
-                        , ( "height", "50px" )
+                        [ ( "width", "30px" )
+                        , ( "height", "30px" )
                         ]
                     ]
                     []
+                ]
+            , div
+                [ onClick OpenOption
+                , style
+                    [ ( "position", "fixed" )
+                    , ( "top", "165px" )
+                    , ( "right", "1px" )
+                    , ( "z-index", "110" )
+                    , ( "width", "30px" )
+                    , ( "height", "30px" )
+                    , ( "cursor", "pointer" )
+                    , ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
+                    , ( "border-radius", "5px" )
+                    , ( "border-top", "1px solid rgba(150,150,150,0.3)" )
+                    , ( "border-bottom", "1px solid rgba(150,150,150,0.3)" )
+                    , ( "border-left", "1px solid rgba(150,150,150,0.3)" )
+                    ]
+                ]
+                [ div
+                    [ style
+                        [ ( "width", "20px" )
+                        , ( "height", "20px" )
+                        , ( "margin", "5px" )
+                        , ( "color", "#60B5CC" )
+                        ]
+                    ]
+                    [ SolidIcon.cog ]
                 ]
             , div
                 [ style
@@ -72,7 +99,6 @@ view model =
                     , ( "margin-top", "5px" )
                     , ( "border-radius", "5px" )
                     , ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
-                    , ( "border-top", "1px solid rgba(150,150,150,0.3)" )
                     , ( "border-bottom", "1px solid rgba(150,150,150,0.3)" )
                     , ( "border-left", "1px solid rgba(150,150,150,0.3)" )
                     , ( "width", "35vw" )
@@ -107,7 +133,7 @@ view model =
                                                         [ ( "display", "inline-block" )
                                                         , ( "width", "1.0rem" )
                                                         , ( "margin-right", "5px" )
-                                                        , ( "color", "#5879DB" )
+                                                        , ( "color", "#60B5CC" )
                                                         ]
                                                     ]
                                                     [ SolidIcon.star ]

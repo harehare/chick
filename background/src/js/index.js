@@ -9,7 +9,8 @@ import {
   isEmpty,
   findIndex,
   splitEvery,
-  assoc
+  assoc,
+  pipe
 } from 'ramda';
 import camelcasekeys from 'camelcase-keys';
 import escapeHtml from 'escape-html';
@@ -29,7 +30,8 @@ import {
 import {
   EventIndexing,
   EventReIndexing,
-  EventErrorIndexing
+  EventErrorIndexing,
+  EventOpenTab
 } from 'Common/constants';
 import {
   sleep
@@ -54,7 +56,8 @@ const getBookmark = (bookmarks) => {
   if (!bookmarks) return [];
   return [...bookmarks.reduce((arr, v) => {
     if (v.url) {
-      arr.push(assoc('itemType', 'bookmark', pick(['url', 'title'], v)));
+      const dateAdded = v.dateAdded ? v.dateAdded : moment().valueOf();
+      arr.push(pipe(assoc('itemType', 'bookmark'), assoc('createdAt', dateAdded))(pick(['url', 'title'], v)));
     }
     return arr;
   }, []), ...flatten(bookmarks.reduce((arr, v) => {
@@ -151,8 +154,7 @@ chrome.bookmarks.onCreated.addListener(async (_, item) => {
     console.log('bookmark is disabled.');
     return;
   }
-  item.createdAt = item.dateAdded;
-  itemIndexing(assoc('itemType', 'bookmark', item));
+  itemIndexing(pipe(assoc('createdAt', item.dateAdded), assoc('itemType', 'bookmark'))(item));
 });
 
 chrome.history.onVisited.addListener(async (item) => {
@@ -163,8 +165,7 @@ chrome.history.onVisited.addListener(async (item) => {
     console.log('history is disabled.');
     return;
   }
-  item.createdAt = item.lastVisitTime;
-  itemIndexing(assoc('itemType', 'history', item));
+  itemIndexing(pipe(assoc('createdAt', item.lastVisitTime), assoc('itemType', 'history'))(item));
 });
 
 chrome.runtime.onMessage.addListener(async (message) => {
@@ -180,6 +181,8 @@ chrome.runtime.onMessage.addListener(async (message) => {
     const indexedItems = await getLocalStorage(items);
     chrome.storage.local.clear();
     fullIndex(Object.values(indexedItems));
+  } else if (message.type === EventOpenTab) {
+    openUrl(message.url, true);
   }
 });
 

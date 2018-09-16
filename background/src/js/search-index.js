@@ -40,7 +40,7 @@ const create = items => {
           snippet,
           createdAt,
           itemType,
-          bookmark: false
+          bookmark: itemType === 'bookmark'
         }
       });
       const currentIndex = await getLocalStorage(words);

@@ -27,6 +27,9 @@ update msg model =
         ChangeVisiblety visible ->
             { model | visible = visible } ! []
 
+        OpenOption ->
+            model ! [ openOption 0 ]
+
         SearchApi req ->
             model ! [ requestSearchApi (Tuple.first req) (Tuple.second req) SearchApiResult ]
 

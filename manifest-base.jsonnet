@@ -2,7 +2,7 @@
   manifest_version: 2,
   name: 'Chick',
   description: 'Chrome extension for full text bookmarks and browsing history search.',
-  version: '0.0.20',
+  version: '0.0.21',
   omnibox: {
     keyword: 'e',
   },

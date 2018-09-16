@@ -62,7 +62,9 @@ const search = (tokens, useScore = true, filters = {
         const bScore = (searchResult[b] / tokenNum) * (url2score[index[b].url] || 1.0) * calcScore(tokens, index[b]);
         return aScore > bScore ? -1 : searchResult[a] < searchResult[b] ? 1 : 0;
       }).reduce((arr, v) => {
-        if (and(!filters.before || index[v].createdAt <= filters.before, !filters.after || index[v].createdAt >= filters.after, !filters.itemType || index[v].itemType === filters.itemType)) {
+        if ((!filters.before || index[v].createdAt <= filters.before) &&
+          (!filters.after || index[v].createdAt >= filters.after) &&
+          (!filters.itemType || index[v].itemType === filters.itemType)) {
           arr.push(assoc('bookmark', index[v].bookmark || false, index[v]));
         }
         return arr;
