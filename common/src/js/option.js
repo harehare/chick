@@ -20,7 +20,7 @@ const getOption = data => {
       indexTarget: {
         bookmark: true,
         history: true,
-        pocket: true,
+        pocket: false,
       },
       changed: false,
       isIndexing: false,
@@ -66,11 +66,19 @@ const getOption = data => {
 };
 
 const documentCount = () => {
-  return localStorage.length - 2;
+  return Object.keys(localStorage).filter(x => x.startsWith('indexed:')).length;
 };
 
-const setIndexedUrl = (url) => {
-  localStorage.setItem(`indexed:${url}`, '1');
+const totalDocumentCount = () => {
+  return parseInt(localStorage.getItem('totalCount') ? localStorage.getItem('totalCount') : 0);
+};
+
+const setDocumentCount = (count) => {
+  localStorage.setItem('totalCount', count);
+};
+
+const setIndexedUrl = (url, itemType) => {
+  localStorage.setItem(`indexed:${url}`, itemType);
 };
 
 const hasIndex = (url) => {
@@ -112,4 +120,6 @@ export {
   setIndexingStatus,
   suspendIndexing,
   resumeIndexing,
+  totalDocumentCount,
+  setDocumentCount
 };

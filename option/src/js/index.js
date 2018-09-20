@@ -12,18 +12,19 @@ import {
   getLocalStorage,
   setLocalStorage,
   getSyncStorage,
-  sendMessage
 } from 'Common/chrome';
 import {
   getOption,
   documentCount,
   setIndexingStatus,
-  deleteIndexedStatus
+  totalDocumentCount
 } from 'Common/option'
 import {
   EventReIndexing,
-  EventCreateIndexFromPocket,
-  EventIndexing
+  EventImportPocket,
+  EventIndexing,
+  EventImportBookmark,
+  EventImportHistory
 } from 'Common/constants'
 import {
   search as doSearch,
@@ -33,17 +34,14 @@ import {
 (async () => {
   const data = await getSyncStorage('option');
   const option = getOption(data);
-  const indexingCount = localStorage.getItem('indexingCount');
-  const currentCount = localStorage.getItem('currentCount');
-  const indexingComplete = localStorage.getItem('indexing_complete') === 'true';
   const parsedQuery = queryString.parse(location.search);
   let queryInfo = null;
 
   option.query = parsedQuery.q ? parsedQuery.q : '';
   option.logoUrl = chrome.runtime.getURL('img/logo.png');
   option.status = {
-    documentCount: parseInt(indexingComplete ? documentCount() : indexingCount ? indexingCount : 0),
-    indexedCount: parseInt(indexingComplete ? documentCount() : currentCount ? currentCount : 0)
+    documentCount: totalDocumentCount(),
+    indexedCount: documentCount()
   };
   const app = Elm.Option.fullscreen(option);
 
@@ -146,29 +144,31 @@ import {
       type: EventReIndexing,
     });
     iziToast.info({
-      title: 'Re-indexing',
+      title: 'RE-INDEXING',
       message: 'Re-indexing is launched now!!',
     });
   });
 
-  app.ports.importPocket.subscribe(_ => {
-    chrome.runtime.sendMessage({
-      type: EventCreateIndexFromPocket,
-    });
+  app.ports.dataImport.subscribe(target => {
+    if (target.bookmark) {
+      chrome.runtime.sendMessage({
+        type: EventImportBookmark
+      });
+    }
+    if (target.history) {
+      chrome.runtime.sendMessage({
+        type: EventImportHistory
+      });
+    }
+    if (target.pocket) {
+      chrome.runtime.sendMessage({
+        type: EventImportPocket,
+      });
+    }
     iziToast.info({
-      title: 'Import pocket',
-      message: 'Import pocket is launched now!!',
+      title: 'START IMPORT',
+      message: 'Data Import is launched now!!',
     });
-  });
-
-  app.ports.deleteIndex.subscribe(_ => {
-    chrome.storage.local.clear();
-    localStorage.clear();
-    iziToast.success({
-      title: 'Delete index',
-      message: 'Deleted successfully.',
-    });
-    deleteIndexedStatus();
   });
 
   app.ports.export.subscribe(async _ => {

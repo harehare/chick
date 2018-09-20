@@ -19,6 +19,7 @@ import FontAwesome.Regular as RegularIcon
 import Bootstrap.Form as Form
 import Bootstrap.Progress as Progress
 import Model exposing (Item)
+import Bootstrap.Alert as Alert
 
 
 view : Model -> Html Msg
@@ -31,7 +32,8 @@ view model =
             , ( "height", "100%" )
             , ( "overflow-y", "scroll" )
             , ( "background-color", "#FEFEFE" )
-            , ( "font-family", "'Montserrat', sans-serif" )
+            , ( "color", "#777" )
+            , ( "font-family", "'Open Sans', sans-serif" )
             ]
         ]
         [ div
@@ -46,11 +48,9 @@ view model =
             ]
             [ lazy3 (searchResultList model.logoUrl) model.query model.deleteUrlList model.searchResult
             ]
-        , lazy indexStatus model.status
+        , lazy2 dataImport model.status model.indexTarget
         , lazy viewOption model.viewOption
-        , lazy indexOption model.indexTarget
         , lazy2 blackUrlList model.blockKeyword model.blockList
-        , lazy indexOperation model.isIndexing
         , lazy buttonArea model.changed
         ]
 
@@ -62,18 +62,17 @@ viewOption option =
             [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
             , ( "border", "1px solid rgba(150,150,150,0.3)" )
             , ( "padding", "1% 2%" )
-            , ( "margin", "5px" )
+            , ( "margin", "15px" )
             , ( "border-radius", "5px" )
             , ( "background-color", "#FEFEFE" )
             ]
         ]
         [ h5
             [ style
-                [ ( "font-family", "'Roboto', sans-serif" )
-                , ( "font-weight", "300" )
+                [ ( "font-weight", "300" )
                 ]
             ]
-            [ text "Show chick results" ]
+            [ text "SHOW RESULTS" ]
         , Checkbox.checkbox
             [ Checkbox.id "google", Checkbox.inline, Checkbox.checked option.google, Checkbox.attrs [ ChangeViewOption "google" |> onClick ] ]
             "Google"
@@ -89,8 +88,8 @@ viewOption option =
         ]
 
 
-indexStatus : IndexStatus -> Html Msg
-indexStatus status =
+dataImport : IndexStatus -> IndexTarget -> Html Msg
+dataImport status option =
     let
         currentStatus =
             (toFloat status.indexedCount
@@ -102,63 +101,81 @@ indexStatus status =
                     )
             )
                 * 100.0
+
+        isIndexing =
+            status.documentCount - status.indexedCount > 0
+
+        message =
+            ((toString status.indexedCount) ++ " items indexed complete")
     in
         div
             [ style
                 [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
                 , ( "border", "1px solid rgba(150,150,150,0.3)" )
                 , ( "padding", "1% 2%" )
-                , ( "margin", "5px" )
+                , ( "margin", "15px" )
                 , ( "border-radius", "5px" )
                 , ( "background-color", "#FEFEFE" )
                 ]
             ]
             [ h5
                 [ style
-                    [ ( "font-family", "'Roboto', sans-serif" )
-                    , ( "font-weight", "300" )
+                    [ ( "font-weight", "300" )
+                    , ( "margin-bottom", "10px" )
                     ]
                 ]
-                [ text "Index Status" ]
-            , div
-                [ style [ ( "font-size", "0.9rem" ), ( "width", "230px" ) ] ]
-                [ text ((toString status.indexedCount) ++ " items indexed complete") ]
-            , if status.documentCount - status.indexedCount > 0 then
-                Progress.progress [ Progress.info, Progress.value currentStatus ]
+                [ text "DATA IMPORT" ]
+            , if isIndexing then
+                Alert.simpleLight [] [ text message, Progress.progress [ Progress.info, Progress.value currentStatus ] ]
               else
-                span [] []
-            ]
-
-
-indexOption : IndexTarget -> Html Msg
-indexOption option =
-    div
-        [ style
-            [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
-            , ( "border", "1px solid rgba(150,150,150,0.3)" )
-            , ( "padding", "1% 2%" )
-            , ( "margin", "5px" )
-            , ( "border-radius", "5px" )
-            , ( "background-color", "#FEFEFE" )
-            ]
-        ]
-        [ h5
-            [ style
-                [ ( "font-family", "'Roboto', sans-serif" )
-                , ( "font-weight", "300" )
+                Alert.simplePrimary [] [ text message ]
+            , div
+                []
+                [ Checkbox.checkbox
+                    [ Checkbox.id "bookmark", Checkbox.inline, Checkbox.checked option.bookmark, Checkbox.attrs [ ChangeIndexTarget "bookmark" |> onClick ] ]
+                    "Bookmark"
+                , Checkbox.checkbox
+                    [ Checkbox.id "history", Checkbox.inline, Checkbox.checked option.history, Checkbox.attrs [ ChangeIndexTarget "history" |> onClick ] ]
+                    "History"
+                , Checkbox.checkbox
+                    [ Checkbox.id "pocket", Checkbox.inline, Checkbox.checked option.pocket, Checkbox.attrs [ ChangeIndexTarget "pocket" |> onClick ] ]
+                    "Pocket"
+                , div [ style [ ( "margin-top", "20px" ) ] ]
+                    [ Button.button
+                        [ Button.attrs [ style [ ( "margin-left", "5px" ), ( "height", "45px" ) ] ]
+                        , Button.onClick DataImport
+                        , Button.info
+                        , Button.disabled isIndexing
+                        ]
+                        [ text "START IMPORT"
+                        ]
+                    , Button.button
+                        [ Button.attrs [ style [ ( "margin-left", "5px" ), ( "height", "45px" ) ] ]
+                        , Button.onClick Reindexing
+                        , Button.info
+                        , Button.disabled isIndexing
+                        ]
+                        [ div [ style [ ( "width", "15px" ) ] ] [ SolidIcon.sync_alt ]
+                        ]
+                    , Button.button
+                        [ Button.attrs [ style [ ( "margin-left", "15px" ), ( "height", "45px" ) ] ]
+                        , Button.onClick Import
+                        , Button.info
+                        , Button.disabled isIndexing
+                        ]
+                        [ text "IMPORT FILE"
+                        ]
+                    , Button.button
+                        [ Button.attrs [ style [ ( "margin-left", "15px" ), ( "height", "45px" ) ] ]
+                        , Button.onClick Export
+                        , Button.info
+                        , Button.disabled isIndexing
+                        ]
+                        [ text "EXPORT FILE"
+                        ]
+                    ]
                 ]
             ]
-            [ text "Index for search" ]
-        , Checkbox.checkbox
-            [ Checkbox.id "bookmark", Checkbox.inline, Checkbox.checked option.bookmark, Checkbox.attrs [ ChangeIndexTarget "bookmark" |> onClick ] ]
-            "Bookmark"
-        , Checkbox.checkbox
-            [ Checkbox.id "history", Checkbox.inline, Checkbox.checked option.history, Checkbox.attrs [ ChangeIndexTarget "history" |> onClick ] ]
-            "History"
-        , Checkbox.checkbox
-            [ Checkbox.id "pocket", Checkbox.inline, Checkbox.checked option.pocket, Checkbox.attrs [ ChangeIndexTarget "pocket" |> onClick ] ]
-            "Pocket"
-        ]
 
 
 advanced : ApiStatus -> Html Msg
@@ -168,7 +185,7 @@ advanced status =
             [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
             , ( "border", "1px solid rgba(150,150,150,0.3)" )
             , ( "padding", "1% 2%" )
-            , ( "margin", "5px" )
+            , ( "margin", "15px" )
             , ( "border-radius", "5px" )
             , ( "background-color", "#FEFEFE" )
             ]
@@ -176,16 +193,14 @@ advanced status =
         [ h5
             [ style
                 [ ( "margin-bottom", "15px" )
-                , ( "font-family", "'Roboto', sans-serif" )
                 , ( "font-weight", "300" )
                 ]
             ]
-            [ text "Advanced" ]
+            [ text "ADVANCED" ]
         , div [ style [ ( "margin-bottom", "5px" ) ] ]
             [ Form.label
                 [ style
-                    [ ( "font-family", "'Roboto', sans-serif" )
-                    , ( "font-weight", "300" )
+                    [ ( "font-weight", "300" )
                     , ( "font-size", "0.8rem" )
                     ]
                 , for "index-api"
@@ -215,7 +230,7 @@ blackUrlList keyword urlList =
             [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
             , ( "border", "1px solid rgba(150,150,150,0.3)" )
             , ( "padding", "1% 2%" )
-            , ( "margin", "5px" )
+            , ( "margin", "15px" )
             , ( "border-radius", "5px" )
             , ( "background-color", "#FEFEFE" )
             ]
@@ -226,7 +241,7 @@ blackUrlList keyword urlList =
                 , ( "font-weight", "300" )
                 ]
             ]
-            [ text "Blocking and filtering" ]
+            [ text "BLOCKING AND FILTERING" ]
         , InputGroup.config (InputGroup.text [ Input.placeholder "Enter URL or Keyword", Input.onInput EditBlockKeyword ])
             |> InputGroup.successors
                 [ InputGroup.button
@@ -262,138 +277,6 @@ blackUrlList keyword urlList =
         ]
 
 
-indexOperation : Bool -> Html Msg
-indexOperation isIndexing =
-    div
-        [ style
-            [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
-            , ( "border", "1px solid rgba(150,150,150,0.3)" )
-            , ( "padding", "1% 2%" )
-            , ( "margin", "5px" )
-            , ( "border-radius", "5px" )
-            , ( "background-color", "#FEFEFE" )
-            ]
-        ]
-        [ h5
-            [ style
-                [ ( "font-family", "'Roboto', sans-serif" )
-                , ( "font-weight", "300" )
-                ]
-            ]
-            [ text "Indexing operation" ]
-        , Button.button
-            [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "165px" ), ( "height", "45px" ) ] ]
-            , Button.onClick Import
-            , Button.outlineDark
-            ]
-            [ div
-                [ style
-                    [ ( "display", "flex" )
-                    , ( "align-items", "center" )
-                    , ( "justify-content", "space-between" )
-                    ]
-                ]
-                [ div
-                    [ style
-                        [ ( "width", "30px" )
-                        , ( "color", "#000" )
-                        ]
-                    ]
-                    [ SolidIcon.copy ]
-                , div [ style [ ( "margin-bottom", "7px" ) ] ] [ text "Import index" ]
-                ]
-            ]
-        , Button.button
-            [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "165px" ), ( "height", "45px" ) ] ]
-            , Button.onClick Export
-            , Button.outlineDark
-            ]
-            [ div
-                [ style
-                    [ ( "display", "flex" )
-                    , ( "align-items", "center" )
-                    , ( "justify-content", "space-between" )
-                    ]
-                ]
-                [ div
-                    [ style
-                        [ ( "width", "30px" )
-                        , ( "color", "#000" )
-                        ]
-                    ]
-                    [ SolidIcon.download ]
-                , div [ style [ ( "margin-bottom", "7px" ) ] ] [ text "Export index" ]
-                ]
-            ]
-        , Button.button
-            [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "165px" ), ( "height", "45px" ) ] ]
-            , Button.onClick ImportPocket
-            , Button.outlineDark
-            ]
-            [ div
-                [ style
-                    [ ( "display", "flex" )
-                    , ( "align-items", "center" )
-                    , ( "justify-content", "space-between" )
-                    ]
-                ]
-                [ div
-                    [ style
-                        [ ( "width", "30px" )
-                        , ( "color", "#FF0045" )
-                        ]
-                    ]
-                    [ BrandsIcon.get_pocket ]
-                , div [ style [ ( "margin-bottom", "7px" ) ] ] [ text "Import pocket" ]
-                ]
-            ]
-        , Button.button
-            [ Button.attrs [ style [ ( "width", "160px" ), ( "margin", "15px" ), ( "height", "45px" ) ] ]
-            , Button.onClick Reindexing
-            , Button.outlineDark
-            ]
-            [ div
-                [ style
-                    [ ( "display", "flex" )
-                    , ( "align-items", "center" )
-                    , ( "justify-content", "space-between" )
-                    ]
-                ]
-                [ div
-                    [ style
-                        [ ( "width", "30px" )
-                        , ( "color", "#417AF7" )
-                        ]
-                    ]
-                    [ SolidIcon.sync ]
-                , div [ style [ ( "margin-bottom", "7px" ) ] ] [ text "Re-Indexing" ]
-                ]
-            ]
-        , Button.button
-            [ Button.attrs [ style [ ( "margin", "15px" ), ( "width", "175px" ), ( "height", "45px" ) ] ]
-            , Button.onClick DeleteIndex
-            , Button.outlineDark
-            ]
-            [ div
-                [ style
-                    [ ( "display", "flex" )
-                    , ( "align-items", "center" )
-                    , ( "justify-content", "space-between" )
-                    ]
-                ]
-                [ div
-                    [ style
-                        [ ( "width", "30px" )
-                        , ( "color", "#008709" )
-                        ]
-                    ]
-                    [ SolidIcon.trash ]
-                , div [ style [ ( "margin-bottom", "7px" ) ] ] [ text "Delete index all" ]
-                ]
-            ]
-        ]
-
-
 searchResultList : String -> String -> List String -> List Item -> Html Msg
 searchResultList logoUrl query deleteItems items =
     div
@@ -421,6 +304,7 @@ searchResultList logoUrl query deleteItems items =
                     [ query |> Input.value
                     , Input.placeholder "Enter search query"
                     , Input.onInput EditSearchQuery
+                    , Input.attrs [ style [ ( "margin-right", "15px" ) ] ]
                     ]
                 )
                 |> InputGroup.predecessors
@@ -436,6 +320,13 @@ searchResultList logoUrl query deleteItems items =
                 [ ( "max-height", "100%" )
                 , ( "border", "1px solid rgba(150,150,150,0.3)" )
                 , ( "overflow-y", "scroll" )
+                , ( "position", "absolute" )
+                , ( "z-index", "1" )
+                , ( "background-color", "#FEFEFE" )
+                , if List.isEmpty items then
+                    ( "display", "none" )
+                  else
+                    ( "display", "block" )
                 ]
             ]
             (List.take 20 items
@@ -584,11 +475,12 @@ buttonArea changed =
         [ style
             [ ( "justify-content", "flex-end" )
             , ( "display", "flex" )
+            , ( "flex-grow", "2" )
             ]
         ]
         [ Button.button
             [ Button.disabled (not changed)
-            , Button.secondary
+            , Button.info
             , Button.attrs [ style [ ( "margin", "15px" ) ] ]
             , Button.onClick Save
             ]

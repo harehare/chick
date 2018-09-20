@@ -73,7 +73,7 @@ const search = (tokens, useScore = true, filters = {
 
     if (useScore) {
       const res = await sendMessage({
-        urls: take(20, Object.values(index).map(x => x.url)),
+        urls: Object.values(index).map(x => x.url),
         words: tokens,
         type: EventGetScore
       });
@@ -112,7 +112,7 @@ const filterResult = (tokens, searchResult) => {
 
 const calcScore = (tokens, document) => {
   const text = (document.title + document.snippet).toLowerCase();
-  return parseFloat(sum(map(v => document.bookmark ? 100.0 : text.indexOf(v) >= 0 ? 10.0 : document.itemType == 'bookmark' ? 5.0 : 2.5, tokens)));
+  return parseFloat(sum(map(v => document.bookmark ? 20.0 : text.indexOf(v) >= 0 ? 10.0 : document.itemType == 'bookmark' ? 5.0 : 1.0, tokens)));
 }
 
 export {

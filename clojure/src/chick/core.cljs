@@ -1,7 +1,7 @@
 (ns chick.core
   (:require [konserve.core :as k]
             [konserve.indexeddb :refer [new-indexeddb-store]]
-            [chick.pocket :as pocket]
+            [chick.index :as index]
             [chick.import :as importer]
             [cljs.core.async :refer [chan <! close! pipeline]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
@@ -37,7 +37,7 @@
         (cb (clj->js @result)))))
 
 (pipeline
- 4
+ 10
  (doto (chan) (close!))
  (map (fn [m] (go (let [{:keys [url words]} m]
                     (let [words-info (<! (k/get-in score-db [url]))
@@ -52,8 +52,8 @@
                                      (cond
                                        (= request.type "GET_SCORE")
                                        (get-score request.urls request.words sendResponse)
-                                       (= request.type "CREATE_INDEX_FROM_POCKET")
-                                       (pocket/start-index)
+                                       (= request.type "CREATE_INDEX")
+                                       (index/start-index)
                                        (= request.type "IMPORT_INDEX")
                                        (importer/import-index request.data))
                                      true)))

@@ -107,8 +107,8 @@ document.body.appendChild(div);
 const style = document.createElement('style');
 style.innerHTML = [
   '#chick-list::-webkit-scrollbar{width:2px;}',
-  '#chick-list::-webkit-scrollbar-track{background: #FFF;}',
-  '#chick-list::-webkit-scrollbar-thumb{background:#CCC}'
+  '#chick-list::-webkit-scrollbar-track{background:#FFF;}',
+  '#chick-list::-webkit-scrollbar-thumb{background:#CCC;}',
 ].join('');
 style.type = 'text/css';
 document.body.appendChild(style);

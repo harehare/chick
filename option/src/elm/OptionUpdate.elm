@@ -98,9 +98,6 @@ update msg model =
         Reindexing ->
             { model | isIndexing = True } ! [ reindexing 0 ]
 
-        DeleteIndex ->
-            model ! [ deleteIndex 0 ]
-
         Bookmark info ->
             let
                 index =
@@ -150,8 +147,8 @@ update msg model =
             }
                 ! []
 
-        ImportPocket ->
-            model ! [ importPocket 0 ]
+        DataImport ->
+            model ! [ dataImport model.indexTarget ]
 
         CallSearchApi req ->
             model ! [ requestSearchApi (Tuple.first req) (Tuple.second req) SearchApiResult ]

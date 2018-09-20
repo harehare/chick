@@ -32,7 +32,7 @@ port succeedVerify : String -> Cmd msg
 port failedVerify : String -> Cmd msg
 
 
-port importPocket : Int -> Cmd msg
+port dataImport : IndexTarget -> Cmd msg
 
 
 port doSearch : String -> Cmd msg

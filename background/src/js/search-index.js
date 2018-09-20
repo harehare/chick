@@ -43,6 +43,7 @@ const create = items => {
           bookmark: itemType === 'bookmark'
         }
       });
+
       const currentIndex = await getLocalStorage(words);
       const index = words.reduce((arr, x) => {
         if (currentIndex[x] && !isEmpty(currentIndex[x])) {

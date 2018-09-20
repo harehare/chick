@@ -3,7 +3,9 @@ const EventIndexing = 'INDEXING';
 const EventErrorIndexing = 'ERROR_INDEXING';
 const EventOpenTab = 'OPEN_TAB';
 const EventGetScore = 'GET_SCORE';
-const EventCreateIndexFromPocket = 'CREATE_INDEX_FROM_POCKET';
+const EventImportPocket = 'IMPORT_POCKET';
+const EventImportBookmark = 'IMPORT_BOOKMARK';
+const EventImportHistory = 'IMPORT_HISTORY';
 
 export {
   EventReIndexing,
@@ -11,6 +13,8 @@ export {
   EventErrorIndexing,
   EventAddWord,
   EventGetScore,
-  EventCreateIndexFromPocket,
-  EventOpenTab
+  EventImportPocket,
+  EventOpenTab,
+  EventImportBookmark,
+  EventImportHistory
 };

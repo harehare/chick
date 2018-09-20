@@ -1,4 +1,4 @@
-(ns chick.pocket
+(ns chick.index
   (:require
    [ajax.core :refer [GET]]))
 

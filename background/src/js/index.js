@@ -14,6 +14,7 @@ import {
 } from 'ramda';
 import camelcasekeys from 'camelcase-keys';
 import escapeHtml from 'escape-html';
+import moment from 'moment';
 import {
   openUrl,
   getLocalStorage,
@@ -25,13 +26,18 @@ import {
   resumeIndexing,
   indexingStatus,
   setIndexedUrl,
-  hasIndex
+  hasIndex,
+  documentCount,
+  totalDocumentCount,
+  setDocumentCount
 } from 'Common/option';
 import {
   EventIndexing,
   EventReIndexing,
   EventErrorIndexing,
-  EventOpenTab
+  EventOpenTab,
+  EventImportBookmark,
+  EventImportHistory,
 } from 'Common/constants';
 import {
   sleep
@@ -69,32 +75,32 @@ const getBookmark = (bookmarks) => {
 }
 
 const fullIndex = async (indexDocuments) => {
-  let currentCount = 0;
-  localStorage.setItem('currentCount', 0);
-  const totalCount = indexDocuments.length;
 
   if (isEmpty(indexDocuments)) {
     console.log('document is indexed all.');
     return;
   }
 
-  const indexing = (items, total) => {
+  setDocumentCount(totalDocumentCount() + indexDocuments.length);
+
+  const totalCount = totalDocumentCount();
+  let currentCount = documentCount();
+
+  const indexing = (items) => {
     return new Promise(async resolve => {
       for (const item of items) {
-        setIndexedUrl(item.url);
+        setIndexedUrl(item.url, item.itemType);
         const isIndexed = await createIndex(app, item);
         if (!isIndexed) continue;
-        currentCount++;
 
         chrome.runtime.sendMessage({
           type: EventIndexing,
-          documentCount: total,
-          indexedCount: currentCount
+          documentCount: totalCount,
+          indexedCount: ++currentCount
         });
-        localStorage.setItem('currentCount', currentCount);
 
         while (indexingStatus()) {
-          await sleep(3000);
+          await sleep(1000);
           console.log('indexing suspend');
         }
       }
@@ -102,13 +108,12 @@ const fullIndex = async (indexDocuments) => {
     });
   };
 
-  await Promise.all(splitEvery(indexDocuments.length / IndexParallel, indexDocuments).map(v => indexing(v, totalCount)));
-  localStorage.setItem('indexingCount', totalCount);
+  await Promise.all(splitEvery(indexDocuments.length / IndexParallel, indexDocuments).map(v => indexing(v)));
 
   chrome.runtime.sendMessage({
     type: EventIndexing,
-    documentCount: totalCount,
-    indexedCount: totalCount
+    documentCount: totalDocumentCount(),
+    indexedCount: documentCount()
   });
 
   app.ports.getErrorItems.send(0);
@@ -127,24 +132,35 @@ const itemIndexing = async (item) => {
   }
 
   if (!createIndex(app, item)) return;
-  setIndexedUrl(item.url);
+  setIndexedUrl(item.url, item.itemType);
 }
 
-const startFullIndexing = async () => {
-  localStorage.setItem('indexing_complete', false);
+const importBookmark = async () => {
   const option = getOption(await getSyncStorage('option'));
-  const enabledBookmark = option.indexTarget.bookmark;
-  if (enabledBookmark) {
-    chrome.bookmarks.getTree(async (tree) => {
-      if (head(tree).children) {
-        const bookmarks = getBookmark(head(tree).children);
-        const userBlockList = option.blockList
-        const indexDocuments = bookmarks.filter(b => (!hasIndex(b.url) && findIndex(w => b.url.indexOf(w) != -1, [...BlockList, ...userBlockList]) === -1));
-        fullIndex(indexDocuments);
-      }
-    });
-    localStorage.setItem('indexing_complete', true);
-  }
+  localStorage.setItem('indexing_complete', false);
+  chrome.bookmarks.getTree(async (tree) => {
+    if (head(tree).children) {
+      const bookmarks = getBookmark(head(tree).children);
+      const userBlockList = option.blockList
+      const indexDocuments = bookmarks.filter(b => (!hasIndex(b.url) && findIndex(w => b.url.indexOf(w) != -1, [...BlockList, ...userBlockList]) === -1));
+      fullIndex(indexDocuments);
+    }
+  });
+  localStorage.setItem('indexing_complete', true);
+};
+
+const importHistory = async () => {
+  const option = getOption(await getSyncStorage('option'));
+  localStorage.setItem('indexing_complete', false);
+  chrome.history.search({
+    text: "",
+    startTime: moment().add(-4, 'weeks').valueOf()
+  }, (items) => {
+    const userBlockList = option.blockList
+    const indexDocuments = items.filter(b => (!hasIndex(b.url) && findIndex(w => b.url.indexOf(w) != -1, [...BlockList, ...userBlockList]) === -1));
+    fullIndex(indexDocuments.map(item => assoc('itemType', 'history', item)));
+  });
+  localStorage.setItem('indexing_complete', true);
 };
 
 chrome.bookmarks.onCreated.addListener(async (_, item) => {
@@ -169,21 +185,24 @@ chrome.history.onVisited.addListener(async (item) => {
 });
 
 chrome.runtime.onMessage.addListener(async (message) => {
-  if (message.type === EventReIndexing) {
-    console.log('start reindexing...');
-    const items = Object.keys(localStorage).reduce((arr, x) => {
-      if (x.startsWith('indexed:')) {
-        arr.push(uuid5(x.slice(8), uuid5.URL));
-        localStorage.removeItem(x);
-      }
-      return arr;
-    }, []);
-    const indexedItems = await getLocalStorage(items);
-    chrome.storage.local.clear();
-    fullIndex(Object.values(indexedItems));
-  } else if (message.type === EventOpenTab) {
-    openUrl(message.url, true);
-  }
+  cond([
+    [equals(EventReIndexing), async () => {
+      console.log('start reindexing...');
+      const items = Object.keys(localStorage).reduce((arr, x) => {
+        if (x.startsWith('indexed:')) {
+          arr.push(uuid5(x.slice(8), uuid5.URL));
+          localStorage.removeItem(x);
+        }
+        return arr;
+      }, []);
+      const indexedItems = await getLocalStorage(items);
+      chrome.storage.local.clear();
+      fullIndex(Object.values(indexedItems));
+    }],
+    [equals(EventOpenTab), () => (openUrl(message.url, true))],
+    [equals(EventImportBookmark), () => (importBookmark())],
+    [equals(EventImportHistory), () => (importHistory())],
+  ])(message.type);
 });
 
 chrome.omnibox.onInputChanged.addListener(async (text, suggest) => {
@@ -250,6 +269,7 @@ chrome.runtime.onInstalled.addListener(() => {
     id: 'chick',
     contexts: ['selection'],
   });
+  openUrl(chrome.runtime.getURL('option/index.html'), true);
 });
 
 chrome.contextMenus.onClicked.addListener((info) => {
@@ -308,14 +328,6 @@ app.ports.errorItems.subscribe(async items => {
       itemType
     }]);
   }
-});
-
-chrome.runtime.onInstalled.addListener(() => {
-  startFullIndexing();
-});
-
-chrome.runtime.onStartup.addListener(() => {
-  startFullIndexing();
 });
 
 document.addEventListener("fullIndex", e => {

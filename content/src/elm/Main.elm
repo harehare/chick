@@ -5,7 +5,6 @@ import Subscriptions exposing (..)
 import Update exposing (..)
 import View exposing (..)
 import Html exposing (..)
-import Animation
 
 
 -- ENTRY POINT

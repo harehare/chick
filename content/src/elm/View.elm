@@ -123,23 +123,11 @@ view model =
                                                 , ( "font-size", "1.3rem" )
                                                 , ( "color", "#2F0676" )
                                                 , ( "margin-bottom", "5px" )
-                                                , ( "text-decoration", "unset" )
+                                                , ( "text-decoration", "none" )
                                                 , ( "text-align", "left" )
                                                 ]
                                             ]
-                                            [ if x.bookmark then
-                                                span
-                                                    [ style
-                                                        [ ( "display", "inline-block" )
-                                                        , ( "width", "1.0rem" )
-                                                        , ( "margin-right", "5px" )
-                                                        , ( "color", "#60B5CC" )
-                                                        ]
-                                                    ]
-                                                    [ SolidIcon.star ]
-                                              else
-                                                span [] []
-                                            , text x.title
+                                            [ text x.title
                                             ]
                                         ]
                                     , div

@@ -16,8 +16,7 @@ type Msg
     | Save
     | Reindexing
     | EditApiUrl String
-    | DeleteIndex
-    | ImportPocket
+    | DataImport
     | Export
     | Import
     | SelectText String
