@@ -74,17 +74,18 @@ const getBookmark = (bookmarks) => {
   }, []))];
 }
 
-const fullIndex = async (indexDocuments) => {
+const fullIndex = async (docs) => {
 
-  if (isEmpty(indexDocuments)) {
+  if (isEmpty(docs)) {
     console.log('document is indexed all.');
     return;
   }
 
-  setDocumentCount(totalDocumentCount() + indexDocuments.length);
+  const importDocs = docs.filter(doc => !hasIndex(doc.url));
+  setDocumentCount(totalDocumentCount() + importDocs.length);
 
   const totalCount = totalDocumentCount();
-  let currentCount = documentCount();
+  let currentCount = documentCount() + 1;
 
   const indexing = (items) => {
     return new Promise(async resolve => {
@@ -108,7 +109,7 @@ const fullIndex = async (indexDocuments) => {
     });
   };
 
-  await Promise.all(splitEvery(indexDocuments.length / IndexParallel, indexDocuments).map(v => indexing(v)));
+  await Promise.all(splitEvery(importDocs.length / IndexParallel, importDocs).map(v => indexing(v)));
 
   chrome.runtime.sendMessage({
     type: EventIndexing,
@@ -142,8 +143,8 @@ const importBookmark = async () => {
     if (head(tree).children) {
       const bookmarks = getBookmark(head(tree).children);
       const userBlockList = option.blockList
-      const indexDocuments = bookmarks.filter(b => (!hasIndex(b.url) && findIndex(w => b.url.indexOf(w) != -1, [...BlockList, ...userBlockList]) === -1));
-      fullIndex(indexDocuments);
+      const docs = bookmarks.filter(b => (!hasIndex(b.url) && findIndex(w => b.url.indexOf(w) != -1, [...BlockList, ...userBlockList]) === -1));
+      fullIndex(docs);
     }
   });
   localStorage.setItem('indexing_complete', true);
@@ -157,8 +158,8 @@ const importHistory = async () => {
     startTime: moment().add(-4, 'weeks').valueOf()
   }, (items) => {
     const userBlockList = option.blockList
-    const indexDocuments = items.filter(b => (!hasIndex(b.url) && findIndex(w => b.url.indexOf(w) != -1, [...BlockList, ...userBlockList]) === -1));
-    fullIndex(indexDocuments.map(item => assoc('itemType', 'history', item)));
+    const docs = items.filter(b => (!hasIndex(b.url) && findIndex(w => b.url.indexOf(w) != -1, [...BlockList, ...userBlockList]) === -1));
+    fullIndex(docs.map(item => assoc('itemType', 'history', item)));
   });
   localStorage.setItem('indexing_complete', true);
 };

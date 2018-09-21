@@ -40,7 +40,7 @@ import {
   option.query = parsedQuery.q ? parsedQuery.q : '';
   option.logoUrl = chrome.runtime.getURL('img/logo.png');
   option.status = {
-    documentCount: totalDocumentCount(),
+    documentCount: documentCount(),
     indexedCount: documentCount()
   };
   const app = Elm.Option.fullscreen(option);

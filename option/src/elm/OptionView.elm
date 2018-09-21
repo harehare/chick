@@ -322,6 +322,7 @@ searchResultList logoUrl query deleteItems items =
                 , ( "overflow-y", "scroll" )
                 , ( "position", "absolute" )
                 , ( "z-index", "1" )
+                , ( "width", "99vw" )
                 , ( "background-color", "#FEFEFE" )
                 , if List.isEmpty items then
                     ( "display", "none" )

@@ -52,7 +52,7 @@
                                      (cond
                                        (= request.type "GET_SCORE")
                                        (get-score request.urls request.words sendResponse)
-                                       (= request.type "CREATE_INDEX")
+                                       (= request.type "IMPORT_POCKET")
                                        (index/start-index)
                                        (= request.type "IMPORT_INDEX")
                                        (importer/import-index request.data))

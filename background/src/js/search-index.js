@@ -77,6 +77,11 @@ const createIndex = (app, item) => {
 
     const indexItem = pick(['url', 'title', 'createdAt', 'itemType'], item);
 
+    if (isEmpty(indexItem.url)) {
+      resolve(false);
+      return;
+    }
+
     if (searchApi.verify) {
       app.ports.createItemFromApi.send([searchApi.url, indexItem]);
     } else {
