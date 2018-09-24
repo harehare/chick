@@ -40,7 +40,8 @@ const create = items => {
           snippet,
           createdAt,
           itemType,
-          bookmark: itemType === 'bookmark'
+          bookmark: itemType === 'bookmark',
+          tags: []
         }
       });
 

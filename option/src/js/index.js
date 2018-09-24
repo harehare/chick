@@ -67,7 +67,8 @@ import {
     app.ports.optionSearchResult.send(await doSearch(tokens, false, queryInfo ? {
       itemType: queryInfo.itemType,
       before: queryInfo.before,
-      after: queryInfo.after
+      after: queryInfo.after,
+      tag: queryInfo.tag
     } : {}));
   });
 
@@ -87,6 +88,8 @@ import {
       await setLocalStorage({
         [id]: Object.assign(indexItem[id], info)
       });
+
+      //TODO: tag index
     });
 
     Object.keys(localStorage).forEach(key => {

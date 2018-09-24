@@ -19,6 +19,11 @@ type Msg
     | DataImport
     | Export
     | Import
+    | InputTag IndexInfo
+    | EditTag String
+    | AddTag IndexInfo
+    | RemoveTag IndexInfo String
+    | SearchTag String
     | SelectText String
     | UpdateStatus IndexStatus
     | OptionTokenizeNGram String
@@ -56,12 +61,15 @@ type alias Model =
     , indexInfo : List IndexInfo
     , searchApi : ApiStatus
     , logoUrl : String
+    , inputTag : String
     }
 
 
 type alias IndexInfo =
     { url : String
     , bookmark : Bool
+    , tags : List String
+    , isInputting : Bool
     }
 
 

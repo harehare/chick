@@ -3,9 +3,10 @@ module OptionUpdate exposing (..)
 import Time
 import Process
 import Task
+import Dom
 import String exposing (isEmpty)
 import List exposing (..)
-import List.Extra exposing (unique, find)
+import List.Extra exposing (unique, find, remove)
 import OptionModel exposing (..)
 import OptionSubscriptions exposing (..)
 import Subscriptions exposing (tokenizeResult)
@@ -109,11 +110,13 @@ update msg model =
                         map
                             (\x ->
                                 if x.url == info.url then
+                                    -- TODO:
                                     { url = x.url
                                     , title = x.title
                                     , snippet = x.snippet
                                     , itemType = x.itemType
                                     , bookmark = info.bookmark
+                                    , tags = info.tags
                                     }
                                 else
                                     x
@@ -185,6 +188,111 @@ update msg model =
 
         ResponseSearchApi (Ok items) ->
             { model | changed = True, searchApi = { url = model.searchApi.url, verify = True } } ! [ succeedVerify "" ]
+
+        InputTag index ->
+            let
+                i =
+                    find (\x -> index.url == x.url) model.indexInfo
+
+                indexInfo =
+                    case i of
+                        Just xs ->
+                            { xs | isInputting = not xs.isInputting }
+
+                        Nothing ->
+                            { index | isInputting = True }
+            in
+                { model
+                    | inputTag = ""
+                    , indexInfo =
+                        case i of
+                            Just xs ->
+                                List.map
+                                    (\x ->
+                                        if x.url == index.url then
+                                            indexInfo
+                                        else
+                                            index
+                                    )
+                                    model.indexInfo
+
+                            Nothing ->
+                                indexInfo :: model.indexInfo
+                }
+                    ! [ Task.attempt (\_ -> NoOp) <| Dom.focus index.url ]
+
+        EditTag tag ->
+            { model | inputTag = tag } ! []
+
+        AddTag index ->
+            let
+                i =
+                    find (\x -> index.url == x.url) model.indexInfo
+
+                indexInfo =
+                    case i of
+                        Just xs ->
+                            { xs | tags = model.inputTag :: xs.tags |> unique, isInputting = False }
+
+                        Nothing ->
+                            { index | tags = [ model.inputTag ], isInputting = False }
+            in
+                { model
+                    | changed = True
+                    , inputTag = ""
+                    , indexInfo =
+                        case i of
+                            Just xs ->
+                                List.map
+                                    (\x ->
+                                        if x.url == index.url then
+                                            indexInfo
+                                        else
+                                            index
+                                    )
+                                    model.indexInfo
+
+                            Nothing ->
+                                indexInfo :: model.indexInfo
+                }
+                    ! []
+
+        RemoveTag index tag ->
+            -- TODO:
+            let
+                i =
+                    find (\x -> index.url == x.url) model.indexInfo
+
+                indexInfo =
+                    case i of
+                        Just xs ->
+                            { xs | tags = model.inputTag :: xs.tags |> unique |> remove tag, isInputting = False }
+
+                        Nothing ->
+                            { index | tags = remove tag index.tags, isInputting = False }
+            in
+                { model
+                    | changed = True
+                    , inputTag = ""
+                    , indexInfo =
+                        case i of
+                            Just xs ->
+                                List.map
+                                    (\x ->
+                                        if x.url == index.url then
+                                            indexInfo
+                                        else
+                                            index
+                                    )
+                                    model.indexInfo
+
+                            Nothing ->
+                                indexInfo :: model.indexInfo
+                }
+                    ! []
+
+        SearchTag tag ->
+            { model | query = model.query ++ " #" ++ tag } ! []
 
         EditApiUrl url ->
             { model

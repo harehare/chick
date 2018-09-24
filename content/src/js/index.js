@@ -80,6 +80,7 @@ document.body.appendChild(div);
       itemType: queryInfo.itemType,
       before: queryInfo.before,
       after: queryInfo.after,
+      tag: queryInfo.tag
     });
     app.ports.searchResult.send([queryInfo.query, result]);
     updateSearchResult(result);
@@ -97,7 +98,7 @@ document.body.appendChild(div);
 })();
 
 ['https://fonts.googleapis.com/css?family=Montserrat',
-  'https://fonts.googleapis.com/css?family=Anton'
+  'https://fonts.googleapis.com/css?family=Anton',
 ].forEach(url => {
   const link = document.createElement('link');
   link.href = url;

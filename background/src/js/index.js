@@ -215,6 +215,7 @@ chrome.omnibox.onInputChanged.addListener(async (text, suggest) => {
       itemType: queryInfo.itemType,
       before: queryInfo.before,
       after: queryInfo.after,
+      tag: queryInfo.tag
     });
     if (!isEmpty(searchResult)) {
       suggest(take(6, searchResult).map(x => ({

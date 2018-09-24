@@ -17,6 +17,7 @@ const getOption = data => {
       searchResult: [],
       deleteUrlList: [],
       indexInfo: [],
+      inputTag: '',
       indexTarget: {
         bookmark: true,
         history: true,
@@ -41,7 +42,8 @@ const getOption = data => {
       searchResult: [],
       deleteUrlList: [],
       isIndexing: localStorage.getItem('suspend_indexing') === 'true',
-      indexInfo: []
+      indexInfo: [],
+      inputTag: ''
     });
 
     if (!data.option.indexTarget.pocket) {

@@ -2,15 +2,15 @@ import {
   filter,
   map,
   sum,
-  and,
   prop,
+  pipe,
   assoc,
-  take,
   head,
   cond,
   startsWith,
   T,
-  groupBy
+  groupBy,
+  contains
 } from 'ramda';
 import moment from 'moment';
 import {
@@ -32,15 +32,18 @@ const queryParser = (query) => {
     [startsWith('after:'), t => ({
       after: moment(t.split(':')[1]).valueOf()
     })],
+    [startsWith('#'), t => ({
+      tag: t.split('#')[1]
+    })],
     [T, t => ({
       query: t
     })],
   ])(x));
 
   return Object.entries(groupBy((token) => head(Object.keys(token)), tokens)).reduce((arr, [k, v]) => {
-    arr[k] = v.reduce(((arr, x) => {
-      return arr + ' ' + Object.values(x).join(' ');
-    }), "").trim();
+    arr[k] = head(v.reduce(((arr, x) => {
+      return arr.concat(Object.values(x));
+    }), []));
     return arr;
   }, {});
 };
@@ -48,7 +51,8 @@ const queryParser = (query) => {
 const search = (tokens, useScore = true, filters = {
   before: null,
   after: null,
-  itemType: null
+  itemType: null,
+  tag: null
 }) => {
   return new Promise(async (resolve) => {
     const itemIds = await getLocalStorage(tokens);
@@ -64,8 +68,12 @@ const search = (tokens, useScore = true, filters = {
       }).reduce((arr, v) => {
         if ((!filters.before || index[v].createdAt <= filters.before) &&
           (!filters.after || index[v].createdAt >= filters.after) &&
-          (!filters.itemType || index[v].itemType === filters.itemType)) {
-          arr.push(assoc('bookmark', index[v].bookmark || false, index[v]));
+          (!filters.itemType || index[v].itemType === filters.itemType) &&
+          (!filters.tag || contains(filters.tag, index[v].tags))) {
+          arr.push(
+            pipe(
+              assoc('bookmark', index[v].bookmark || false),
+              assoc('tags', index[v].tags || []))(index[v]));
         }
         return arr;
       }, []));

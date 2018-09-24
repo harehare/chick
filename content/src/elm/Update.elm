@@ -53,12 +53,13 @@ update msg model =
 
 decodeSearchApiResponse : Decode.Decoder Item
 decodeSearchApiResponse =
-    Decode.map5 Item
+    Decode.map6 Item
         (Decode.field "url" Decode.string)
         (Decode.field "title" Decode.string)
         (Decode.field "snippet" Decode.string)
         (Decode.field "itemType" Decode.string)
         (Decode.field "bookmark" Decode.bool)
+        (Decode.field "tags" (Decode.list Decode.string))
 
 
 requestSearchApi : String -> String -> (Result Http.Error (List Item) -> a) -> Cmd a

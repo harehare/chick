@@ -5,14 +5,16 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Lazy exposing (..)
 import List exposing (filter, member)
-import List.Extra exposing (uniqueBy)
+import List.Extra exposing (uniqueBy, find, unique)
 import String exposing (split)
 import OptionModel exposing (..)
 import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Form.Input as Input
 import Bootstrap.Button as Button
+import Bootstrap.Badge as Badge
 import Bootstrap.Form.InputGroup as InputGroup
 import Bootstrap.ListGroup as ListGroup
+import Bootstrap.Utilities.Spacing as Spacing
 import FontAwesome.Solid as SolidIcon
 import FontAwesome.Brands as BrandsIcon
 import FontAwesome.Regular as RegularIcon
@@ -20,6 +22,7 @@ import Bootstrap.Form as Form
 import Bootstrap.Progress as Progress
 import Model exposing (Item)
 import Bootstrap.Alert as Alert
+import Html.Events.Extra exposing (onEnter)
 
 
 view : Model -> Html Msg
@@ -46,7 +49,7 @@ view model =
                 , ( "align-items", "center" )
                 ]
             ]
-            [ lazy3 (searchResultList model.logoUrl) model.query model.deleteUrlList model.searchResult
+            [ lazy3 (searchResultList model.logoUrl model.query model.deleteUrlList) model.searchResult model.inputTag model.indexInfo
             ]
         , lazy2 dataImport model.status model.indexTarget
         , lazy viewOption model.viewOption
@@ -277,8 +280,8 @@ blackUrlList keyword urlList =
         ]
 
 
-searchResultList : String -> String -> List String -> List Item -> Html Msg
-searchResultList logoUrl query deleteItems items =
+searchResultList : String -> String -> List String -> List Item -> String -> List IndexInfo -> Html Msg
+searchResultList logoUrl query deleteItems items tag indexInfo =
     div
         [ style
             [ ( "width", "100%" )
@@ -321,7 +324,7 @@ searchResultList logoUrl query deleteItems items =
                 , ( "border", "1px solid rgba(150,150,150,0.3)" )
                 , ( "overflow-y", "scroll" )
                 , ( "position", "absolute" )
-                , ( "z-index", "1" )
+                , ( "z-index", "9" )
                 , ( "width", "99vw" )
                 , ( "background-color", "#FEFEFE" )
                 , if List.isEmpty items then
@@ -330,7 +333,7 @@ searchResultList logoUrl query deleteItems items =
                     ( "display", "block" )
                 ]
             ]
-            (List.take 20 items
+            (List.take 30 items
                 |> uniqueBy (\x -> x.title)
                 |> filter (\x -> not (member x.url deleteItems))
                 |> List.map
@@ -437,6 +440,24 @@ searchResultList logoUrl query deleteItems items =
                                     ]
                                     [ text x.url ]
                                 ]
+                            , div []
+                                (List.map
+                                    (\tag ->
+                                        Badge.badgeInfo
+                                            [ Spacing.ml1
+                                            , style [ ( "cursor", "pointer" ) ]
+                                            , onClick (SearchTag tag)
+                                            ]
+                                            [ text tag ]
+                                    )
+                                    (case find (\i -> i.url == x.url) indexInfo of
+                                        Just xs ->
+                                            (x.tags ++ xs.tags |> unique)
+
+                                        Nothing ->
+                                            x.tags
+                                    )
+                                )
                             , Button.button
                                 [ Button.attrs
                                     [ style
@@ -445,7 +466,7 @@ searchResultList logoUrl query deleteItems items =
                                         , ( "height", "35px" )
                                         ]
                                     ]
-                                , Button.onClick (Bookmark { url = x.url, bookmark = not x.bookmark })
+                                , Button.onClick (Bookmark { url = x.url, bookmark = not x.bookmark, tags = x.tags, isInputting = False })
                                 , if x.bookmark then
                                     Button.info
                                   else
@@ -460,10 +481,40 @@ searchResultList logoUrl query deleteItems items =
                                         , ( "height", "35px" )
                                         ]
                                     ]
+                                , Button.onClick (InputTag { url = x.url, bookmark = x.bookmark, tags = x.tags, isInputting = False })
+                                , Button.success
+                                ]
+                                [ SolidIcon.tags ]
+                            , Button.button
+                                [ Button.attrs
+                                    [ style
+                                        [ ( "margin", "5px" )
+                                        , ( "width", "40px" )
+                                        , ( "height", "35px" )
+                                        ]
+                                    ]
                                 , Button.onClick (DeleteItem x.url)
                                 , Button.danger
                                 ]
                                 [ SolidIcon.trash_alt ]
+                            , case find (\i -> i.url == x.url) indexInfo of
+                                Just xs ->
+                                    if xs.isInputting then
+                                        Input.text
+                                            [ Input.attrs
+                                                [ style [ ( "margin", "10px" ), ( "width", "20vw" ) ]
+                                                , placeholder "Add Tag"
+                                                , onEnter (AddTag { url = x.url, bookmark = not x.bookmark, tags = x.tags, isInputting = False })
+                                                ]
+                                            , Input.id x.url
+                                            , Input.value tag
+                                            , Input.onInput EditTag
+                                            ]
+                                    else
+                                        span [] []
+
+                                Nothing ->
+                                    span [] []
                             ]
                     )
             )
@@ -474,9 +525,10 @@ buttonArea : Bool -> Html Msg
 buttonArea changed =
     div
         [ style
-            [ ( "justify-content", "flex-end" )
-            , ( "display", "flex" )
-            , ( "flex-grow", "2" )
+            [ ( "position", "absolute" )
+            , ( "bottom", "30px" )
+            , ( "right", "30px" )
+            , ( "z-index", "10" )
             ]
         ]
         [ Button.button

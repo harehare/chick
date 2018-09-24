@@ -4,9 +4,11 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import List exposing (..)
+import Bootstrap.Badge as Badge
 import List.Extra exposing (uniqueBy)
 import String exposing (split, words)
 import Model exposing (..)
+import Bootstrap.Utilities.Spacing as Spacing
 import FontAwesome.Solid as SolidIcon
 import FontAwesome.Regular as RegularIcon
 import FontAwesome.Brands as BrandsIcon
@@ -211,6 +213,31 @@ view model =
                                             ]
                                             [ text x.url ]
                                         ]
+                                    , div []
+                                        (List.map
+                                            (\tag ->
+                                                Badge.badgeInfo
+                                                    [ Spacing.ml1
+                                                    , style
+                                                        [ ( "cursor", "pointer" )
+                                                        , ( "color", "#fff" )
+                                                        , ( "background-color", "#17a2b8" )
+                                                        , ( "display", "inline-block" )
+                                                        , ( "padding", ".25em .4em" )
+                                                        , ( "font-size", "75%" )
+                                                        , ( "font-weight", "700" )
+                                                        , ( "line-height", "1" )
+                                                        , ( "text-align", "center" )
+                                                        , ( "white-space", "nowrap" )
+                                                        , ( "vertical-align", "baseline" )
+                                                        , ( "border-radius", ".25rem" )
+                                                        , ( "margin-left", ".25rem" )
+                                                        ]
+                                                    ]
+                                                    [ text tag ]
+                                            )
+                                            x.tags
+                                        )
                                     ]
                             )
                     )

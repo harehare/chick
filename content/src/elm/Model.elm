@@ -29,4 +29,5 @@ type alias Item =
     , snippet : String
     , itemType : String
     , bookmark : Bool
+    , tags : List String
     }

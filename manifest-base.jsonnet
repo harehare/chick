@@ -18,7 +18,6 @@
     'http://*/',
     'https://*/',
   ],
-  offline_enabled: true,
   web_accessible_resources: ['img/logo.png'],
   icons: {
     '14': 'img/icon_14.png',
