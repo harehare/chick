@@ -32,12 +32,17 @@ before:2018-08-01
 after:2018-08-01
 ```
 
+## tag
+
+```
+#elm
+```
+
 ## TODO
 
 * [ ] Improving search accuracy
-* [ ] Add import/export
 * [ ] Add Query
-* [ ] Add google drive search
+* [ ] Add delete tag
 
 ## License
 

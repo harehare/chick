@@ -292,7 +292,7 @@ update msg model =
                     ! []
 
         SearchTag tag ->
-            { model | query = model.query ++ " #" ++ tag } ! []
+            { model | query = model.query ++ " #" ++ tag } ! [ doSearch (model.query ++ " #" ++ tag) ]
 
         EditApiUrl url ->
             { model

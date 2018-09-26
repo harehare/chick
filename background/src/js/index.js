@@ -91,14 +91,16 @@ const fullIndex = async (docs) => {
     return new Promise(async resolve => {
       for (const item of items) {
         setIndexedUrl(item.url, item.itemType);
+
         const isIndexed = await createIndex(app, item);
-        if (!isIndexed) continue;
 
         chrome.runtime.sendMessage({
           type: EventIndexing,
           documentCount: totalCount,
           indexedCount: ++currentCount
         });
+
+        if (!isIndexed) continue;
 
         while (indexingStatus()) {
           await sleep(1000);
@@ -113,7 +115,7 @@ const fullIndex = async (docs) => {
 
   chrome.runtime.sendMessage({
     type: EventIndexing,
-    documentCount: totalDocumentCount(),
+    documentCount: documentCount(),
     indexedCount: documentCount()
   });
 

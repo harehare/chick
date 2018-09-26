@@ -120,7 +120,7 @@ const filterResult = (tokens, searchResult) => {
 
 const calcScore = (tokens, document) => {
   const text = (document.title + document.snippet).toLowerCase();
-  return parseFloat(sum(map(v => document.bookmark ? 20.0 : text.indexOf(v) >= 0 ? 10.0 : document.itemType == 'bookmark' ? 5.0 : 1.0, tokens)));
+  return parseFloat(sum(map(v => text.indexOf(v) >= 0 ? 10.0 : 1.0, tokens)));
 }
 
 export {

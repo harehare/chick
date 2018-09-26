@@ -338,186 +338,191 @@ searchResultList logoUrl query deleteItems items tag indexInfo =
                 |> filter (\x -> not (member x.url deleteItems))
                 |> List.map
                     (\x ->
-                        div [ style [ ( "margin", "12px" ), ( "padding", "5px" ) ] ]
-                            [ div []
-                                [ a
-                                    [ href x.url
-                                    , target "_blank"
-                                    , style
-                                        [ ( "max-width", "90vw" )
-                                        , ( "white-space", "nowrap" )
-                                        , ( "text-overflow", "ellipsis" )
-                                        , ( "overflow", "hidden" )
-                                        , ( "display", "block" )
-                                        , ( "font-size", "0.95rem" )
-                                        , ( "color", "#2F0676" )
-                                        , ( "margin-bottom", "5px" )
-                                        , ( "text-decoration", "unset" )
-                                        , ( "text-align", "left" )
-                                        ]
-                                    ]
-                                    [ text x.title ]
-                                ]
-                            , div
-                                [ style
-                                    [ ( "white-space", "wrap" )
-                                    , ( "font-size", "0.7rem" )
-                                    , ( "overflow", "hidden" )
-                                    , ( "display", "block" )
-                                    , ( "color", "#494949" )
-                                    , ( "margin-bottom", "5px" )
-                                    , ( "text-align", "left" )
-                                    ]
-                                ]
-                                (List.concat
-                                    (let
-                                        snipets =
-                                            split query x.snippet
-                                     in
-                                        if List.length snipets > 2 then
-                                            List.map
-                                                (\x ->
-                                                    [ text x, strong [] [ text query ] ]
-                                                )
-                                                snipets
-                                        else
-                                            [ [ text x.snippet ] ]
-                                    )
-                                )
-                            , div
-                                [ style
-                                    [ ( "white-space", "nowrap" )
-                                    , ( "font-size", "0.8rem" )
-                                    , ( "text-overflow", "ellipsis" )
-                                    , ( "overflow", "hidden" )
-                                    , ( "display", "flex" )
-                                    , ( "color", "#888" )
-                                    , ( "width", "90vw" )
-                                    , ( "text-align", "left" )
-                                    ]
-                                ]
-                                [ span
-                                    [ style
-                                        [ ( "width", "0.9rem" )
-                                        , ( "margin-top", "1px" )
-                                        , ( "margin-right", "3px" )
-                                        , case x.itemType of
-                                            "history" ->
-                                                ( "color", "#57AD3C" )
-
-                                            "bookmark" ->
-                                                ( "color", "#F5C50F" )
-
-                                            _ ->
-                                                ( "color", "#FF0045" )
-                                        ]
-                                    ]
-                                    [ if x.url == "" then
-                                        span [] []
-                                      else
-                                        (case x.itemType of
-                                            "history" ->
-                                                SolidIcon.history
-
-                                            "bookmark" ->
-                                                RegularIcon.bookmark
-
-                                            "pocket" ->
-                                                BrandsIcon.get_pocket
-
-                                            _ ->
-                                                SolidIcon.exclamation_circle
-                                        )
-                                    ]
-                                , span
-                                    [ style
-                                        [ ( "max-width", "100%" )
-                                        , ( "text-overflow", "ellipsis" )
-                                        , ( "white-space", "nowrap" )
-                                        , ( "overflow", "hidden" )
-                                        , ( "font-size", "0.8rem" )
-                                        ]
-                                    ]
-                                    [ text x.url ]
-                                ]
-                            , div []
-                                (List.map
-                                    (\tag ->
-                                        Badge.badgeInfo
-                                            [ Spacing.ml1
-                                            , style [ ( "cursor", "pointer" ) ]
-                                            , onClick (SearchTag tag)
-                                            ]
-                                            [ text tag ]
-                                    )
-                                    (case find (\i -> i.url == x.url) indexInfo of
-                                        Just xs ->
-                                            (x.tags ++ xs.tags |> unique)
-
-                                        Nothing ->
-                                            x.tags
-                                    )
-                                )
-                            , Button.button
-                                [ Button.attrs
-                                    [ style
-                                        [ ( "margin", "5px" )
-                                        , ( "width", "40px" )
-                                        , ( "height", "35px" )
-                                        ]
-                                    ]
-                                , Button.onClick (Bookmark { url = x.url, bookmark = not x.bookmark, tags = x.tags, isInputting = False })
-                                , if x.bookmark then
-                                    Button.info
-                                  else
-                                    Button.outlineInfo
-                                ]
-                                [ SolidIcon.star ]
-                            , Button.button
-                                [ Button.attrs
-                                    [ style
-                                        [ ( "margin", "5px" )
-                                        , ( "width", "40px" )
-                                        , ( "height", "35px" )
-                                        ]
-                                    ]
-                                , Button.onClick (InputTag { url = x.url, bookmark = x.bookmark, tags = x.tags, isInputting = False })
-                                , Button.success
-                                ]
-                                [ SolidIcon.tags ]
-                            , Button.button
-                                [ Button.attrs
-                                    [ style
-                                        [ ( "margin", "5px" )
-                                        , ( "width", "40px" )
-                                        , ( "height", "35px" )
-                                        ]
-                                    ]
-                                , Button.onClick (DeleteItem x.url)
-                                , Button.danger
-                                ]
-                                [ SolidIcon.trash_alt ]
-                            , case find (\i -> i.url == x.url) indexInfo of
-                                Just xs ->
-                                    if xs.isInputting then
-                                        Input.text
-                                            [ Input.attrs
-                                                [ style [ ( "margin", "10px" ), ( "width", "20vw" ) ]
-                                                , placeholder "Add Tag"
-                                                , onEnter (AddTag { url = x.url, bookmark = not x.bookmark, tags = x.tags, isInputting = False })
-                                                ]
-                                            , Input.id x.url
-                                            , Input.value tag
-                                            , Input.onInput EditTag
-                                            ]
-                                    else
-                                        span [] []
-
-                                Nothing ->
-                                    span [] []
-                            ]
+                        searchItem indexInfo x query tag
                     )
             )
+        ]
+
+
+searchItem : List IndexInfo -> Item -> String -> String -> Html Msg
+searchItem indexInfo item query tag =
+    div [ style [ ( "margin", "12px" ), ( "padding", "5px" ) ] ]
+        [ div []
+            [ a
+                [ href item.url
+                , target "_blank"
+                , style
+                    [ ( "max-width", "90vw" )
+                    , ( "white-space", "nowrap" )
+                    , ( "text-overflow", "ellipsis" )
+                    , ( "overflow", "hidden" )
+                    , ( "display", "block" )
+                    , ( "font-size", "0.95rem" )
+                    , ( "color", "#2F0676" )
+                    , ( "margin-bottom", "5px" )
+                    , ( "text-decoration", "unset" )
+                    , ( "text-align", "left" )
+                    ]
+                ]
+                [ text item.title ]
+            ]
+        , div
+            [ style
+                [ ( "white-space", "wrap" )
+                , ( "font-size", "0.7rem" )
+                , ( "overflow", "hidden" )
+                , ( "display", "block" )
+                , ( "color", "#494949" )
+                , ( "margin-bottom", "5px" )
+                , ( "text-align", "left" )
+                ]
+            ]
+            (List.concat
+                (let
+                    snipets =
+                        split query item.snippet
+                 in
+                    if List.length snipets > 2 then
+                        List.map
+                            (\x ->
+                                [ text x, strong [] [ text query ] ]
+                            )
+                            snipets
+                    else
+                        [ [ text item.snippet ] ]
+                )
+            )
+        , div
+            [ style
+                [ ( "white-space", "nowrap" )
+                , ( "font-size", "0.8rem" )
+                , ( "text-overflow", "ellipsis" )
+                , ( "overflow", "hidden" )
+                , ( "display", "flex" )
+                , ( "color", "#888" )
+                , ( "width", "90vw" )
+                , ( "text-align", "left" )
+                ]
+            ]
+            [ span
+                [ style
+                    [ ( "width", "0.9rem" )
+                    , ( "margin-top", "1px" )
+                    , ( "margin-right", "3px" )
+                    , case item.itemType of
+                        "history" ->
+                            ( "color", "#57AD3C" )
+
+                        "bookmark" ->
+                            ( "color", "#F5C50F" )
+
+                        _ ->
+                            ( "color", "#FF0045" )
+                    ]
+                ]
+                [ if item.url == "" then
+                    span [] []
+                  else
+                    (case item.itemType of
+                        "history" ->
+                            SolidIcon.history
+
+                        "bookmark" ->
+                            RegularIcon.bookmark
+
+                        "pocket" ->
+                            BrandsIcon.get_pocket
+
+                        _ ->
+                            SolidIcon.exclamation_circle
+                    )
+                ]
+            , span
+                [ style
+                    [ ( "max-width", "100%" )
+                    , ( "text-overflow", "ellipsis" )
+                    , ( "white-space", "nowrap" )
+                    , ( "overflow", "hidden" )
+                    , ( "font-size", "0.8rem" )
+                    ]
+                ]
+                [ text item.url ]
+            ]
+        , div []
+            (List.map
+                (\tag ->
+                    Badge.badgeInfo
+                        [ Spacing.ml1
+                        , style [ ( "cursor", "pointer" ) ]
+                        , onClick (SearchTag tag)
+                        ]
+                        [ text tag ]
+                )
+                (case find (\i -> i.url == item.url) indexInfo of
+                    Just xs ->
+                        (item.tags ++ xs.tags |> unique)
+
+                    Nothing ->
+                        item.tags
+                )
+            )
+        , Button.button
+            [ Button.attrs
+                [ style
+                    [ ( "margin", "5px" )
+                    , ( "width", "40px" )
+                    , ( "height", "35px" )
+                    ]
+                ]
+            , Button.onClick (Bookmark { url = item.url, bookmark = not item.bookmark, tags = item.tags, isInputting = False })
+            , if item.bookmark then
+                Button.info
+              else
+                Button.outlineInfo
+            ]
+            [ SolidIcon.star ]
+        , Button.button
+            [ Button.attrs
+                [ style
+                    [ ( "margin", "5px" )
+                    , ( "width", "40px" )
+                    , ( "height", "35px" )
+                    ]
+                ]
+            , Button.onClick (InputTag { url = item.url, bookmark = item.bookmark, tags = item.tags, isInputting = False })
+            , Button.success
+            ]
+            [ SolidIcon.tags ]
+        , Button.button
+            [ Button.attrs
+                [ style
+                    [ ( "margin", "5px" )
+                    , ( "width", "40px" )
+                    , ( "height", "35px" )
+                    ]
+                ]
+            , Button.onClick (DeleteItem item.url)
+            , Button.danger
+            ]
+            [ SolidIcon.trash_alt ]
+        , case find (\i -> i.url == item.url) indexInfo of
+            Just xs ->
+                if xs.isInputting then
+                    Input.text
+                        [ Input.attrs
+                            [ style [ ( "margin", "10px" ), ( "width", "20vw" ) ]
+                            , placeholder "Add Tag"
+                            , onEnter (AddTag { url = item.url, bookmark = not item.bookmark, tags = item.tags, isInputting = False })
+                            ]
+                        , Input.id item.url
+                        , Input.value tag
+                        , Input.onInput EditTag
+                        ]
+                else
+                    span [] []
+
+            Nothing ->
+                span [] []
         ]
 
 

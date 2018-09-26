@@ -64,7 +64,7 @@ regexFilter chars =
 
 regex : Regex.Regex
 regex =
-    "[" ++ Regex.escape " ・〜一「」①-⑨【】、。!\\\"#$%&'()*+-.,/:;<=>?@[]^_`{|}~" ++ "0-9]" |> Regex.regex
+    "[" ++ Regex.escape " ・〜一「」①-⑨【】、。!\\\"$%&'()*+-.,/:;<=>?@[]^_`{|}~" ++ "0-9]" |> Regex.regex
 
 
 filterChars : List String
