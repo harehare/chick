@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Lazy exposing (..)
-import List exposing (filter, member)
+import List exposing (filter, member, isEmpty)
 import List.Extra exposing (uniqueBy, find, unique)
 import String exposing (split)
 import OptionModel exposing (..)
@@ -49,7 +49,7 @@ view model =
                 , ( "align-items", "center" )
                 ]
             ]
-            [ lazy3 (searchResultList model.logoUrl model.query model.deleteUrlList) model.searchResult model.inputTag model.indexInfo
+            [ lazy3 (searchResultList model.logoUrl model.query model.tags model.deleteUrlList) model.searchResult model.inputTag model.indexInfo
             ]
         , lazy2 dataImport model.status model.indexTarget
         , lazy viewOption model.viewOption
@@ -280,8 +280,8 @@ blackUrlList keyword urlList =
         ]
 
 
-searchResultList : String -> String -> List String -> List Item -> String -> List IndexInfo -> Html Msg
-searchResultList logoUrl query deleteItems items tag indexInfo =
+searchResultList : String -> String -> List String -> List String -> List Item -> String -> List IndexInfo -> Html Msg
+searchResultList logoUrl query tags deleteItems items tag indexInfo =
     div
         [ style
             [ ( "width", "100%" )
@@ -338,14 +338,14 @@ searchResultList logoUrl query deleteItems items tag indexInfo =
                 |> filter (\x -> not (member x.url deleteItems))
                 |> List.map
                     (\x ->
-                        searchItem indexInfo x query tag
+                        searchItem tags indexInfo x query tag
                     )
             )
         ]
 
 
-searchItem : List IndexInfo -> Item -> String -> String -> Html Msg
-searchItem indexInfo item query tag =
+searchItem : List String -> List IndexInfo -> Item -> String -> String -> Html Msg
+searchItem tags indexInfo item query tag =
     div [ style [ ( "margin", "12px" ), ( "padding", "5px" ) ] ]
         [ div []
             [ a
@@ -460,7 +460,7 @@ searchItem indexInfo item query tag =
                 )
                 (case find (\i -> i.url == item.url) indexInfo of
                     Just xs ->
-                        (item.tags ++ xs.tags |> unique)
+                        xs.tags
 
                     Nothing ->
                         item.tags
@@ -508,21 +508,72 @@ searchItem indexInfo item query tag =
         , case find (\i -> i.url == item.url) indexInfo of
             Just xs ->
                 if xs.isInputting then
-                    Input.text
-                        [ Input.attrs
-                            [ style [ ( "margin", "10px" ), ( "width", "20vw" ) ]
-                            , placeholder "Add Tag"
-                            , onEnter (AddTag { url = item.url, bookmark = not item.bookmark, tags = item.tags, isInputting = False })
+                    div [ style [ ( "width", "300px" ) ] ]
+                        [ Input.text
+                            [ Input.attrs
+                                [ style
+                                    [ ( "border-radius", "0" )
+                                    , ( "margin-top", "10px" )
+                                    , ( "margin-left", "5px" )
+                                    , ( "width", "20vw" )
+                                    ]
+                                , placeholder "Add Tag"
+                                , onEnter (AddTag { url = item.url, bookmark = not item.bookmark, tags = item.tags, isInputting = False })
+                                ]
+                            , Input.id item.url
+                            , Input.value tag
+                            , Input.onInput EditTag
                             ]
-                        , Input.id item.url
-                        , Input.value tag
-                        , Input.onInput EditTag
+                        , tagList item.url
+                            tags
+                            xs.tags
                         ]
                 else
                     span [] []
 
             Nothing ->
                 span [] []
+        ]
+
+
+tagList : String -> List String -> List String -> Html Msg
+tagList url tags selectedTags =
+    div
+        [ style
+            [ ( "max-height", "300px" )
+            , ( "overflow-y", "auto" )
+            , ( "overflow-x", "hidden" )
+            , ( "width", "100%" )
+            ]
+        ]
+        [ ListGroup.ul
+            (tags
+                |> List.map
+                    (\tag ->
+                        ListGroup.li
+                            [ ListGroup.attrs
+                                [ style [ ( "margin-left", "5px" ), ( "width", "20vw" ) ]
+                                ]
+                            ]
+                            [ label
+                                [ style
+                                    [ ( "cursor", "pointer" )
+                                    , ( "display", "flex" )
+                                    , ( "justify-content", "space-between" )
+                                    ]
+                                ]
+                                [ div [] [ text tag ]
+                                , Checkbox.checkbox
+                                    [ Checkbox.id tag
+                                    , Checkbox.inline
+                                    , Checkbox.checked (member tag selectedTags)
+                                    , Checkbox.attrs [ onClick (ChangeTag (member tag selectedTags) url tag) ]
+                                    ]
+                                    ""
+                                ]
+                            ]
+                    )
+            )
         ]
 
 

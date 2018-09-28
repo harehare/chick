@@ -1,3 +1,8 @@
+import {
+  head,
+} from 'ramda';
+
+
 function sendMessage(message) {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(message, res => {
@@ -6,6 +11,23 @@ function sendMessage(message) {
         reject(err);
       } else {
         resolve(res);
+      }
+    });
+  });
+}
+
+function getVisit(url) {
+  return new Promise((resolve, reject) => {
+    chrome.history.getVisits({
+      url
+    }, res => {
+      const err = chrome.runtime.lastError;
+      if (err) {
+        reject(err);
+      } else if (res.length > 0) {
+        resolve(head(res));
+      } else {
+        resolve({});
       }
     });
   });
@@ -66,5 +88,6 @@ export {
   getSyncStorage,
   setLocalStorage,
   setSyncStorage,
-  sendMessage
+  sendMessage,
+  getVisit
 };

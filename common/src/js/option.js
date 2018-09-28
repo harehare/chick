@@ -1,5 +1,5 @@
 import {
-  isEmpty
+  isEmpty,
 } from 'ramda';
 
 const getOption = data => {
@@ -32,7 +32,8 @@ const getOption = data => {
       searchApi: {
         url: '',
         verify: false
-      }
+      },
+      tags: []
     }
   } else {
     Object.assign(data.option, {
@@ -43,11 +44,15 @@ const getOption = data => {
       deleteUrlList: [],
       isIndexing: localStorage.getItem('suspend_indexing') === 'true',
       indexInfo: [],
-      inputTag: ''
+      inputTag: '',
     });
 
     if (!data.option.indexTarget.pocket) {
       data.option.indexTarget.pocket = false;
+    }
+
+    if (!data.option.tags) {
+      data.option.tags = [];
     }
 
     if (!data.option.searchApi) {
@@ -123,5 +128,5 @@ export {
   suspendIndexing,
   resumeIndexing,
   totalDocumentCount,
-  setDocumentCount
+  setDocumentCount,
 };

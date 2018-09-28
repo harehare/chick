@@ -13,6 +13,7 @@ type Msg
     | AddBlockList
     | ChangeViewOption String
     | ChangeIndexTarget String
+    | ChangeTag Bool String String
     | Save
     | Reindexing
     | EditApiUrl String
@@ -22,7 +23,6 @@ type Msg
     | InputTag IndexInfo
     | EditTag String
     | AddTag IndexInfo
-    | RemoveTag IndexInfo String
     | SearchTag String
     | SelectText String
     | UpdateStatus IndexStatus
@@ -62,6 +62,7 @@ type alias Model =
     , searchApi : ApiStatus
     , logoUrl : String
     , inputTag : String
+    , tags : List String
     }
 
 

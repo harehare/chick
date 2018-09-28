@@ -18,7 +18,8 @@ import moment from 'moment';
 import {
   openUrl,
   getLocalStorage,
-  getSyncStorage
+  getSyncStorage,
+  getVisit
 } from 'Common/chrome';
 import uuid5 from "uuid/v5";
 import {
@@ -160,7 +161,11 @@ const importHistory = async () => {
     startTime: moment().add(-4, 'weeks').valueOf()
   }, (items) => {
     const userBlockList = option.blockList
-    const docs = items.filter(b => (!hasIndex(b.url) && findIndex(w => b.url.indexOf(w) != -1, [...BlockList, ...userBlockList]) === -1));
+    const docs = items.filter(async b =>
+      (await getVisit(b.url)).transition != 'form_submit' &&
+      b.url.startsWith('http') &&
+      (!hasIndex(b.url) &&
+        findIndex(w => b.url.indexOf(w) != -1, [...BlockList, ...userBlockList]) === -1));
     fullIndex(docs.map(item => assoc('itemType', 'history', item)));
   });
   localStorage.setItem('indexing_complete', true);
@@ -184,6 +189,14 @@ chrome.history.onVisited.addListener(async (item) => {
     console.log('history is disabled.');
     return;
   }
+
+  const visitItem = await getVisit(item.url)
+
+  if (visitItem.transition === 'form_submit') {
+    console.log('form_submit!');
+    return;
+  }
+
   itemIndexing(pipe(assoc('createdAt', item.lastVisitTime), assoc('itemType', 'history'))(item));
 });
 

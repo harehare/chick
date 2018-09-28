@@ -41,9 +41,9 @@ const queryParser = (query) => {
   ])(x));
 
   return Object.entries(groupBy((token) => head(Object.keys(token)), tokens)).reduce((arr, [k, v]) => {
-    arr[k] = head(v.reduce(((arr, x) => {
-      return arr.concat(Object.values(x));
-    }), []));
+    arr[k] = v.reduce(((arr, x) => {
+      return arr + ' ' + Object.values(x).join(' ');
+    }), "").trim();
     return arr;
   }, {});
 };

@@ -1,7 +1,9 @@
 import {
   omit,
   head,
-  isEmpty
+  isEmpty,
+  flatten,
+  uniq
 } from 'ramda';
 import Elm from '../elm/Option.elm';
 import * as iziToast from "iziToast";
@@ -17,7 +19,8 @@ import {
   getOption,
   documentCount,
   setIndexingStatus,
-  totalDocumentCount
+  addTags,
+  getTags,
 } from 'Common/option'
 import {
   EventReIndexing,
@@ -84,14 +87,13 @@ import {
     data.indexInfo.forEach(async info => {
       const id = uuid5(info.url, uuid5.URL);
       const indexItem = await getLocalStorage(id);
-      console.log(Object.assign(indexItem[id], info));
+      const newItem = Object.assign(indexItem[id], info)
       await setLocalStorage({
-        [id]: Object.assign(indexItem[id], info)
+        [id]: newItem
       });
-
-      //TODO: tag index
     });
 
+    data.tags = uniq([...data.tags, ...flatten(data.indexInfo.map(index => index.tags))]);
     Object.keys(localStorage).forEach(key => {
       if (key.startsWith('indexed:')) {
         const url = key.slice(8);

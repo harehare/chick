@@ -197,7 +197,7 @@ update msg model =
                 indexInfo =
                     case i of
                         Just xs ->
-                            { xs | isInputting = not xs.isInputting }
+                            { xs | tags = xs.tags ++ index.tags |> unique, isInputting = not xs.isInputting }
 
                         Nothing ->
                             { index | isInputting = True }
@@ -212,12 +212,12 @@ update msg model =
                                         if x.url == index.url then
                                             indexInfo
                                         else
-                                            index
+                                            { x | isInputting = False }
                                     )
                                     model.indexInfo
 
                             Nothing ->
-                                indexInfo :: model.indexInfo
+                                indexInfo :: (List.map (\i -> { i | isInputting = False }) model.indexInfo)
                 }
                     ! [ Task.attempt (\_ -> NoOp) <| Dom.focus index.url ]
 
@@ -240,6 +240,7 @@ update msg model =
                 { model
                     | changed = True
                     , inputTag = ""
+                    , tags = indexInfo.tags ++ model.tags |> unique
                     , indexInfo =
                         case i of
                             Just xs ->
@@ -257,37 +258,55 @@ update msg model =
                 }
                     ! []
 
-        RemoveTag index tag ->
-            -- TODO:
+        ChangeTag checked url tag ->
             let
-                i =
-                    find (\x -> index.url == x.url) model.indexInfo
+                index =
+                    find (\x -> url == x.url) model.indexInfo
 
-                indexInfo =
-                    case i of
-                        Just xs ->
-                            { xs | tags = model.inputTag :: xs.tags |> unique |> remove tag, isInputting = False }
-
-                        Nothing ->
-                            { index | tags = remove tag index.tags, isInputting = False }
+                resultItem =
+                    find (\x -> url == x.url) model.searchResult
             in
                 { model
                     | changed = True
                     , inputTag = ""
                     , indexInfo =
-                        case i of
+                        case index of
                             Just xs ->
                                 List.map
-                                    (\x ->
-                                        if x.url == index.url then
-                                            indexInfo
+                                    (\item ->
+                                        if item.url == url then
+                                            { item
+                                                | tags =
+                                                    if checked then
+                                                        remove tag item.tags
+                                                    else
+                                                        tag
+                                                            :: item.tags
+                                                            |> unique
+                                            }
                                         else
-                                            index
+                                            item
                                     )
                                     model.indexInfo
 
                             Nothing ->
-                                indexInfo :: model.indexInfo
+                                case resultItem of
+                                    Just xs ->
+                                        { url = xs.url
+                                        , bookmark = xs.bookmark
+                                        , tags =
+                                            if checked then
+                                                remove tag xs.tags
+                                            else
+                                                tag
+                                                    :: xs.tags
+                                                    |> unique
+                                        , isInputting = False
+                                        }
+                                            :: model.indexInfo
+
+                                    Nothing ->
+                                        model.indexInfo
                 }
                     ! []
 
