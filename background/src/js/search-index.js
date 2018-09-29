@@ -10,6 +10,7 @@ import {
 } from "Common/chrome";
 import {
   getOption,
+  setIndexedUrl
 } from 'Common/option'
 
 const create = items => {
@@ -27,6 +28,27 @@ const create = items => {
         continue;
       }
       const id = uuid5(url, uuid5.URL);
+
+      setIndexedUrl(url, words);
+      document.dispatchEvent(new CustomEvent("addIndex", {
+        detail: {
+          url,
+          words
+        }
+      }));
+
+      document.dispatchEvent(new CustomEvent('addTrainData', {
+        detail: {
+          items: [{
+            label: id,
+            words
+          }],
+          callback: () => {
+            console.log('add train');
+          }
+        }
+      }));
+
       const data = await getLocalStorage(id);
 
       if (!isEmpty(data)) {

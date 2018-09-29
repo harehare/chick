@@ -42,6 +42,7 @@ module.exports = env => {
       alias: {
         Common: path.resolve(__dirname, 'common/src/js/'),
         Chick: path.resolve(__dirname, 'clojure/compiled/'),
+        Wasm: path.resolve(__dirname, 'wasm/'),
       }
     },
     entry: {

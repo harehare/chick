@@ -1,0 +1,6 @@
+vendor
+
+server.go
+
+*.wasm
+*.html

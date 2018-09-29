@@ -1,6 +1,7 @@
 import {
   isEmpty,
 } from 'ramda';
+import uuid5 from "uuid/v5";
 
 const getOption = data => {
   if (!data.option || isEmpty(data.option)) {
@@ -84,8 +85,36 @@ const setDocumentCount = (count) => {
   localStorage.setItem('totalCount', count);
 };
 
-const setIndexedUrl = (url, itemType) => {
-  localStorage.setItem(`indexed:${url}`, itemType);
+const setIndexedUrl = (url, words) => {
+  localStorage.setItem(`indexed:${url}`, JSON.stringify({
+    words
+  }));
+};
+
+const getIndexedInfo = (url) => {
+  const result = localStorage.getItem(`indexed:${url}`);
+  if (result) {
+    return JSON.parse(result);
+  } else {
+    return {
+      words: []
+    }
+  }
+};
+
+const indexedList = () => {
+  return Object.keys(localStorage).reduce((arr, key) => {
+      if (key.startsWith('indexed:')) {
+        const url = key.slice(8);
+        const words = getIndexedInfo(url);
+        arr.push({
+          label: uuid5(url, uuid5.URL),
+          words: words.words
+        });
+      }
+      return arr;
+    },
+    []);
 };
 
 const hasIndex = (url) => {
@@ -129,4 +158,6 @@ export {
   resumeIndexing,
   totalDocumentCount,
   setDocumentCount,
+  getIndexedInfo,
+  indexedList
 };

@@ -30,7 +30,9 @@ import {
   hasIndex,
   documentCount,
   totalDocumentCount,
-  setDocumentCount
+  setDocumentCount,
+  getIndexedInfo,
+  indexedList
 } from 'Common/option';
 import {
   EventIndexing,
@@ -55,9 +57,47 @@ import Elm from "../elm/BackGround.elm";
 import {
   BlockList
 } from './blocklist';
+import setupWasm from 'Wasm/wasm_exec';
 
 const app = Elm.BackGround.worker();
 const IndexParallel = 4;
+
+const startWasm = async () => {
+  setupWasm();
+  if (!WebAssembly.instantiateStreaming) {
+    WebAssembly.instantiateStreaming = async (resp, importObject) => {
+      const source = await (await resp).arrayBuffer();
+      return await WebAssembly.instantiate(source, importObject);
+    };
+  }
+  const go = new Go();
+  let mod, inst;
+  WebAssembly.instantiateStreaming(fetch(chrome.runtime.getURL('wasm/bin/lib.wasm')), go.importObject).then(async (result) => {
+    mod = result.module;
+    inst = result.instance;
+    (async () => {
+      await go.run(inst);
+      inst = await WebAssembly.instantiate(mod, go.importObject);
+    })();
+
+    const list = indexedList();
+    if (list.length > 0) {
+      for (const index of splitEvery(Math.ceil(list.length / IndexParallel), list)) {
+        document.dispatchEvent(new CustomEvent('addTrainData', {
+          detail: {
+            items: index,
+            callback: () => {
+              console.log('wasm', 'Add train data');
+            }
+          }
+        }));
+      }
+    }
+
+  }).catch((err) => {
+    console.error(err);
+  });
+}
 
 const getBookmark = (bookmarks) => {
   if (!bookmarks) return [];
@@ -91,7 +131,7 @@ const fullIndex = async (docs) => {
   const indexing = (items) => {
     return new Promise(async resolve => {
       for (const item of items) {
-        setIndexedUrl(item.url, item.itemType);
+        setIndexedUrl(item.url, {});
 
         const isIndexed = await createIndex(app, item);
 
@@ -136,7 +176,7 @@ const itemIndexing = async (item) => {
   }
 
   if (!createIndex(app, item)) return;
-  setIndexedUrl(item.url, item.itemType);
+  setIndexedUrl(item.url, {});
 }
 
 const importBookmark = async () => {
@@ -282,15 +322,51 @@ chrome.omnibox.onInputEntered.addListener((url, disposition) => {
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     type: 'normal',
-    title: 'Search',
-    id: 'chick',
+    title: 'Search keyword',
+    id: 'search',
     contexts: ['selection'],
   });
+  chrome.contextMenus.create({
+    type: 'normal',
+    title: 'Search similar page',
+    id: 'similar',
+    contexts: ['all'],
+  });
   openUrl(chrome.runtime.getURL('option/index.html'), true);
+  startWasm();
 });
 
+chrome.runtime.onStartup.addListener(async () => {
+  startWasm();
+})
+
 chrome.contextMenus.onClicked.addListener((info) => {
-  openUrl(`${chrome.extension.getURL("option/index.html")}?q=${encodeURIComponent(info.selectionText)}`, true);
+  cond([
+    [equals('search'), () => (openUrl(`${chrome.extension.getURL("option/index.html")}?q=${encodeURIComponent(info.selectionText)}`, true))],
+    [equals('similar'), () => {
+      document.dispatchEvent(new CustomEvent('fit', {
+        detail: {
+          k: 10,
+          label: info.pageUrl,
+          callback: () => {
+            const start = +new Date();
+            document.dispatchEvent(new CustomEvent('predict', {
+              detail: {
+                words: getIndexedInfo(info.pageUrl).words,
+                label: info.pageUrl,
+                callback: (labels) => {
+                  // TODO:
+                  const end = +new Date();
+                  console.log(`predict: ${(end - start)}`);
+                  console.log(labels);
+                }
+              }
+            }));
+          }
+        }
+      }));
+    }],
+  ])(info.menuItemId);
 });
 
 app.ports.indexItem.subscribe(async ({
@@ -312,12 +388,6 @@ app.ports.indexItem.subscribe(async ({
   if (isEmpty(url)) {
     return;
   }
-  document.dispatchEvent(new CustomEvent("addIndex", {
-    detail: {
-      url,
-      words
-    }
-  }));
 });
 
 app.ports.indexError.subscribe(errorCount => {

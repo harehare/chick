@@ -18,7 +18,8 @@
     'http://*/',
     'https://*/',
   ],
-  web_accessible_resources: ['img/logo.png'],
+  web_accessible_resources: ['img/logo.png', 'wasm/bin/lib.wsam'],
+  content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'",
   icons: {
     '14': 'img/icon_14.png',
     '16': 'img/icon_16.png',
