@@ -1,4 +1,4 @@
-module PopupModel exposing (..)
+module PopupModel exposing (Model, Msg(..))
 
 
 type Msg
@@ -6,10 +6,12 @@ type Msg
     | ShowOption
     | EditSearchQuery String
     | DoSearch
+    | TagClick String
     | SuspendResume
 
 
 type alias Model =
     { suspend : Bool
     , query : String
+    , tags : List String
     }

@@ -1,8 +1,8 @@
-module PopupUpdate exposing (..)
+module PopupUpdate exposing (isEnter, update)
 
+import Json.Decode as Decode
 import PopupModel exposing (..)
 import PopupSubscriptions exposing (..)
-import Json.Decode as Decode
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -25,12 +25,16 @@ update msg model =
                 status =
                     not model.suspend
             in
-                { model | suspend = status } ! [ suspend status ]
+            { model | suspend = status } ! [ suspend status ]
+
+        TagClick tag ->
+            { model | query = model.query ++ " #" ++ tag } ! []
 
 
 isEnter : Msg -> number -> Decode.Decoder Msg
 isEnter msg code =
     if code == 13 then
         Decode.succeed msg
+
     else
         Decode.fail "not Enter"

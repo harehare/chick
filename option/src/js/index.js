@@ -19,8 +19,6 @@ import {
   getOption,
   documentCount,
   setIndexingStatus,
-  addTags,
-  getTags,
 } from 'Common/option'
 import {
   EventReIndexing,

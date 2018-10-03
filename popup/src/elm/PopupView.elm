@@ -1,14 +1,17 @@
-module PopupView exposing (..)
+module PopupView exposing (searchBox, tagList, view)
 
+import Bootstrap.Badge as Badge
+import Bootstrap.Button as Button
+import Bootstrap.Form.Input as Input
+import Bootstrap.Form.InputGroup as InputGroup
+import Bootstrap.Utilities.Spacing as Spacing
+import FontAwesome.Solid as SolidIcon
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
+import Html.Events.Extra exposing (onEnter)
 import Html.Lazy exposing (..)
 import PopupModel exposing (..)
-import FontAwesome.Solid as SolidIcon
-import Bootstrap.Form.InputGroup as InputGroup
-import Bootstrap.Form.Input as Input
-import Bootstrap.Button as Button
-import Html.Events.Extra exposing (onEnter)
 
 
 view : Model -> Html Msg
@@ -17,12 +20,13 @@ view model =
         [ style
             [ ( "width", "300px" )
             , ( "height", "40px" )
-            , ( "font-family", "Montserrat" )
+            , ( "font-family", "'Open Sans', sans-serif" )
             , ( "font-size", "0.9rem" )
             , ( "background-color", "#FEFEFE" )
             ]
         ]
         [ lazy searchBox model.query
+        , lazy tagList model.tags
         ]
 
 
@@ -59,3 +63,23 @@ searchBox query =
                 |> InputGroup.view
             ]
         ]
+
+
+tagList : List String -> Html Msg
+tagList tags =
+    div []
+        (tags
+            |> List.map
+                (\tag ->
+                    Badge.badgeInfo
+                        [ Spacing.ml1
+                        , style
+                            [ ( "cursor", "pointer" )
+                            , ( "margin", "5px" )
+                            , ( "padding", "5px" )
+                            ]
+                        , onClick (TagClick tag)
+                        ]
+                        [ text tag ]
+                )
+        )

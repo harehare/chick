@@ -61,8 +61,13 @@ import setupWasm from 'Wasm/wasm_exec';
 
 const app = Elm.BackGround.worker();
 const IndexParallel = 4;
+const enabledWasm = false;
 
 const startWasm = async () => {
+  if (!enabledWasm) {
+    return;
+  }
+
   setupWasm();
   if (!WebAssembly.instantiateStreaming) {
     WebAssembly.instantiateStreaming = async (resp, importObject) => {
@@ -275,7 +280,7 @@ chrome.omnibox.onInputChanged.addListener(async (text, suggest) => {
     if (!isEmpty(searchResult)) {
       suggest(take(6, searchResult).map(x => ({
         content: x.url,
-        description: `<url>${escapeHtml(x.url)}</url> - <dim>${escapeHtml(x.title)}</dim>`
+        description: `<dim>${escapeHtml(x.title)}</dim> - <url>${escapeHtml(x.url)}</url>`
       })).filter(x => !isEmpty(x.content)));
     }
   }

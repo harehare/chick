@@ -1,12 +1,14 @@
-port module Popup exposing (..)
+port module Popup exposing (init, main)
 
+import Dom
+import Html exposing (..)
+import List exposing (..)
 import PopupModel exposing (..)
 import PopupSubscriptions exposing (..)
 import PopupUpdate exposing (..)
 import PopupView exposing (..)
-import Html exposing (..)
 import Task exposing (..)
-import Dom
+
 
 
 -- ENTRY POINT
@@ -14,7 +16,7 @@ import Dom
 
 init : Model -> ( Model, Cmd Msg )
 init model =
-    ( model, Task.attempt (\_ -> NoOp) <| Dom.focus "search-query" )
+    ( { model | tags = List.sort model.tags }, Task.attempt (\_ -> NoOp) <| Dom.focus "search-query" )
 
 
 main : Program Model Model Msg

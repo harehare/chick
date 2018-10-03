@@ -49,14 +49,15 @@ view model =
                     , ( "border-left", "1px solid rgba(150,150,150,0.3)" )
                     ]
                 ]
-                [ img
-                    [ src model.imageUrl
-                    , style
-                        [ ( "width", "30px" )
-                        , ( "height", "30px" )
+                [ div
+                    [ style
+                        [ ( "width", "20px" )
+                        , ( "height", "20px" )
+                        , ( "margin", "5px" )
+                        , ( "color", "#60B5CC" )
                         ]
                     ]
-                    []
+                    [ SolidIcon.search ]
                 ]
             , div
                 [ onClick OpenOption
