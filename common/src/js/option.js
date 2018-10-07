@@ -30,10 +30,6 @@ const getOption = data => {
         indexedCount: 0,
         documentCount: 0
       },
-      searchApi: {
-        url: '',
-        verify: false
-      },
       tags: []
     }
   } else {
@@ -54,13 +50,6 @@ const getOption = data => {
 
     if (!data.option.tags) {
       data.option.tags = [];
-    }
-
-    if (!data.option.searchApi) {
-      data.option.searchApi = {
-        url: '',
-        verify: false
-      }
     }
 
     if (!data.option.status) {
@@ -159,5 +148,5 @@ export {
   totalDocumentCount,
   setDocumentCount,
   getIndexedInfo,
-  indexedList
+  indexedList,
 };

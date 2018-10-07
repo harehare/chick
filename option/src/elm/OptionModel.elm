@@ -16,7 +16,6 @@ type Msg
     | ChangeTag Bool String String
     | Save
     | Reindexing
-    | EditApiUrl String
     | DataImport
     | Export
     | Import
@@ -28,17 +27,7 @@ type Msg
     | UpdateStatus IndexStatus
     | OptionTokenizeNGram String
     | OptionSearchResult (List Item)
-    | CallSearchApi ( String, String )
     | Bookmark IndexInfo
-    | VerifySearchApi
-    | ResponseSearchApi (Result Http.Error (List Item))
-    | SearchApiResult (Result Http.Error (List Item))
-
-
-type Api
-    = Scraping
-    | QueryParse
-    | Scoring
 
 
 type alias IndexStatus =
@@ -59,7 +48,6 @@ type alias Model =
     , status : IndexStatus
     , deleteUrlList : List String
     , indexInfo : List IndexInfo
-    , searchApi : ApiStatus
     , logoUrl : String
     , inputTag : String
     , tags : List String
@@ -71,12 +59,6 @@ type alias IndexInfo =
     , bookmark : Bool
     , tags : List String
     , isInputting : Bool
-    }
-
-
-type alias ApiStatus =
-    { verify : Bool
-    , url : String
     }
 
 

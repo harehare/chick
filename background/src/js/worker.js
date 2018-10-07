@@ -4,30 +4,31 @@ import {
     product,
     zip,
     sort,
-    isEmpty
+    isEmpty,
 } from 'ramda';
 
-class SimilarChecker {
-    constructor(docs) {
+
+class SimilarPagesChecker {
+    constructor() {
         this.allWords = new Set();
         this.wordFreq = [];
         this.vector = [];
         this.labels = [];
+    }
+
+    fit(docs) {
         docs.forEach(doc => {
             if (isEmpty(doc.words)) {
                 return;
             }
             this.labels.push(doc.label);
             const vec = {};
-            doc.words.forEach(word => {
+            doc.words.slice(0, 1000).forEach(word => {
                 vec[word] = vec[word] ? vec[word] + 1 : 1;
                 this.allWords.add(word);
             })
             this.wordFreq.push(vec);
         });
-    }
-
-    fit() {
         this.vector = [];
         for (const v of this.wordFreq) {
             this.vector.push(this.doc2bow(v));
@@ -57,10 +58,10 @@ class SimilarChecker {
         return sort((a, b) => b.value - a.value, cos.map((value, index) => ({
             label: this.labels[index],
             value
-        }))).slice(0, k);
+        }))).slice(0, k).filter(v => v.value >= 0.02);
     }
 }
 
 export {
-    SimilarChecker
+    SimilarPagesChecker
 }

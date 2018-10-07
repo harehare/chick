@@ -18,9 +18,6 @@ port imageUrl : (String -> msg) -> Sub msg
 port changeVisiblety : (Bool -> msg) -> Sub msg
 
 
-port search : (( String, String ) -> msg) -> Sub msg
-
-
 port setVisiblety : Bool -> Cmd msg
 
 
@@ -34,5 +31,4 @@ subscriptions model =
         , searchResult SearchResult
         , imageUrl ImageUrl
         , changeVisiblety ChangeVisiblety
-        , search SearchApi
         ]

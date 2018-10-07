@@ -25,16 +25,18 @@ update msg model =
                 status =
                     not model.suspend
             in
-            { model | suspend = status } ! [ suspend status ]
+                { model | suspend = status } ! [ suspend status ]
 
         TagClick tag ->
             { model | query = model.query ++ " #" ++ tag } ! []
+
+        GetSimilarPages items ->
+            { model | items = items } ! []
 
 
 isEnter : Msg -> number -> Decode.Decoder Msg
 isEnter msg code =
     if code == 13 then
         Decode.succeed msg
-
     else
         Decode.fail "not Enter"

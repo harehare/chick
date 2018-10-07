@@ -181,51 +181,6 @@ dataImport status option =
             ]
 
 
-advanced : ApiStatus -> Html Msg
-advanced status =
-    div
-        [ style
-            [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
-            , ( "border", "1px solid rgba(150,150,150,0.3)" )
-            , ( "padding", "1% 2%" )
-            , ( "margin", "15px" )
-            , ( "border-radius", "5px" )
-            , ( "background-color", "#FEFEFE" )
-            ]
-        ]
-        [ h5
-            [ style
-                [ ( "margin-bottom", "15px" )
-                , ( "font-weight", "300" )
-                ]
-            ]
-            [ text "ADVANCED" ]
-        , div [ style [ ( "margin-bottom", "5px" ) ] ]
-            [ Form.label
-                [ style
-                    [ ( "font-weight", "300" )
-                    , ( "font-size", "0.8rem" )
-                    ]
-                , for "index-api"
-                ]
-                [ text "Index Extended API" ]
-            , InputGroup.config (InputGroup.text [ status.url |> Input.value, Input.id "index-api", Input.placeholder "Enter URL", Input.onInput EditApiUrl ])
-                |> InputGroup.successors
-                    [ InputGroup.button
-                        [ Button.disabled (status.url == "")
-                        , if status.verify then
-                            Button.success
-                          else
-                            Button.danger
-                        , Button.onClick VerifySearchApi
-                        ]
-                        [ text "Verify" ]
-                    ]
-                |> InputGroup.view
-            ]
-        ]
-
-
 blackUrlList : String -> List String -> Html Msg
 blackUrlList keyword urlList =
     div

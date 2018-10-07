@@ -11,8 +11,6 @@ type Msg
     | ImageUrl String
     | ChangeVisiblety Bool
     | OpenOption
-    | SearchApi ( String, String )
-    | SearchApiResult (Result Http.Error (List Item))
 
 
 type alias Model =

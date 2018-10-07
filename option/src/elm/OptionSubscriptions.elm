@@ -38,9 +38,6 @@ port dataImport : IndexTarget -> Cmd msg
 port doSearch : String -> Cmd msg
 
 
-port callSearchApi : (( String, String ) -> msg) -> Sub msg
-
-
 port importIndex : Int -> Cmd msg
 
 
@@ -49,5 +46,4 @@ subscriptions model =
         [ updateStatus UpdateStatus
         , tokenizeNGram OptionTokenizeNGram
         , optionSearchResult OptionSearchResult
-        , callSearchApi CallSearchApi
         ]

@@ -40,10 +40,3 @@
                                           :response-format :json
                                           :keywords? true
                                           :error-handler error-handler}))
-
-(.. js/chrome -alarms (create "indexing_from_pocket" (js-obj "delayInMinutes" 60)))
-
-(.. js/chrome -alarms (onAlarm.addListener (fn [alarm] (when (and (= (.getItem js/localStorage "pocket-indexing?") "true")
-                                                                  (= (.-name alarm) "indexing_from_pocket"))
-                                                         (.log js/console "start indexing from pocket.")
-                                                         (start-index)))))

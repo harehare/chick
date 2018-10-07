@@ -32,7 +32,7 @@ import {
   totalDocumentCount,
   setDocumentCount,
   getIndexedInfo,
-  indexedList
+  indexedList,
 } from 'Common/option';
 import {
   EventIndexing,
@@ -41,6 +41,7 @@ import {
   EventOpenTab,
   EventImportBookmark,
   EventImportHistory,
+  EventGetSimilarPages
 } from 'Common/constants';
 import {
   sleep
@@ -57,52 +58,9 @@ import Elm from "../elm/BackGround.elm";
 import {
   BlockList
 } from './blocklist';
-import setupWasm from 'Wasm/wasm_exec';
 
 const app = Elm.BackGround.worker();
 const IndexParallel = 4;
-const enabledWasm = false;
-
-const startWasm = async () => {
-  if (!enabledWasm) {
-    return;
-  }
-
-  setupWasm();
-  if (!WebAssembly.instantiateStreaming) {
-    WebAssembly.instantiateStreaming = async (resp, importObject) => {
-      const source = await (await resp).arrayBuffer();
-      return await WebAssembly.instantiate(source, importObject);
-    };
-  }
-  const go = new Go();
-  let mod, inst;
-  WebAssembly.instantiateStreaming(fetch(chrome.runtime.getURL('wasm/bin/lib.wasm')), go.importObject).then(async (result) => {
-    mod = result.module;
-    inst = result.instance;
-    (async () => {
-      await go.run(inst);
-      inst = await WebAssembly.instantiate(mod, go.importObject);
-    })();
-
-    const list = indexedList();
-    if (list.length > 0) {
-      for (const index of splitEvery(Math.ceil(list.length / IndexParallel), list)) {
-        document.dispatchEvent(new CustomEvent('addTrainData', {
-          detail: {
-            items: index,
-            callback: () => {
-              console.log('wasm', 'Add train data');
-            }
-          }
-        }));
-      }
-    }
-
-  }).catch((err) => {
-    console.error(err);
-  });
-}
 
 const getBookmark = (bookmarks) => {
   if (!bookmarks) return [];
@@ -166,7 +124,6 @@ const fullIndex = async (docs) => {
   });
 
   app.ports.getErrorItems.send(0);
-  app.ports.indexAllFromApi.send(0);
   resumeIndexing();
 };
 
@@ -245,7 +202,7 @@ chrome.history.onVisited.addListener(async (item) => {
   itemIndexing(pipe(assoc('createdAt', item.lastVisitTime), assoc('itemType', 'history'))(item));
 });
 
-chrome.runtime.onMessage.addListener(async (message) => {
+chrome.runtime.onMessage.addListener(async (message, _, callback) => {
   cond([
     [equals(EventReIndexing), async () => {
       console.log('start reindexing...');
@@ -263,6 +220,16 @@ chrome.runtime.onMessage.addListener(async (message) => {
     [equals(EventOpenTab), () => (openUrl(message.url, true))],
     [equals(EventImportBookmark), () => (importBookmark())],
     [equals(EventImportHistory), () => (importHistory())],
+    [equals(EventGetSimilarPages), () => {
+      const index = getIndexedInfo(message.url);
+      if (hasIndex(message.url) && index != null && index.words.length > 0) {
+        const wordFreq = similarPages.freq(index.words);
+        callback(similarPages.predict(similarPages.doc2bow(wordFreq), 6));
+      } else {
+        callback([]);
+      }
+      return true;
+    }],
   ])(message.type);
 });
 
@@ -296,18 +263,8 @@ chrome.omnibox.onInputChanged.addListener(async (text, suggest) => {
   }
 
   if (!isEmpty(queryInfo.query)) {
-    const option = await getSyncStorage('option');
-    const {
-      searchApi
-    } = getOption(option);
-
-    if (searchApi.verify) {
-      app.ports.setSearchResult.subscribe(setSearchResult);
-      app.ports.backgroundSearchApi.send([searchApi.url, queryInfo.query]);
-    } else {
-      app.ports.queryResult.subscribe(doSearch);
-      app.ports.getQuery.send(queryInfo.query);
-    }
+    app.ports.queryResult.subscribe(doSearch);
+    app.ports.getQuery.send(queryInfo.query);
   }
 });
 
@@ -331,46 +288,12 @@ chrome.runtime.onInstalled.addListener(() => {
     id: 'search',
     contexts: ['selection'],
   });
-  chrome.contextMenus.create({
-    type: 'normal',
-    title: 'Search similar page',
-    id: 'similar',
-    contexts: ['all'],
-  });
   openUrl(chrome.runtime.getURL('option/index.html'), true);
-  startWasm();
 });
-
-chrome.runtime.onStartup.addListener(async () => {
-  startWasm();
-})
 
 chrome.contextMenus.onClicked.addListener((info) => {
   cond([
     [equals('search'), () => (openUrl(`${chrome.extension.getURL("option/index.html")}?q=${encodeURIComponent(info.selectionText)}`, true))],
-    [equals('similar'), () => {
-      document.dispatchEvent(new CustomEvent('fit', {
-        detail: {
-          k: 10,
-          label: info.pageUrl,
-          callback: () => {
-            const start = +new Date();
-            document.dispatchEvent(new CustomEvent('predict', {
-              detail: {
-                words: getIndexedInfo(info.pageUrl).words,
-                label: info.pageUrl,
-                callback: (labels) => {
-                  // TODO:
-                  const end = +new Date();
-                  console.log(`predict: ${(end - start)}`);
-                  console.log(labels);
-                }
-              }
-            }));
-          }
-        }
-      }));
-    }],
   ])(info.menuItemId);
 });
 

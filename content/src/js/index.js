@@ -26,7 +26,6 @@ document.body.appendChild(div);
   const {
     viewOption,
     blockList,
-    searchApi
   } = getOption(option);
 
   if (!viewOption.google && location.href.startsWith('https://www.google')) {
@@ -89,11 +88,7 @@ document.body.appendChild(div);
   app.ports.tokenizeResult.subscribe(search);
 
   if (findIndex(x => x === queryInfo.query, blockList) === -1) {
-    if (searchApi.verify) {
-      app.ports.search.send([searchApi.url, queryInfo.query]);
-    } else {
-      app.ports.tokenizeNGram.send(queryInfo.query);
-    }
+    app.ports.tokenizeNGram.send(queryInfo.query);
   }
 })();
 

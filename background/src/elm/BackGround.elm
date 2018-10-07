@@ -15,7 +15,6 @@ import Dict exposing (Dict, get, insert, remove, fromList, toList, values)
 import NGram exposing (tokeinze)
 import Normalize
 import Stopwords
-import Update exposing (requestSearchApi)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -26,78 +25,6 @@ update msg model =
 
         OnCreateItem item ->
             { model | items = insert item.url item model.items } ! [ fetchUrlInfo item IndexItem ]
-
-        OnCreateItemFromApi items ->
-            let
-                url =
-                    Tuple.first items
-
-                item =
-                    Tuple.second items
-            in
-                { model | searchApiUrl = url ++ "/index", items = insert item.url item model.items } ! [ fetchUrlInfo item IndexItemFromApi ]
-
-        IndexCompleted (Err err) ->
-            model ! [ indexError 1 ]
-
-        IndexCompleted (Ok data) ->
-            -- TODO:
-            model ! []
-
-        IndexItemFromApi (Err err) ->
-            model ! [ indexError 1 ]
-
-        IndexAll _ ->
-            { model | indexingItems = [] }
-                ! [ if isEmpty model.searchApiUrl then
-                        Cmd.none
-                    else
-                        requestIndexApi model.searchApiUrl model.indexingItems
-                  ]
-
-        IndexItemFromApi (Ok data) ->
-            let
-                item =
-                    case get data.url model.items of
-                        Just xs ->
-                            xs
-
-                        Nothing ->
-                            { url = "", title = "", createdAt = Nothing, itemType = "" }
-
-                items =
-                    { title =
-                        case getTitle data.body of
-                            Just xs ->
-                                xs
-
-                            Nothing ->
-                                item.title
-                    , url = item.url
-                    , body =
-                        data.body
-                            |> removeHtmlTag
-                            |> stripTags
-                            |> removeUnnecessary
-                    , itemType = item.itemType
-                    }
-                        :: model.indexingItems
-
-                doIndex =
-                    List.length items > 30
-            in
-                { model
-                    | indexingItems =
-                        if doIndex then
-                            []
-                        else
-                            items
-                }
-                    ! [ if doIndex then
-                            requestIndexApi model.searchApiUrl items
-                        else
-                            Cmd.none
-                      ]
 
         IndexItem (Err err) ->
             model ! [ indexError 1 ]
@@ -154,15 +81,6 @@ update msg model =
         OnGetQuery text ->
             model ! [ queryResult (tokeinze text) ]
 
-        BackgroundSearchApi req ->
-            model ! [ requestSearchApi (Tuple.first req) (Tuple.second req) SearchApiResult ]
-
-        SearchApiResult (Err err) ->
-            model ! []
-
-        SearchApiResult (Ok items) ->
-            model ! [ setSearchResult items ]
-
 
 readHtml : Http.Response String -> Result String ResponseItem
 readHtml response =
@@ -216,39 +134,6 @@ removeUnnecessary text =
         |> replace Regex.All (regex Stopwords.words |> caseInsensitive) (\_ -> "")
 
 
-decodeIndexApiResponse : Decode.Decoder IndexApiResponse
-decodeIndexApiResponse =
-    Decode.map IndexApiResponse
-        (Decode.field "count" Decode.int)
-
-
-encodeIndexApiRequest : List IndexApiItem -> List Encode.Value
-encodeIndexApiRequest items =
-    List.map
-        (\i ->
-            Encode.object
-                [ ( "title", Encode.string i.title )
-                , ( "url", Encode.string i.url )
-                , ( "body", Encode.string i.body )
-                , ( "itemType", Encode.string i.itemType )
-                ]
-        )
-        items
-
-
-requestIndexApi : String -> List IndexApiItem -> Cmd Msg
-requestIndexApi url items =
-    Http.send IndexCompleted
-        (Http.post url
-            (items
-                |> encodeIndexApiRequest
-                |> Encode.list
-                |> Http.jsonBody
-            )
-            decodeIndexApiResponse
-        )
-
-
 fetchUrlInfo : Item -> (Result Http.Error ResponseItem -> a) -> Cmd a
 fetchUrlInfo item msg =
     Http.send msg
@@ -272,8 +157,6 @@ main =
                     fromList
                         [ ( "", { url = "", title = "", createdAt = Nothing, itemType = "" } )
                         ]
-              , searchApiUrl = ""
-              , indexingItems = []
               }
             , Cmd.none
             )

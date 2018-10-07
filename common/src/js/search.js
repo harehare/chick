@@ -126,6 +126,4 @@ const calcScore = (tokens, document) => {
 export {
   search,
   queryParser,
-  getOldindex,
-  deleteIndex
 }

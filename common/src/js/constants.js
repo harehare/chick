@@ -6,6 +6,7 @@ const EventGetScore = 'GET_SCORE';
 const EventImportPocket = 'IMPORT_POCKET';
 const EventImportBookmark = 'IMPORT_BOOKMARK';
 const EventImportHistory = 'IMPORT_HISTORY';
+const EventGetSimilarPages = 'GET_SIMILAR_PAGES';
 
 export {
   EventReIndexing,
@@ -16,5 +17,6 @@ export {
   EventImportPocket,
   EventOpenTab,
   EventImportBookmark,
-  EventImportHistory
+  EventImportHistory,
+  EventGetSimilarPages
 };

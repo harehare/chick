@@ -86,10 +86,6 @@ const create = items => {
 const createIndex = (app, item) => {
   return new Promise(async resolve => {
     const url = await getLocalStorage(uuid5(item.url, uuid5.URL));
-    const option = await getSyncStorage('option');
-    const {
-      searchApi
-    } = getOption(option);
 
     if (!isEmpty(url)) {
       console.log('exist index');
@@ -105,12 +101,7 @@ const createIndex = (app, item) => {
       return;
     }
 
-    if (searchApi.verify) {
-      app.ports.createItemFromApi.send([searchApi.url, indexItem]);
-    } else {
-      app.ports.createItem.send(indexItem);
-    }
-
+    app.ports.createItem.send(indexItem);
     resolve(true);
   });
 };

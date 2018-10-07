@@ -11,7 +11,6 @@ import OptionModel exposing (..)
 import OptionSubscriptions exposing (..)
 import Subscriptions exposing (tokenizeResult)
 import NGram exposing (tokeinze)
-import Update exposing (requestSearchApi)
 
 
 delay : Time.Time -> msg -> Cmd msg
@@ -153,15 +152,6 @@ update msg model =
         DataImport ->
             model ! [ dataImport model.indexTarget ]
 
-        CallSearchApi req ->
-            model ! [ requestSearchApi (Tuple.first req) (Tuple.second req) SearchApiResult ]
-
-        SearchApiResult (Err err) ->
-            model ! []
-
-        SearchApiResult (Ok items) ->
-            { model | searchResult = items } ! []
-
         UpdateStatus status ->
             { model | status = status } ! []
 
@@ -179,15 +169,6 @@ update msg model =
 
         Import ->
             model ! [ importIndex 0 ]
-
-        VerifySearchApi ->
-            { model | changed = True } ! [ requestSearchApi model.searchApi.url "test" ResponseSearchApi ]
-
-        ResponseSearchApi (Err err) ->
-            { model | searchApi = { url = model.searchApi.url, verify = False } } ! [ failedVerify "" ]
-
-        ResponseSearchApi (Ok items) ->
-            { model | changed = True, searchApi = { url = model.searchApi.url, verify = True } } ! [ succeedVerify "" ]
 
         InputTag index ->
             let
@@ -312,17 +293,3 @@ update msg model =
 
         SearchTag tag ->
             { model | query = model.query ++ " #" ++ tag } ! [ doSearch (model.query ++ " #" ++ tag) ]
-
-        EditApiUrl url ->
-            { model
-                | changed = True
-                , searchApi =
-                    { url = url
-                    , verify =
-                        if String.isEmpty url then
-                            False
-                        else
-                            model.searchApi.verify
-                    }
-            }
-                ! []

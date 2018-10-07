@@ -52,16 +52,7 @@ import {
     }
 
     queryInfo = queryParser(query);
-    const option = await getSyncStorage('option');
-    const {
-      searchApi
-    } = getOption(option);
-
-    if (searchApi.verify) {
-      app.ports.callSearchApi.send([searchApi.url, queryInfo.query]);
-    } else {
-      app.ports.tokenizeNGram.send(queryInfo.query);
-    }
+    app.ports.tokenizeNGram.send(queryInfo.query);
   });
 
   app.ports.tokenizeResult.subscribe(async (tokens) => {
@@ -122,20 +113,6 @@ import {
         indexedCount: message.indexedCount
       });
     }
-  });
-
-  app.ports.succeedVerify.subscribe(apiName => {
-    iziToast.success({
-      title: apiName,
-      message: 'Succeed verification.',
-    });
-  });
-
-  app.ports.failedVerify.subscribe(apiName => {
-    iziToast.error({
-      title: apiName,
-      message: 'Failed verification.',
-    });
   });
 
   app.ports.selectText.subscribe(id => {
