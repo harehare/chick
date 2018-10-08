@@ -130,7 +130,7 @@ view model =
                             , ( "margin", "5px" )
                             ]
                         ]
-                        [ text "powered by CHICK" ]
+                        [ text "powered by chick" ]
                     ]
                 ]
             ]

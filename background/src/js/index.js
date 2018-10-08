@@ -90,12 +90,16 @@ const fullIndex = async (docs) => {
 
   const totalCount = totalDocumentCount();
   let currentCount = documentCount() + 1;
+  const option = getOption(await getSyncStorage('option'));
+  const userBlockList = option.blockList
 
   const indexing = (items) => {
     return new Promise(async resolve => {
       for (const item of items) {
+        if (findIndex(v => item.url.indexOf(v) != -1, [...BlockList, ...userBlockList]) != -1) {
+          continue;
+        }
         setIndexedUrl(item.url, {});
-
         const isIndexed = await createIndex(app, item);
 
         chrome.runtime.sendMessage({
@@ -238,7 +242,7 @@ chrome.omnibox.onInputChanged.addListener(async (text, suggest) => {
 
   const doSearch = async (tokens) => {
     app.ports.queryResult.unsubscribe(doSearch);
-    const searchResult = await search(tokens, false, {
+    const searchResult = await search(tokens, {
       itemType: queryInfo.itemType,
       before: queryInfo.before,
       after: queryInfo.after,

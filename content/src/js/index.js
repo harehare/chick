@@ -75,7 +75,7 @@ document.body.appendChild(div);
   };
 
   const search = async tokens => {
-    const result = await doSearch(tokens, true, {
+    const result = await doSearch(tokens, {
       itemType: queryInfo.itemType,
       before: queryInfo.before,
       after: queryInfo.after,

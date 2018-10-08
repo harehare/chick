@@ -44,7 +44,7 @@ view model =
                 [ ( "background-color", "#FCFCFC" )
                 , ( "min-height", "70px" )
                 , ( "width", "100%" )
-                , ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
+                , ( "border", "1px solid rgba(150,150,150,0.3)" )
                 , ( "display", "flex" )
                 , ( "align-items", "center" )
                 ]

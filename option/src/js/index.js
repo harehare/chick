@@ -56,7 +56,7 @@ import {
   });
 
   app.ports.tokenizeResult.subscribe(async (tokens) => {
-    app.ports.optionSearchResult.send(await doSearch(tokens, false, queryInfo ? {
+    app.ports.optionSearchResult.send(await doSearch(tokens, queryInfo ? {
       itemType: queryInfo.itemType,
       before: queryInfo.before,
       after: queryInfo.after,

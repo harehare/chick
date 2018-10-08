@@ -48,7 +48,7 @@ const queryParser = (query) => {
   }, {});
 };
 
-const search = (tokens, useScore = true, filters = {
+const search = (tokens, filters = {
   before: null,
   after: null,
   itemType: null,
@@ -59,11 +59,11 @@ const search = (tokens, useScore = true, filters = {
     const searchResult = filterResult(tokens, itemIds);
     const index = await getLocalStorage(Object.keys(searchResult));
 
-    const doSearch = (url2score = {}) => {
+    const doSearch = () => {
       const tokenNum = tokens.length;
       resolve(Object.keys(index).sort((a, b) => {
-        const aScore = (searchResult[a] / tokenNum) * (url2score[index[a].url] || 1.0) * calcScore(tokens, index[a]);
-        const bScore = (searchResult[b] / tokenNum) * (url2score[index[b].url] || 1.0) * calcScore(tokens, index[b]);
+        const aScore = (searchResult[a] / tokenNum) * calcScore(tokens, index[a]);
+        const bScore = (searchResult[b] / tokenNum) * calcScore(tokens, index[b]);
         return aScore > bScore ? -1 : searchResult[a] < searchResult[b] ? 1 : 0;
       }).reduce((arr, v) => {
         if ((!filters.before || index[v].createdAt <= filters.before) &&
@@ -78,22 +78,7 @@ const search = (tokens, useScore = true, filters = {
         return arr;
       }, []));
     };
-
-    if (useScore) {
-      const res = await sendMessage({
-        urls: Object.values(index).map(x => x.url),
-        words: tokens,
-        type: EventGetScore
-      });
-      if (!res) console.log('error scoring.');
-      const url2score = Object.values(res || []).reduce((arr, v) => {
-        arr[v.url] = (arr[v.url] || 0.0) + v.score;
-        return arr;
-      }, {});
-      doSearch(url2score);
-    } else {
-      doSearch();
-    }
+    doSearch();
     deleteIndex(tokens, getOldindex(index));
   });
 };
