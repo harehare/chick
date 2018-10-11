@@ -24,7 +24,7 @@ view : Model -> Html Msg
 view model =
     div
         [ style
-            [ ( "width", "500px" )
+            [ ( "width", "400px" )
             , ( "font-family", "'Open Sans', sans-serif" )
             , ( "font-size", "0.9rem" )
             , ( "background-color", "#FEFEFE" )
@@ -32,14 +32,6 @@ view model =
         ]
         [ lazy searchBox model.query
         , lazy tagList model.tags
-        , div [ style [ ( "overflow-y", "scroll" ), ( "max-height", "80vh" ) ] ]
-            (model.items
-                |> uniqueBy (\x -> x.title)
-                |> List.map
-                    (\x ->
-                        searchItem x model.query
-                    )
-            )
         ]
 
 
@@ -63,16 +55,14 @@ searchBox query =
                     , Input.placeholder "Enter search query"
                     , Input.onInput EditSearchQuery
                     , Input.id "search-query"
-                    , Input.attrs [ onEnter DoSearch ]
+                    , Input.attrs
+                        [ onEnter DoSearch
+                        , style
+                            [ ( "width", "90%" )
+                            ]
+                        ]
                     ]
                 )
-                |> InputGroup.successors
-                    [ InputGroup.button
-                        [ Button.onClick DoSearch
-                        , Button.attrs [ style [ ( "border", "none" ) ] ]
-                        ]
-                        [ div [ style [ ( "width", "15px" ) ] ] [ SolidIcon.search ] ]
-                    ]
                 |> InputGroup.view
             ]
         ]
@@ -110,7 +100,7 @@ searchItem item query =
                     , ( "text-overflow", "ellipsis" )
                     , ( "overflow", "hidden" )
                     , ( "display", "block" )
-                    , ( "font-size", "1.1rem" )
+                    , ( "font-size", "0.9rem" )
                     , ( "color", "#2F0676" )
                     , ( "margin-bottom", "5px" )
                     , ( "text-decoration", "none" )
@@ -123,7 +113,7 @@ searchItem item query =
         , div
             [ style
                 [ ( "white-space", "wrap" )
-                , ( "font-size", "0.8rem" )
+                , ( "font-size", "0.7rem" )
                 , ( "overflow", "hidden" )
                 , ( "display", "block" )
                 , ( "color", "#494949" )
@@ -149,7 +139,7 @@ searchItem item query =
         , div
             [ style
                 [ ( "white-space", "nowrap" )
-                , ( "font-size", "0.85rem" )
+                , ( "font-size", "0.65rem" )
                 , ( "text-overflow", "ellipsis" )
                 , ( "overflow", "hidden" )
                 , ( "display", "flex" )
@@ -160,7 +150,7 @@ searchItem item query =
             ]
             [ span
                 [ style
-                    [ ( "width", "0.85rem" )
+                    [ ( "width", "0.65rem" )
                     , ( "margin-top", "1px" )
                     , ( "margin-right", "3px" )
                     , case item.itemType of
@@ -193,7 +183,7 @@ searchItem item query =
                 ]
             , span
                 [ style
-                    [ ( "max-width", "80%" )
+                    [ ( "max-width", "90%" )
                     , ( "text-overflow", "ellipsis" )
                     , ( "white-space", "nowrap" )
                     , ( "overflow", "hidden" )

@@ -75,6 +75,9 @@ const setDocumentCount = (count) => {
 };
 
 const setIndexedUrl = (url, words) => {
+  if (localStorage.getItem(`indexed:${url}`) !== null && isEmpty(words)) {
+    return
+  }
   localStorage.setItem(`indexed:${url}`, JSON.stringify({
     words
   }));

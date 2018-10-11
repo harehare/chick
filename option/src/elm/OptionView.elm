@@ -539,7 +539,7 @@ buttonArea changed =
             [ ( "position", "absolute" )
             , ( "bottom", "30px" )
             , ( "right", "30px" )
-            , ( "z-index", "10" )
+            , ( "z-index", "100" )
             ]
         ]
         [ Button.button

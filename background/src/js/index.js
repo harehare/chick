@@ -32,7 +32,6 @@ import {
   totalDocumentCount,
   setDocumentCount,
   getIndexedInfo,
-  indexedList,
 } from 'Common/option';
 import {
   EventIndexing,
@@ -227,8 +226,8 @@ chrome.runtime.onMessage.addListener(async (message, _, callback) => {
     [equals(EventGetSimilarPages), () => {
       const index = getIndexedInfo(message.url);
       if (hasIndex(message.url) && index != null && index.words.length > 0) {
-        const wordFreq = similarPages.freq(index.words);
-        callback(similarPages.predict(similarPages.doc2bow(wordFreq), 6));
+        const wordFreq = similarPagesChecker.freq(index.words);
+        callback(similarPagesChecker.predict(similarPagesChecker.doc2bow(wordFreq), 10));
       } else {
         callback([]);
       }

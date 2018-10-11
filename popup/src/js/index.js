@@ -13,7 +13,6 @@ import {
 import {
   openUrl,
   getSyncStorage,
-  getLocalStorage
 } from 'Common/chrome';
 
 (async () => {
@@ -39,29 +38,6 @@ import {
     setIndexingStatus(status);
     console.log('suspend', status);
   });
-
-  // chrome.tabs.query({
-  //   'active': true,
-  //   'lastFocusedWindow': true
-  // }, function (tabs) {
-  //   const url = tabs[0].url;
-  //   if (url.startsWith('http')) {
-  //     chrome.runtime.sendMessage({
-  //       type: EventGetSimilarPages,
-  //       url,
-  //     }, async (res) => {
-
-  //       const items = res.map(v => v.label);
-
-  //       if (isEmpty(items)) {
-  //         return
-  //       }
-
-  //       const index = await getLocalStorage(res.map(v => v.label));
-  //       app.ports.similarPages.send(Object.values(index).filter(v => v.url != url));
-  //     });
-  //   }
-  // });
 
   ['https://fonts.googleapis.com/css?family=Open+Sans'].forEach(url => {
     const link = document.createElement('link');

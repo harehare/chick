@@ -23,7 +23,7 @@ class SimilarPagesChecker {
             }
             this.labels.push(doc.label);
             const vec = {};
-            doc.words.slice(0, 1000).forEach(word => {
+            doc.words.forEach(word => {
                 vec[word] = vec[word] ? vec[word] + 1 : 1;
                 this.allWords.add(word);
             })
@@ -58,7 +58,7 @@ class SimilarPagesChecker {
         return sort((a, b) => b.value - a.value, cos.map((value, index) => ({
             label: this.labels[index],
             value
-        }))).slice(0, k).filter(v => v.value >= 0.02);
+        }))).slice(0, k).filter(v => v.value >= 0.2);
     }
 }
 
