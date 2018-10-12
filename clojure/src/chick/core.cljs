@@ -12,8 +12,3 @@
                                        (= request.type "IMPORT_INDEX")
                                        (importer/import-index request.data))
                                      true)))
-
-(.. js/document (addEventListener "addIndex" (fn [e]
-                                               (let [url (.. e -detail -url)
-                                                     words (.. e -detail -words)]
-                                                 (add-word words url)))))

@@ -1,5 +1,6 @@
 port module BackGround exposing (..)
 
+import Debug
 import BackGroundModel exposing (..)
 import BackGroundSubscriptions exposing (..)
 import Http
@@ -47,10 +48,12 @@ update msg model =
                         |> removeHtmlTag
                         |> stripTags
                         |> removeUnnecessary
-                        |> left 5000
+                        |> left 7000
+                        |> Debug.log "test"
 
                 words =
-                    text
+                    item.title
+                        ++ text
                         |> Normalize.normalize
                         |> lines
                         |> filter (\x -> (trim x) /= "")
@@ -129,8 +132,8 @@ removeHtmlTag text =
 removeUnnecessary : String -> String
 removeUnnecessary text =
     text
-        |> replace Regex.All (regex " +") (\_ -> " ")
-        |> replace Regex.All (regex "\n|\t|\x0D|&quot;") (\_ -> " ")
+        |> replace Regex.All (regex "( |\x3000)+") (\_ -> " ")
+        |> replace Regex.All (regex "\n|\t|\x0D|&quot;|&nbsp;") (\_ -> " ")
         |> replace Regex.All (regex Stopwords.words |> caseInsensitive) (\_ -> "")
 
 

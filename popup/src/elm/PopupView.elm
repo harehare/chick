@@ -24,7 +24,7 @@ view : Model -> Html Msg
 view model =
     div
         [ style
-            [ ( "width", "400px" )
+            [ ( "width", "300px" )
             , ( "font-family", "'Open Sans', sans-serif" )
             , ( "font-size", "0.9rem" )
             , ( "background-color", "#FEFEFE" )

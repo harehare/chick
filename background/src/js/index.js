@@ -19,7 +19,8 @@ import {
   openUrl,
   getLocalStorage,
   getSyncStorage,
-  getVisit
+  getVisit,
+  showNotification
 } from 'Common/chrome';
 import uuid5 from "uuid/v5";
 import {
@@ -114,6 +115,7 @@ const fullIndex = async (docs) => {
           console.log('indexing suspend');
         }
       }
+
       resolve();
     });
   };
@@ -128,6 +130,7 @@ const fullIndex = async (docs) => {
 
   app.ports.getErrorItems.send(0);
   resumeIndexing();
+  showNotification('Indexing completed', `Indexed ${documentCount()}`)
 };
 
 const itemIndexing = async (item) => {

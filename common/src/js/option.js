@@ -24,7 +24,6 @@ const getOption = data => {
         history: true,
         pocket: false,
       },
-      changed: false,
       isIndexing: false,
       status: {
         indexedCount: 0,
@@ -34,7 +33,6 @@ const getOption = data => {
     }
   } else {
     Object.assign(data.option, {
-      changed: false,
       blockKeyword: '',
       query: '',
       searchResult: [],

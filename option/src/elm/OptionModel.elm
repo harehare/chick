@@ -14,7 +14,6 @@ type Msg
     | ChangeViewOption String
     | ChangeIndexTarget String
     | ChangeTag Bool String String
-    | Save
     | Reindexing
     | DataImport
     | Export
@@ -43,7 +42,6 @@ type alias Model =
     , query : String
     , searchResult : List Item
     , indexTarget : IndexTarget
-    , changed : Bool
     , isIndexing : Bool
     , status : IndexStatus
     , deleteUrlList : List String

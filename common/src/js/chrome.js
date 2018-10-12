@@ -1,6 +1,7 @@
 import {
   head,
 } from 'ramda';
+import uuid4 from "uuid/v4";
 
 
 function sendMessage(message) {
@@ -82,6 +83,17 @@ function openUrl(url, active = false) {
   });
 }
 
+function showNotification(title, message) {
+  const options = {
+    iconUrl: chrome.runtime.getURL('img/logo.png'),
+    type: 'basic',
+    title,
+    message,
+    priority: 1,
+  };
+  chrome.notifications.create(uuid4(), options);
+}
+
 export {
   openUrl,
   getLocalStorage,
@@ -89,5 +101,6 @@ export {
   setLocalStorage,
   setSyncStorage,
   sendMessage,
-  getVisit
+  getVisit,
+  showNotification
 };

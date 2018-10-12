@@ -6,14 +6,13 @@ import {
   uniq
 } from 'ramda';
 import Elm from '../elm/Option.elm';
-import * as iziToast from "iziToast";
-import 'izitoast/dist/css/iziToast.min.css';
 import uuid5 from 'uuid/v5';
 import queryString from 'query-string';
 import {
   getLocalStorage,
   setLocalStorage,
   getSyncStorage,
+  showNotification
 } from 'Common/chrome';
 import {
   getOption,
@@ -95,14 +94,8 @@ import {
         });
       }
     });
-    localStorage.setItem('pocket-indexing?', data.indexTarget.pocket)
     chrome.storage.sync.set({
-      'option': omit(['blockKeyword', 'changed', 'isIndexing', 'logoUrl'], data)
-    }, () => {
-      iziToast.success({
-        title: 'Saved',
-        message: 'Saved successfully.',
-      });
+      'option': omit(['blockKeyword', 'isIndexing', 'logoUrl'], data)
     });
   });
 
@@ -123,10 +116,7 @@ import {
     chrome.runtime.sendMessage({
       type: EventReIndexing,
     });
-    iziToast.info({
-      title: 'RE-INDEXING',
-      message: 'Re-indexing is launched now!!',
-    });
+    showNotification('Re-indexing', 'Re-indexing is launched now!!')
   });
 
   app.ports.dataImport.subscribe(target => {
@@ -145,10 +135,7 @@ import {
         type: EventImportPocket,
       });
     }
-    iziToast.info({
-      title: 'START IMPORT',
-      message: 'Data Import is launched now!!',
-    });
+    showNotification('Start imported', 'Data Import is launched now!!');
   });
 
   app.ports.export.subscribe(async _ => {
@@ -188,17 +175,11 @@ import {
           type: 'IMPORT_INDEX',
           data: e.target.result
         });
-        iziToast.info({
-          title: 'Import index',
-          message: 'Import index is launched now!!',
-        });
+        showNotification('File Import', 'File import is launched now!!')
         document.body.removeChild(input);
       }
       reader.onerror = () => {
-        iziToast.error({
-          title: 'Import index',
-          message: 'Failed import.',
-        });
+        showNotification('File Import', 'Failed import.');
       };
       reader.readAsText(file.target.files[0]);
     };

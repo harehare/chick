@@ -26,13 +26,13 @@ update msg model =
             model ! []
 
         EditBlockKeyword keyword ->
-            { model | changed = True, blockKeyword = keyword } ! []
+            { model | blockKeyword = keyword } ! []
 
         DeleteBlockKeyword keyword ->
-            { model | changed = True, blockList = model.blockList |> List.filter (\x -> x /= keyword) } ! []
+            { model | blockList = model.blockList |> List.filter (\x -> x /= keyword) } ! [ saveSettings model ]
 
         AddBlockList ->
-            { model | changed = True, blockKeyword = "", blockList = model.blockKeyword :: model.blockList |> unique } ! []
+            { model | blockKeyword = "", blockList = model.blockKeyword :: model.blockList |> unique } ! [ saveSettings model ]
 
         ChangeViewOption service ->
             let
@@ -61,10 +61,9 @@ update msg model =
                         model.viewOption.yahoo
             in
                 { model
-                    | changed = True
-                    , viewOption = { google = google, bing = bing, duckDuckGo = duckDuckGo, yahoo = yahoo }
+                    | viewOption = { google = google, bing = bing, duckDuckGo = duckDuckGo, yahoo = yahoo }
                 }
-                    ! []
+                    ! [ saveSettings model ]
 
         ChangeIndexTarget target ->
             let
@@ -87,13 +86,9 @@ update msg model =
                         model.indexTarget.pocket
             in
                 { model
-                    | changed = True
-                    , indexTarget = { bookmark = bookmark, history = history, pocket = pocket }
+                    | indexTarget = { bookmark = bookmark, history = history, pocket = pocket }
                 }
-                    ! []
-
-        Save ->
-            { model | changed = False } ! [ saveSettings model ]
+                    ! [ saveSettings model ]
 
         Reindexing ->
             { model | isIndexing = True } ! [ reindexing 0 ]
@@ -104,8 +99,7 @@ update msg model =
                     find (\x -> info.url == x.url) model.indexInfo
             in
                 { model
-                    | changed = True
-                    , searchResult =
+                    | searchResult =
                         map
                             (\x ->
                                 if x.url == info.url then
@@ -136,7 +130,7 @@ update msg model =
                             Nothing ->
                                 info :: model.indexInfo
                 }
-                    ! []
+                    ! [ saveSettings model ]
 
         Export ->
             model ! [ export 0 ]
@@ -145,9 +139,8 @@ update msg model =
             { model
                 | deleteUrlList = url :: model.deleteUrlList
                 , searchResult = List.filter (\x -> url /= x.url) model.searchResult
-                , changed = True
             }
-                ! []
+                ! [ saveSettings model ]
 
         DataImport ->
             model ! [ dataImport model.indexTarget ]
@@ -219,8 +212,7 @@ update msg model =
                             { index | tags = [ model.inputTag ], isInputting = False }
             in
                 { model
-                    | changed = True
-                    , inputTag = ""
+                    | inputTag = ""
                     , tags = indexInfo.tags ++ model.tags |> unique
                     , indexInfo =
                         case i of
@@ -237,7 +229,7 @@ update msg model =
                             Nothing ->
                                 indexInfo :: model.indexInfo
                 }
-                    ! []
+                    ! [ saveSettings model ]
 
         ChangeTag checked url tag ->
             let
@@ -248,8 +240,7 @@ update msg model =
                     find (\x -> url == x.url) model.searchResult
             in
                 { model
-                    | changed = True
-                    , inputTag = ""
+                    | inputTag = ""
                     , indexInfo =
                         case index of
                             Just xs ->
@@ -289,7 +280,7 @@ update msg model =
                                     Nothing ->
                                         model.indexInfo
                 }
-                    ! []
+                    ! [ saveSettings model ]
 
         SearchTag tag ->
             { model | query = model.query ++ " #" ++ tag } ! [ doSearch (model.query ++ " #" ++ tag) ]

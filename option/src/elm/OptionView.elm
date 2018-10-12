@@ -54,7 +54,6 @@ view model =
         , lazy2 dataImport model.status model.indexTarget
         , lazy viewOption model.viewOption
         , lazy2 blackUrlList model.blockKeyword model.blockList
-        , lazy buttonArea model.changed
         ]
 
 
@@ -529,24 +528,4 @@ tagList url tags selectedTags =
                             ]
                     )
             )
-        ]
-
-
-buttonArea : Bool -> Html Msg
-buttonArea changed =
-    div
-        [ style
-            [ ( "position", "absolute" )
-            , ( "bottom", "30px" )
-            , ( "right", "30px" )
-            , ( "z-index", "100" )
-            ]
-        ]
-        [ Button.button
-            [ Button.disabled (not changed)
-            , Button.info
-            , Button.attrs [ style [ ( "margin", "15px" ) ] ]
-            , Button.onClick Save
-            ]
-            [ text "Save" ]
         ]

@@ -9,7 +9,6 @@ import {
   getSyncStorage
 } from "Common/chrome";
 import {
-  getOption,
   setIndexedUrl
 } from 'Common/option'
 
@@ -27,28 +26,10 @@ const create = items => {
       if (isEmpty(words) || isEmpty(itemType)) {
         continue;
       }
-      const id = uuid5(url, uuid5.URL);
 
       setIndexedUrl(url, words);
-      document.dispatchEvent(new CustomEvent("addIndex", {
-        detail: {
-          url,
-          words
-        }
-      }));
 
-      document.dispatchEvent(new CustomEvent('addTrainData', {
-        detail: {
-          items: [{
-            label: id,
-            words
-          }],
-          callback: () => {
-            console.log('add train');
-          }
-        }
-      }));
-
+      const id = uuid5(url, uuid5.URL);
       const data = await getLocalStorage(id);
 
       if (!isEmpty(data)) {
