@@ -21,6 +21,25 @@ import {
 const div = document.createElement('div');
 document.body.appendChild(div);
 
+const searchEngineInfo = {
+  google: {
+    id: 'lst-ib',
+    url: 'https://google'
+  },
+  duckDuckGo: {
+    id: 'search_form_input',
+    url: 'https://duckduckgo.com'
+  },
+  bing: {
+    id: 'sb_form_q',
+    url: 'https://bing.com'
+  },
+  yahoo: {
+    id: 'yschsp',
+    url: 'https://search.yahoo.co.jp'
+  }
+};
+
 (async () => {
   const option = await getSyncStorage('option');
   const {
@@ -28,16 +47,22 @@ document.body.appendChild(div);
     blockList,
   } = getOption(option);
 
-  if (!viewOption.google && location.href.startsWith('https://www.google')) {
-    return;
-  } else if (!viewOption.bing && location.href.startsWith('https://www.bing.com')) {
-    return;
-  } else if (!viewOption.duckDuckGo && location.href.startsWith('https://www.duckduckgo.com')) {
-    return;
-  } else if (!viewOption.yahoo && location.href.startsWith('https://yahoo')) {
+  const info = Object.entries(searchEngineInfo).reduce((arr, [k, v]) => {
+    const currentUrl = location.href.replace('www\.', '');
+    if (viewOption[k] && currentUrl.startsWith(v.url)) {
+      arr.id = v.id;
+    }
+    if (!viewOption[k] && currentUrl.startsWith(v.url)) {
+      arr.hide = true;
+    }
+    return arr;
+  }, {});
+
+  if (info.hide) {
     return;
   }
 
+  const searchInput = document.querySelector(`#${info.id}`);
   const app = Elm.Main.embed(div);
   const parsedQuery = queryString.parse(location.search).q || queryString.parse(location.search).p;
   const logoUrl = chrome.runtime.getURL('img/logo.png')
@@ -62,18 +87,6 @@ document.body.appendChild(div);
     });
   });
 
-  const updateSearchResult = (items) => {
-    items.forEach((i) => {
-      const element = document.querySelector(`a[href="${i.url}"]`)
-      if (element) {
-        const img = document.createElement('img');
-        img.src = logoUrl;
-        img.style.width = '16px';
-        element.parentNode.insertBefore(img, element);
-      }
-    });
-  };
-
   const search = async tokens => {
     const result = await doSearch(tokens, {
       itemType: queryInfo.itemType,
@@ -82,13 +95,21 @@ document.body.appendChild(div);
       tag: queryInfo.tag
     });
     app.ports.searchResult.send([queryInfo.query, result]);
-    updateSearchResult(result);
   };
 
   app.ports.tokenizeResult.subscribe(search);
 
   if (findIndex(x => x === queryInfo.query, blockList) === -1) {
     app.ports.tokenizeNGram.send(queryInfo.query);
+  }
+
+  if (searchInput !== null) {
+    searchInput.addEventListener('input', e => {
+      const queryInfo = queryParser(e.target.value);
+      if (findIndex(x => x === queryInfo.query, blockList) === -1) {
+        app.ports.tokenizeNGram.send(queryInfo.query);
+      }
+    });
   }
 })();
 
