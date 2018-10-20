@@ -94,6 +94,7 @@ import {
         });
       }
     });
+    console.log(data);
     chrome.storage.sync.set({
       'option': omit(['blockKeyword', 'isIndexing', 'logoUrl'], data)
     });

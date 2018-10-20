@@ -8,6 +8,7 @@
     "moment": "^2.22.2",
     "query-string": "^6.1.0",
     "ramda": "^0.25.0",
+    "url-parse": "^1.4.3",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
@@ -31,6 +32,7 @@
     "watch": "./node_modules/.bin/webpack --progress --config webpack.config.js --watch",
     "production": "./node_modules/.bin/webpack --progress --config webpack.config.js --env.target=production",
     "lint-staged": "lint-staged",
-    "fix": "prettier --fix src/js"
+    "fix": "prettier --fix src/js",
+    "fix:js": "eslint . --quiet --fix"
   }
 }

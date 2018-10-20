@@ -29,7 +29,8 @@ const getOption = data => {
         indexedCount: 0,
         documentCount: 0
       },
-      tags: []
+      tags: [],
+      blockDomains: []
     }
   } else {
     Object.assign(data.option, {
@@ -48,6 +49,10 @@ const getOption = data => {
 
     if (!data.option.tags) {
       data.option.tags = [];
+    }
+
+    if (!data.option.blockDomains) {
+      data.option.blockDomains = [];
     }
 
     if (!data.option.status) {
@@ -74,7 +79,7 @@ const setDocumentCount = (count) => {
 
 const setIndexedUrl = (url, words) => {
   if (localStorage.getItem(`indexed:${url}`) !== null && isEmpty(words)) {
-    return
+    return;
   }
   localStorage.setItem(`indexed:${url}`, JSON.stringify({
     words

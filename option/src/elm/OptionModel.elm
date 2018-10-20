@@ -18,6 +18,7 @@ type Msg
     | DataImport
     | Export
     | Import
+    | Save
     | InputTag IndexInfo
     | EditTag String
     | AddTag IndexInfo

@@ -29,10 +29,13 @@ update msg model =
             { model | blockKeyword = keyword } ! []
 
         DeleteBlockKeyword keyword ->
-            { model | blockList = model.blockList |> List.filter (\x -> x /= keyword) } ! [ saveSettings model ]
+            { model | blockList = model.blockList |> List.filter (\x -> x /= keyword) } ! [ delay Time.millisecond Save ]
 
         AddBlockList ->
-            { model | blockKeyword = "", blockList = model.blockKeyword :: model.blockList |> unique } ! [ saveSettings model ]
+            { model | blockKeyword = "", blockList = model.blockKeyword :: model.blockList |> unique } ! [ delay Time.millisecond Save ]
+
+        Save ->
+            model ! [ saveSettings model ]
 
         ChangeViewOption service ->
             let
@@ -63,7 +66,7 @@ update msg model =
                 { model
                     | viewOption = { google = google, bing = bing, duckDuckGo = duckDuckGo, yahoo = yahoo }
                 }
-                    ! [ saveSettings model ]
+                    ! [ delay Time.millisecond Save ]
 
         ChangeIndexTarget target ->
             let
@@ -88,7 +91,7 @@ update msg model =
                 { model
                     | indexTarget = { bookmark = bookmark, history = history, pocket = pocket }
                 }
-                    ! [ saveSettings model ]
+                    ! [ delay Time.millisecond Save ]
 
         Reindexing ->
             { model | isIndexing = True } ! [ reindexing 0 ]
@@ -130,7 +133,7 @@ update msg model =
                             Nothing ->
                                 info :: model.indexInfo
                 }
-                    ! [ saveSettings model ]
+                    ! [ delay Time.millisecond Save ]
 
         Export ->
             model ! [ export 0 ]
@@ -140,7 +143,7 @@ update msg model =
                 | deleteUrlList = url :: model.deleteUrlList
                 , searchResult = List.filter (\x -> url /= x.url) model.searchResult
             }
-                ! [ saveSettings model ]
+                ! [ delay Time.millisecond Save ]
 
         DataImport ->
             model ! [ dataImport model.indexTarget ]
@@ -229,7 +232,7 @@ update msg model =
                             Nothing ->
                                 indexInfo :: model.indexInfo
                 }
-                    ! [ saveSettings model ]
+                    ! [ delay Time.millisecond Save ]
 
         ChangeTag checked url tag ->
             let
@@ -280,7 +283,7 @@ update msg model =
                                     Nothing ->
                                         model.indexInfo
                 }
-                    ! [ saveSettings model ]
+                    ! [ delay Time.millisecond Save ]
 
         SearchTag tag ->
             { model | query = model.query ++ " #" ++ tag } ! [ doSearch (model.query ++ " #" ++ tag) ]
