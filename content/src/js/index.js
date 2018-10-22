@@ -8,7 +8,6 @@ import {
 } from 'ramda';
 import {
   getSyncStorage,
-  setSyncStorage
 } from 'Common/chrome';
 import {
   getOption
@@ -34,15 +33,18 @@ const searchEngineInfo = {
   },
   duckDuckGo: {
     id: 'search_form_input',
-    url: 'https://duckduckgo.com'
+    url: 'https://duckduckgo.com',
+    itemClass: 'result__body'
   },
   bing: {
     id: 'sb_form_q',
-    url: 'https://bing.com'
+    url: 'https://bing.com',
+    itemClass: 'b_algo'
   },
   yahoo: {
     id: 'yschsp',
-    url: 'https://search.yahoo.co.jp'
+    url: 'https://search.yahoo.co.jp',
+    itemClass: 'w'
   }
 };
 
@@ -62,6 +64,7 @@ const showBlockLink = (itemClass) => {
           'option': omit(['blockKeyword', 'isIndexing', 'logoUrl'], option)
         });
         item.remove();
+        return false;
       }
     };
     item.appendChild(a);

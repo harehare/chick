@@ -54,6 +54,7 @@ view model =
         , lazy2 dataImport model.status model.indexTarget
         , lazy viewOption model.viewOption
         , lazy2 blackUrlList model.blockKeyword model.blockList
+        , lazy blockdomainlist model.blockDomains
         ]
 
 
@@ -528,4 +529,47 @@ tagList url tags selectedTags =
                             ]
                     )
             )
+        ]
+
+
+blockdomainlist : List String -> Html Msg
+blockdomainlist domains =
+    div
+        [ style
+            [ ( "box-shadow", "0 2px 3px rgba(0,0,0,0.06)" )
+            , ( "border", "1px solid rgba(150,150,150,0.3)" )
+            , ( "padding", "1% 2%" )
+            , ( "margin", "15px" )
+            , ( "border-radius", "5px" )
+            , ( "background-color", "#FEFEFE" )
+            ]
+        ]
+        [ h5
+            [ style
+                [ ( "font-family", "'Roboto', sans-serif" )
+                , ( "font-weight", "300" )
+                ]
+            ]
+            [ text "BLOCK DOMAINS FROM SEARCH RESULTS" ]
+        , div
+            [ style
+                [ ( "max-height", "300px" )
+                , ( "overflow-y", "scroll" )
+                ]
+            ]
+            [ ListGroup.ul
+                (domains
+                    |> List.map
+                        (\x ->
+                            ListGroup.li []
+                                [ div
+                                    [ style [ ( "display", "flex" ), ( "justify-content", "space-between" ) ]
+                                    ]
+                                    [ div [] [ text x ]
+                                    , div [ style [ ( "cursor", "pointer" ), ( "width", "20px" ) ], DeleteBlockDomain x |> onClick ] [ SolidIcon.trash_alt ]
+                                    ]
+                                ]
+                        )
+                )
+            ]
         ]

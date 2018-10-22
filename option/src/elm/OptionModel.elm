@@ -9,6 +9,7 @@ type Msg
     | EditBlockKeyword String
     | EditSearchQuery String
     | DeleteBlockKeyword String
+    | DeleteBlockDomain String
     | DeleteItem String
     | AddBlockList
     | ChangeViewOption String
@@ -50,6 +51,7 @@ type alias Model =
     , logoUrl : String
     , inputTag : String
     , tags : List String
+    , blockDomains : List String
     }
 
 

@@ -31,6 +31,9 @@ update msg model =
         DeleteBlockKeyword keyword ->
             { model | blockList = model.blockList |> List.filter (\x -> x /= keyword) } ! [ delay Time.millisecond Save ]
 
+        DeleteBlockDomain domain ->
+            { model | blockDomains = model.blockDomains |> List.filter (\x -> x /= domain) } ! [ delay Time.millisecond Save ]
+
         AddBlockList ->
             { model | blockKeyword = "", blockList = model.blockKeyword :: model.blockList |> unique } ! [ delay Time.millisecond Save ]
 
