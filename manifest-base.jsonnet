@@ -2,7 +2,7 @@
   manifest_version: 2,
   name: 'Chick',
   description: 'Full text bookmarks and browsing history search.',
-  version: '0.0.34',
+  version: '0.0.35',
   omnibox: {
     keyword: 'e',
   },

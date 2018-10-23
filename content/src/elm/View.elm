@@ -118,13 +118,21 @@ view model =
                 , div
                     [ style
                         [ ( "display", "flex" )
-                        , ( "justify-content", "flex-end" )
+                        , ( "justify-content", "space-between" )
                         ]
                     ]
-                    [ span
+                    [ div
+                        [ style
+                            [ ( "font-size", "0.9rem" )
+                            , ( "color", "#808080" )
+                            , ( "margin", "5px" )
+                            ]
+                        ]
+                        [ text ("Found " ++ (model.items |> List.length |> toString) ++ " results") ]
+                    , div
                         [ style
                             [ ( "font-family", "'Anton', sans-serif" )
-                            , ( "font-size", "9px" )
+                            , ( "font-size", "0.9rem" )
                             , ( "color", "#2593E5" )
                             , ( "font-weight", "600" )
                             , ( "margin", "5px" )
@@ -138,7 +146,7 @@ view model =
 
 searchItem : Item -> String -> Html Msg
 searchItem item query =
-    div [ style [ ( "margin", "12px" ), ( "padding", "5px" ) ] ]
+    div [ style [ ( "margin", "6px" ), ( "padding", "5px" ) ] ]
         [ div []
             [ a
                 [ href item.url
